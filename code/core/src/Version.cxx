@@ -1,6 +1,6 @@
 
 
-#include<bpm/core/Version.hxx>
+#include <bpm/core/Version.hxx>
 
 
 std::string bpm::core::version()

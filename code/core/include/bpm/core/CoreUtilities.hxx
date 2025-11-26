@@ -1,0 +1,5 @@
+
+#ifndef BPM_CORE_UTILITIES_HXX
+#define BPM_CORE_UTILITIES_HXX
+
+#endif

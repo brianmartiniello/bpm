@@ -31,9 +31,7 @@ unset(LINK_LIBS)
 unset(COMPILER_DEFS)
 
 set(SRC_FILES
-   # ${PATH_CORE_INCL}/bpm/core/CoreUtilities.hxx
    ${PATH_CORE_SRC}/CoreUtilities.cxx
-   # ${PATH_CORE_INCL}/bpm/core/Version.hxx
    ${PATH_CORE_SRC}/Version.cxx
 )
 
@@ -63,9 +61,7 @@ set(SRC_FILES
 # message("LINK_LIBS (${LINK_LIBS})")
 # message("COMPILER_DEFS (${COMPILER_DEFS})")
 
-add_library(${TARGET_LIB}
-   ${SRC_FILES}
-)
+add_library(${TARGET_LIB})
 
 set_target_properties(${TARGET_LIB}
    PROPERTIES
@@ -79,10 +75,10 @@ set_target_properties(${TARGET_LIB}
 #       ${PLATFORM_COMPILE_OPTIONS}
 # )
 
-# target_sources(${TARGET_LIB}
-#    PUBLIC
-#       ${SRC_FILES}
-# )
+target_sources(${TARGET_LIB}
+   PRIVATE
+      ${SRC_FILES}
+)
 
 target_include_directories(${TARGET_LIB}
    PRIVATE
@@ -133,8 +129,6 @@ foreach(TARGET_LIB ${TARGET_LIBS_CORE})
 
    if("${TARGET_LIB}" STREQUAL "${TARGET_LIBS_CORE_PREFIX}proper")
       set(SRC_FILES
-         # ${PATH_CORE_INCL}/bpm/core/Empty.hxx
-         # ${PATH_CORE_TMPL}/bpm/core/Empty.tmpl.hxx
          ${PATH_CORE_SRC}/Empty.cxx
       )
       if(CUDAToolkit_FOUND)
@@ -157,8 +151,6 @@ foreach(TARGET_LIB ${TARGET_LIBS_CORE})
       # )
    elseif("${TARGET_LIB}" STREQUAL "${TARGET_LIBS_CORE_PREFIX}stub")
       set(SRC_FILES
-         # ${PATH_CORE_INCL}/bpm/core/test/Empty.hxx
-         # ${PATH_CORE_TMPL}/bpm/core/test/bpm/core/Empty.tmpl.hxx
          ${PATH_CORE_SRC}/test/Empty.cxx
       )
       if(CUDAToolkit_FOUND)
@@ -222,9 +214,7 @@ foreach(TARGET_LIB ${TARGET_LIBS_CORE})
    # message("COMPILER_DEFS (${COMPILER_DEFS})")
    # message("INCLUDE_DIRS (${INCLUDE_DIRS})")
 
-   add_library(${TARGET_LIB}
-      ${SRC_FILES}
-   )
+   add_library(${TARGET_LIB})
 
    set_target_properties(${TARGET_LIB}
       PROPERTIES
@@ -238,10 +228,10 @@ foreach(TARGET_LIB ${TARGET_LIBS_CORE})
    #       ${PLATFORM_COMPILE_OPTIONS}
    # )
 
-   # target_sources(${TARGET_LIB}
-   #    PUBLIC
-   #       ${SRC_FILES}
-   # )
+   target_sources(${TARGET_LIB}
+      PRIVATE
+         ${SRC_FILES}
+   )
 
    if("${TARGET_LIB}" MATCHES "stub")
       target_include_directories(${TARGET_LIB}
