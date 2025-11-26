@@ -30,6 +30,9 @@ unset(SRC_FILES)
 unset(LINK_LIBS)
 unset(COMPILER_DEFS)
 
+set(VERSION_SRC_FILE ${PATH_CORE_SRC}/Version.cxx)
+configure_file(${VERSION_SRC_FILE}.in ${VERSION_SRC_FILE})
+
 set(SRC_FILES
    ${PATH_CORE_SRC}/CoreUtilities.cxx
    ${PATH_CORE_SRC}/Version.cxx

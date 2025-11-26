@@ -34,3 +34,5 @@
 # Directories
 build*/
 install*/
+
+code/core/src/Version.cxx
