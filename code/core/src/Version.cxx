@@ -1,16 +1,9 @@
-// CXX_HEADER
 
 
 #include<bpm/core/Version.hxx>
 
 
-namespace bpm
+std::string bpm::core::version()
 {
-   namespace core
-   {
-      std::string version()
-      {
-         return "HELLO WORLD!";
-      }
-   }
+   return "HELLO WORLD!";
 }

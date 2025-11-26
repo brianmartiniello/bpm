@@ -3,13 +3,13 @@
 #ifndef BPM_CORE_VERSION_HXX
 #define BPM_CORE_VERSION_HXX
 
-#include<string>
+#include <string>
 
 namespace bpm
 {
    namespace core
    {
-      std::string version();   
+      std::string version();
    }
 }
 
