@@ -5,6 +5,7 @@
 
 #include <gtest/gtest.h>
 
+#include <bpm/core/Logger.hxx>
 #include <bpm/core/Version.hxx>
 
 
@@ -22,7 +23,7 @@ class TestVersion : public ::testing::Test
 
       void test()
       {
-         std::cout << bpm::core::version() << "\n";
+         BPM_TRACE_COUT(bpm::core::version());
       }
 
    private:
