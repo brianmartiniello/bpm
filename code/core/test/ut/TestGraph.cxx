@@ -5,19 +5,19 @@
 
 #include <gtest/gtest.h>
 
+#include <bpm/core/Graph.hxx>
 #include <bpm/core/Logger.hxx>
-#include <bpm/core/Version.hxx>
 
 
-class TestVersion : public ::testing::Test
+class TestGraph : public ::testing::Test
 {
    public:
 
-      TestVersion() = default;
+      TestGraph() = default;
 
       void test()
       {
-         BPM_TRACE_COUT(bpm::core::version());
+         BPM_TRACE_COUT("START");
       }
 
    private:
@@ -25,7 +25,7 @@ class TestVersion : public ::testing::Test
 };
 
 
-TEST_F(TestVersion, test)
+TEST_F(TestGraph, test)
 {
    test();
 }

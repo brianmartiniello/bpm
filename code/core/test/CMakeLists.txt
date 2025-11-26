@@ -61,3 +61,42 @@ set_tests_properties(${TestVersion_MAIN}
 
 ##############################################
 ##############################################
+
+set(TestGraph_MAIN TestGraph)
+
+add_executable(${TestGraph_MAIN}
+   ${PATH_CORE_SRC}/Graph.cxx
+   ${PATH_CORE_TEST_UT}/TestGraph.cxx
+)
+
+# target_compile_options(${TestGraph_MAIN}
+#    PRIVATE
+#       ${PLATFORM_COMPILE_OPTIONS}
+# )
+
+target_include_directories(${TestGraph_MAIN}
+   PRIVATE
+      ${INCLUDE_DIRS}
+)
+
+target_link_libraries(${TestGraph_MAIN}
+   PRIVATE
+      ${LINK_LIBS}
+)
+
+target_compile_definitions(${TestGraph_MAIN}
+   PRIVATE
+      ${COMPILER_DEFS}
+)
+
+ADD_GTEST(${TestGraph_MAIN} XML)
+set_tests_properties(${TestGraph_MAIN}
+   PROPERTIES
+      LABELS
+         ${CORE_TEST_LABEL}
+      ENVIRONMENT
+         "${CORE_TEST_ENV_VARS}"
+)
+
+##############################################
+##############################################

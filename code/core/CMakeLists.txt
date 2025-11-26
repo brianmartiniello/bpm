@@ -133,6 +133,7 @@ foreach(TARGET_LIB ${TARGET_LIBS_CORE})
    if("${TARGET_LIB}" STREQUAL "${TARGET_LIBS_CORE_PREFIX}proper")
       set(SRC_FILES
          ${PATH_CORE_SRC}/Empty.cxx
+         ${PATH_CORE_SRC}/Graph.cxx
       )
       if(CUDAToolkit_FOUND)
          list(APPEND
@@ -154,7 +155,8 @@ foreach(TARGET_LIB ${TARGET_LIBS_CORE})
       # )
    elseif("${TARGET_LIB}" STREQUAL "${TARGET_LIBS_CORE_PREFIX}stub")
       set(SRC_FILES
-         ${PATH_CORE_SRC}/test/Empty.cxx
+         ${PATH_CORE_SRC}/test/EmptyStub.cxx
+         ${PATH_CORE_SRC}/test/GraphStub.cxx
       )
       if(CUDAToolkit_FOUND)
          list(APPEND
