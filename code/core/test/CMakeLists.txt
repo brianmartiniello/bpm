@@ -26,6 +26,7 @@ set(COMPILER_DEFS)
 set(TestVersion_MAIN TestVersion)
 
 add_executable(${TestVersion_MAIN}
+   ${PATH_CORE_SRC}/Logger.cxx
    ${PATH_CORE_SRC}/Version.cxx
    ${PATH_CORE_TEST_UT}/TestVersion.cxx
 )
@@ -66,6 +67,7 @@ set(TestGraph_MAIN TestGraph)
 
 add_executable(${TestGraph_MAIN}
    ${PATH_CORE_SRC}/Graph.cxx
+   ${PATH_CORE_SRC}/Logger.cxx
    ${PATH_CORE_TEST_UT}/TestGraph.cxx
 )
 

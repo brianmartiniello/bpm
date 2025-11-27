@@ -17,8 +17,26 @@
 #include <system_error>
 #include <utility>
 
-namespace core
+namespace bpm
 {
+   namespace core
+   {
+      class ScopedLog
+      {
+         public:
+
+            ScopedLog(const char* out);
+
+            ScopedLog(const std::string& out);
+
+            ~ScopedLog();
+
+         private:
+
+            const char* out_;
+
+      };
+   }
 }
 
 // Used for compiler logging
