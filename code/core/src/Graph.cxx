@@ -80,5 +80,24 @@ bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
 {
    BPM_SCOPED_TRACE_COUT("");
 
+   auto upstreamIter = graph_.find(upstreamName);
+   if (graph_.end() == upstreamIter)
+   {
+      BPM_TRACE_COUT("Upstream name (" + upstreamName + ") not found");
+
+      return false;
+   }
+
+   auto downstreamIter = graph_.find(downstreamName);
+   if (graph_.end() == downstreamIter)
+   {
+      BPM_TRACE_COUT("Downstream name (" + downstreamName + ") not found");
+
+      return false;
+   }
+
+   upstreamIter->second.downstreamNodes.emplace_back(&downstreamIter->second);
+   downstreamIter->second.upstreamNodes.emplace_back(&upstreamIter->second);
+
    return true;
 }
