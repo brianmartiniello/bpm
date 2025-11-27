@@ -17,20 +17,29 @@ class TestGraph : public ::testing::Test
 
       void test()
       {
-         BPM_SCOPED_TRACE_COUT("");
+         BPM_SCOPED_TRACE_COUT("test");
 
          bpm::core::Graph graph;
 
-         EXPECT_FALSE(graph.addNode(""));
-         EXPECT_TRUE(graph.addNode("node_level_0"));
-         EXPECT_FALSE(graph.addNode("node_level_0"));
-         EXPECT_TRUE(graph.addNode("node_level_1"));
+         {
+            BPM_SCOPED_TRACE_COUT("addNode");
+            EXPECT_FALSE(graph.addNode(""));
+            EXPECT_TRUE(graph.addNode("node_level_0"));
+            EXPECT_FALSE(graph.addNode("node_level_0"));
+            EXPECT_TRUE(graph.addNode("node_level_1"));
+         }
 
-         EXPECT_FALSE(graph.connectNodes("", "node_level_1"));
-         EXPECT_FALSE(graph.connectNodes("node_level_0", ""));
-         EXPECT_TRUE(graph.connectNodes("node_level_0", "node_level_1"));
+         {
+            BPM_SCOPED_TRACE_COUT("connectNodes");
+            EXPECT_FALSE(graph.connectNodes("", "node_level_1"));
+            EXPECT_FALSE(graph.connectNodes("node_level_0", ""));
+            EXPECT_TRUE(graph.connectNodes("node_level_0", "node_level_1"));
+         }
 
-         BPM_TRACE_COUT("\n" + graph.toString("   "));
+         {
+            BPM_SCOPED_TRACE_COUT("toString");
+            BPM_TRACE_COUT("\n" + graph.toString("   "));
+         }
       }
 
    private:
