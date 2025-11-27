@@ -54,7 +54,7 @@ std::string bpm::core::Graph::toString(const std::string& leadingText) const
 
 bool bpm::core::Graph::addNode(const std::string& name)
 {
-   BPM_TRACE_COUT("Name (" + name + "): Start");
+   BPM_SCOPED_TRACE_COUT("Name (" + name + ")");
 
    if (true == name.empty())
    {
@@ -71,7 +71,14 @@ bool bpm::core::Graph::addNode(const std::string& name)
       return false;
    }
 
-   BPM_TRACE_COUT("Name (" + name + "): Complete");
+   return true;
+}
+
+
+bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
+                                    const std::string& downstreamName)
+{
+   BPM_SCOPED_TRACE_COUT("");
 
    return true;
 }

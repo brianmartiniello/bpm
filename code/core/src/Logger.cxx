@@ -6,18 +6,18 @@
 bpm::core::ScopedLog::ScopedLog(const char* out)
    : out_(out)
 {
-   BPM_TRACE_COUT("START - " << out_);
+   std::cout << "(cout) BPM " << BPM_LOG_TIMESTAMP << " START " << out_ << std::endl;
 }
 
 
 bpm::core::ScopedLog::ScopedLog(const std::string& out)
    : out_(out.c_str())
 {
-   BPM_TRACE_COUT("START - " << out_);
+   std::cout << "(cout) BPM " << BPM_LOG_TIMESTAMP << " START " << out_ << std::endl;
 }
 
 
 bpm::core::ScopedLog::~ScopedLog()
 {
-   BPM_TRACE_COUT("END - " << out_);
+   std::cout << "(cout) BPM " << BPM_LOG_TIMESTAMP << " END " << out_ << std::endl;
 }

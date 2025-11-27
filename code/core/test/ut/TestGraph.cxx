@@ -17,16 +17,15 @@ class TestGraph : public ::testing::Test
 
       void test()
       {
-         BPM_TRACE_COUT("START");
+         BPM_SCOPED_TRACE_COUT("");
 
          bpm::core::Graph graph;
+
          EXPECT_FALSE(graph.addNode(""));
          EXPECT_TRUE(graph.addNode("node_level_0"));
          EXPECT_FALSE(graph.addNode("node_level_0"));
 
          BPM_TRACE_COUT("\n" + graph.toString("   "));
-
-         BPM_TRACE_COUT("END");
       }
 
    private:

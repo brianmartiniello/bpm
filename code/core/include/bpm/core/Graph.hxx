@@ -18,6 +18,9 @@ namespace bpm
 
             bool addNode(const std::string& name);
 
+            bool connectNodes(const std::string& upstreamName,
+                              const std::string& downstreamName);
+
             std::string toString(const std::string& leadingText = "") const;
 
          private:

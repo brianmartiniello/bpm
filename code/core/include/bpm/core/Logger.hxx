@@ -33,7 +33,7 @@ namespace bpm
 
          private:
 
-            const char* out_;
+            const std::string out_;
 
       };
    }
@@ -142,6 +142,8 @@ namespace bpm
 #define BPM_WARN_COUT_FLUSH(out) BPM_COUT_BASE("WARN " << out, std::endl)
 #define BPM_ERROR_COUT_FLUSH(out) BPM_CERR_BASE("ERROR " << out, std::endl)
 #define BPM_FATAL_COUT_FLUSH(out) BPM_CERR_BASE("FATAL " << out, std::endl)
+
+#define BPM_SCOPED_TRACE_COUT(out) bpm::core::ScopedLog scopedLog(BPM_LOG_HEADER_NO_TIMESTAMP + "TRACE " + out)
 
 namespace
 {
