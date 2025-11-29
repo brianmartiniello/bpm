@@ -103,41 +103,45 @@ set_tests_properties(${TestGraph_MAIN}
 ##############################################
 ##############################################
 
-set(TestOpenMP_MAIN TestOpenMP)
+if(OpenMP_CXX_FOUND)
+   set(TestOpenMP_MAIN TestOpenMP)
 
-add_executable(${TestOpenMP_MAIN}
-   ${PATH_CORE_SRC}/Logger.cxx
-   ${PATH_CORE_TEST_UT}/TestOpenMP.cxx
+   add_executable(${TestOpenMP_MAIN}
+      ${PATH_CORE_SRC}/Logger.cxx
+      ${PATH_CORE_SRC}/Timer.cxx
+      ${PATH_CORE_TEST_UT}/TestOpenMP.cxx
+   )
+
+   # target_compile_options(${TestOpenMP_MAIN}
+   #    PRIVATE
+   #       ${PLATFORM_COMPILE_OPTIONS}
+   # )
+
+   target_include_directories(${TestOpenMP_MAIN}
+      PRIVATE
+         ${INCLUDE_DIRS}
+   )
+
+   target_link_libraries(${TestOpenMP_MAIN}
+      PRIVATE
+         ${LINK_LIBS}
+         OpenMP::OpenMP_CXX
+   )
+
+   target_compile_definitions(${TestOpenMP_MAIN}
+      PRIVATE
+         ${COMPILER_DEFS}
+   )
+
+   ADD_GTEST(${TestOpenMP_MAIN} XML)
+   set_tests_properties(${TestOpenMP_MAIN}
+      PROPERTIES
+         LABELS
+            ${CORE_TEST_LABEL}
+         ENVIRONMENT
+            "${CORE_TEST_ENV_VARS}"
 )
-
-# target_compile_options(${TestOpenMP_MAIN}
-#    PRIVATE
-#       ${PLATFORM_COMPILE_OPTIONS}
-# )
-
-target_include_directories(${TestOpenMP_MAIN}
-   PRIVATE
-      ${INCLUDE_DIRS}
-)
-
-target_link_libraries(${TestOpenMP_MAIN}
-   PRIVATE
-      ${LINK_LIBS}
-)
-
-target_compile_definitions(${TestOpenMP_MAIN}
-   PRIVATE
-      ${COMPILER_DEFS}
-)
-
-ADD_GTEST(${TestOpenMP_MAIN} XML)
-set_tests_properties(${TestOpenMP_MAIN}
-   PROPERTIES
-      LABELS
-         ${CORE_TEST_LABEL}
-      ENVIRONMENT
-         "${CORE_TEST_ENV_VARS}"
-)
+endif()
 
 ##############################################
 ##############################################
