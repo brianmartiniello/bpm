@@ -102,3 +102,82 @@ set_tests_properties(${TestGraph_MAIN}
 
 ##############################################
 ##############################################
+
+set(TestOpenMP_MAIN TestOpenMP)
+
+add_executable(${TestOpenMP_MAIN}
+   ${PATH_CORE_SRC}/Logger.cxx
+   ${PATH_CORE_TEST_UT}/TestOpenMP.cxx
+)
+
+# target_compile_options(${TestOpenMP_MAIN}
+#    PRIVATE
+#       ${PLATFORM_COMPILE_OPTIONS}
+# )
+
+target_include_directories(${TestOpenMP_MAIN}
+   PRIVATE
+      ${INCLUDE_DIRS}
+)
+
+target_link_libraries(${TestOpenMP_MAIN}
+   PRIVATE
+      ${LINK_LIBS}
+)
+
+target_compile_definitions(${TestOpenMP_MAIN}
+   PRIVATE
+      ${COMPILER_DEFS}
+)
+
+ADD_GTEST(${TestOpenMP_MAIN} XML)
+set_tests_properties(${TestOpenMP_MAIN}
+   PROPERTIES
+      LABELS
+         ${CORE_TEST_LABEL}
+      ENVIRONMENT
+         "${CORE_TEST_ENV_VARS}"
+)
+
+##############################################
+##############################################
+
+set(TestCoreUtilities_MAIN TestCoreUtilities)
+
+add_executable(${TestCoreUtilities_MAIN}
+   ${PATH_CORE_SRC}/CoreUtilities.cxx
+   ${PATH_CORE_SRC}/Logger.cxx
+   ${PATH_CORE_TEST_UT}/TestCoreUtilities.cxx
+)
+
+# target_compile_options(${TestCoreUtilities_MAIN}
+#    PRIVATE
+#       ${PLATFORM_COMPILE_OPTIONS}
+# )
+
+target_include_directories(${TestCoreUtilities_MAIN}
+   PRIVATE
+      ${INCLUDE_DIRS}
+)
+
+target_link_libraries(${TestCoreUtilities_MAIN}
+   PRIVATE
+      ${LINK_LIBS}
+)
+
+target_compile_definitions(${TestCoreUtilities_MAIN}
+   PRIVATE
+      ${COMPILER_DEFS}
+)
+
+ADD_GTEST(${TestCoreUtilities_MAIN} XML)
+set_tests_properties(${TestCoreUtilities_MAIN}
+   PROPERTIES
+      LABELS
+         ${CORE_TEST_LABEL}
+      ENVIRONMENT
+         "${CORE_TEST_ENV_VARS}"
+)
+
+##############################################
+##############################################

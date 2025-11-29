@@ -5,15 +5,14 @@
 
 #include <gtest/gtest.h>
 
-#include <bpm/core/CoreUtilities.hxx>
 #include <bpm/core/Logger.hxx>
 
 
-class TestCoreUtilities : public ::testing::Test
+class TestOpenMP : public ::testing::Test
 {
    public:
 
-      TestCoreUtilities() = default;
+      TestOpenMP() = default;
 
       void test()
       {
@@ -24,7 +23,7 @@ class TestCoreUtilities : public ::testing::Test
 };
 
 
-TEST_F(TestCoreUtilities, test)
+TEST_F(TestOpenMP, test)
 {
    test();
 }
