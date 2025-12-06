@@ -32,6 +32,8 @@ class TestSharedCountVector : public ::testing::Test
 
          SharedCountVectorType sharedCountVector(threadCountIndices.size());
 
+         const auto NUM_ITERATIONS = 1000000;
+
          auto thread =
             [&](std::size_t threadIndex, std::size_t countIndex)
             {
@@ -51,7 +53,7 @@ class TestSharedCountVector : public ::testing::Test
 
                bpm::core::Timer timer;
 
-               for (auto i = 0; i < 1000000; ++i)
+               for (auto iiteration = 0; iiteration < NUM_ITERATIONS; ++iiteration)
                {
                   sharedCountVector.increment(countIndex);
                }
@@ -59,12 +61,14 @@ class TestSharedCountVector : public ::testing::Test
                duration = timer.elapsed();
             };
 
+         std::vector<int64_t> expectedCounts(threadCountIndices.size());
          for (auto threadIndex = 0; threadIndex < threadCountIndices.size(); ++threadIndex)
          {
             const auto countIndex = threadCountIndices[threadIndex];
             // BPM_TRACE_COUT("MAIN - threadIndex (" + std::to_string(threadIndex) +
             //                "), countIndex (" + std::to_string(countIndex) + ")");
             ASSERT_TRUE(countIndex < threadCountIndices.size()) << "threadIndex = " << threadIndex;
+            expectedCounts[countIndex] += NUM_ITERATIONS;
             threads.emplace_back(thread,
                                    threadIndex,
                                    threadCountIndices[threadIndex]);
@@ -89,15 +93,17 @@ class TestSharedCountVector : public ::testing::Test
             thread.join();
          }
 
-         BPM_TRACE_COUT("durations.size() = " + std::to_string(durations.size()));
-         for (auto k = 0; k < durations.size(); k++)
+         for (auto countIndex = 0; countIndex < expectedCounts.size(); ++countIndex)
          {
-            BPM_TRACE_COUT("   durations[" + std::to_string(k) + "] (" + std::to_string(durations[k]) + ") sec");
+            EXPECT_EQ(sharedCountVector.get(countIndex), expectedCounts[countIndex]) << "countIndex = " << countIndex;
          }
 
+         BPM_TRACE_COUT("durations.size() = " + std::to_string(durations.size()));
          double durationsSum = 0;
-         for (auto duration : durations)
+         for (auto durationsIndex = 0; durationsIndex < durations.size(); ++durationsIndex)
          {
+            const auto duration = durations[durationsIndex];
+            BPM_TRACE_COUT("   durations[" + std::to_string(durationsIndex) + "] (" + std::to_string(duration) + ") sec");
             durationsSum += duration;
          }
          
