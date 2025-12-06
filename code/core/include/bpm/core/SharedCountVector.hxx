@@ -3,6 +3,7 @@
 #define BPM_CORE_SHARED_COUNT_VECTOR_HXX
 
 #include <atomic>
+#include <cassert>
 #include <cstdint>
 #include <mutex>
 #include <stdexcept>
@@ -54,23 +55,27 @@ namespace bpm
       inline int64_t SharedCountVector::increment(size_t index,
                                                   int64_t value)
       {
+         assert(index < counts_.size());
          return counts_[index].data.fetch_add(value, std::memory_order_relaxed) + value;
       }
 
       inline int64_t SharedCountVector::decrement(size_t index,
                                                   int64_t value)
       {
+         assert(index < counts_.size());
          return counts_[index].data.fetch_sub(value, std::memory_order_relaxed) + value;
       }
 
       inline void SharedCountVector::set(size_t index,
                                          int64_t value)
       {
+         assert(index < counts_.size());
          counts_[index].data.store(value, std::memory_order_relaxed);
       }
 
       inline int64_t SharedCountVector::get(size_t index) const
       {
+         assert(index < counts_.size());
          return counts_[index].data.load(std::memory_order_relaxed);
       }
 
@@ -120,6 +125,7 @@ namespace bpm
       inline int64_t SharedCountVectorLock::increment(size_t index,
                                                       int64_t value)
       {
+         assert(index < counts_.size());
          auto& count = counts_[index];
          std::lock_guard<std::mutex> lock(count.data.mutex_);
          count.data.count_ += value;
@@ -129,6 +135,7 @@ namespace bpm
       inline int64_t SharedCountVectorLock::decrement(size_t index,
                                                       int64_t value)
       {
+         assert(index < counts_.size());
          auto& count = counts_[index];
          std::lock_guard<std::mutex> lock(count.data.mutex_);
          count.data.count_ -= value;
@@ -138,6 +145,7 @@ namespace bpm
       inline void SharedCountVectorLock::set(size_t index,
                                              int64_t value)
       {
+         assert(index < counts_.size());
          auto& count = counts_[index];
          std::lock_guard<std::mutex> lock(count.data.mutex_);
          count.data.count_ = value;
@@ -145,6 +153,7 @@ namespace bpm
 
       inline int64_t SharedCountVectorLock::get(size_t index) const
       {
+         assert(index < counts_.size());
          auto& count = counts_[index];
          std::lock_guard<std::mutex> lock(count.data.mutex_);
          return count.data.count_;
