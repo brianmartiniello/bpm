@@ -93,9 +93,12 @@ class TestSharedCountVector : public ::testing::Test
             thread.join();
          }
 
+         BPM_TRACE_COUT("expectedCounts.size() = " + std::to_string(expectedCounts.size()));
          for (auto countIndex = 0; countIndex < expectedCounts.size(); ++countIndex)
          {
-            EXPECT_EQ(sharedCountVector.get(countIndex), expectedCounts[countIndex]) << "countIndex = " << countIndex;
+            const auto expectedCount = expectedCounts[countIndex];
+            BPM_TRACE_COUT("   expectedCounts[" + std::to_string(countIndex) + "] (" + std::to_string(expectedCount) + ")");
+            EXPECT_EQ(sharedCountVector.get(countIndex), expectedCount) << "countIndex = " << countIndex;
          }
 
          BPM_TRACE_COUT("durations.size() = " + std::to_string(durations.size()));
