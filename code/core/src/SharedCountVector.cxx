@@ -22,3 +22,25 @@ void bpm::core::SharedCountVector::clear() noexcept
       count.data.store(0, std::memory_order_relaxed);
    }
 }
+
+
+bpm::core::SharedCountVectorLock::SharedCountVectorLock(size_t size)
+   : counts_(size)
+{
+   if (0 == counts_.size())
+   {
+      throw("SharedCountVectorLock size is 0");
+   }
+
+   clear();
+}
+
+
+void bpm::core::SharedCountVectorLock::clear() noexcept
+{
+   for (auto& count : counts_)
+   {
+      std::lock_guard<std::mutex> lock(count.data.mutex_);
+      count.data.count_ = 0;
+   }
+}
