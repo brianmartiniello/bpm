@@ -17,6 +17,7 @@ class TestSharedCountVector : public ::testing::Test
 
       TestSharedCountVector() = default;
 
+      template<class SharedCountVectorType>
       void test(const std::vector<std::size_t>& threadCountIndices)
       {
          BPM_SCOPED_TRACE_COUT("test - threadCountIndices.size() = " + std::to_string(threadCountIndices.size()));
@@ -29,18 +30,19 @@ class TestSharedCountVector : public ::testing::Test
 
          std::vector<double> durations(threadCountIndices.size());
 
-         bpm::core::SharedCountVector sharedCountVector(threadCountIndices.size());
+         SharedCountVectorType sharedCountVector(threadCountIndices.size());
 
          auto thread =
             [&](std::size_t threadIndex, std::size_t countIndex)
             {
-               BPM_TRACE_COUT("WORKER - threadIndex (" + std::to_string(threadIndex) +
-                              "), countIndex (" + std::to_string(countIndex) + ")");
 
                auto& duration = durations[threadIndex];
 
                {
                   std::lock_guard<std::mutex> guard(threadMutex);
+                  BPM_TRACE_COUT("WORKER - threadIndex (" + std::to_string(threadIndex) +
+                                 "), countIndex (" + std::to_string(countIndex) + 
+                                 "), threadCount (" + std::to_string(threadCount) + ")");
                   ++threadCount;
                   threadConditionVar.notify_all();
                }
@@ -90,7 +92,7 @@ class TestSharedCountVector : public ::testing::Test
          BPM_TRACE_COUT("durations.size() = " + std::to_string(durations.size()));
          for (auto k = 0; k < durations.size(); k++)
          {
-            BPM_TRACE_COUT("  durations[" + std::to_string(k) + "] (" + std::to_string(durations[k]) + ") sec");
+            BPM_TRACE_COUT("   durations[" + std::to_string(k) + "] (" + std::to_string(durations[k]) + ") sec");
          }
 
          double durationsSum = 0;
@@ -103,30 +105,84 @@ class TestSharedCountVector : public ::testing::Test
          BPM_TRACE_COUT("Average duration: " + std::to_string(durationsAvg) + " sec");
       }
 
+      void testTypes(const std::vector<std::size_t>& threadCountIndices)
+      {
+         BPM_SCOPED_TRACE_COUT("testTypes");
+
+         {
+            BPM_SCOPED_TRACE_COUT("Atomic");
+            test<bpm::core::SharedCountVector>(threadCountIndices);
+         }
+
+         {
+            BPM_SCOPED_TRACE_COUT("Lock");
+            test<bpm::core::SharedCountVectorLock>(threadCountIndices);
+         }
+      }
+
+      void test1Thread1Index()
+      {
+         BPM_SCOPED_TRACE_COUT("test1Thread1Index");
+         const std::vector<std::size_t> threadCountIndices = {0};
+         testTypes(threadCountIndices);
+      }
+
+      void test2Threads1Index()
+      {
+         BPM_SCOPED_TRACE_COUT("test2Threads1Index");
+         const std::vector<std::size_t> threadCountIndices = {0, 0};
+         testTypes(threadCountIndices);
+      }
+
+      void test2Threads2Indices()
+      {
+         BPM_SCOPED_TRACE_COUT("test2Threads2Indices");
+         const std::vector<std::size_t> threadCountIndices = {0, 1};
+         testTypes(threadCountIndices);
+      }
+
       void test4Threads1Index()
       {
          BPM_SCOPED_TRACE_COUT("test4Threads1Index");
          const std::vector<std::size_t> threadCountIndices = {0, 0, 0, 0};
-         test(threadCountIndices);
+         testTypes(threadCountIndices);
       }
 
       void test4Threads2Indices()
       {
          BPM_SCOPED_TRACE_COUT("test4Threads2Indices");
          const std::vector<std::size_t> threadCountIndices = {0, 1, 0, 1};
-         test(threadCountIndices);
+         testTypes(threadCountIndices);
       }
 
       void test4Threads4Indices()
       {
          BPM_SCOPED_TRACE_COUT("test4Threads4Indices");
          const std::vector<std::size_t> threadCountIndices = {0, 1, 2, 3};
-         test(threadCountIndices);
+         testTypes(threadCountIndices);
       }
 
    private:
 
 };
+
+
+TEST_F(TestSharedCountVector, test1Thread1Index)
+{
+   test1Thread1Index();
+}
+
+
+TEST_F(TestSharedCountVector, test2Threads1Index)
+{
+   test2Threads1Index();
+}
+
+
+TEST_F(TestSharedCountVector, test2Threads2Indices)
+{
+   test2Threads2Indices();
+}
 
 
 TEST_F(TestSharedCountVector, test4Threads1Index)

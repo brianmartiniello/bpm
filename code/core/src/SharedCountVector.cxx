@@ -1,11 +1,14 @@
 
 
+#include <bpm/core/Logger.hxx>
 #include <bpm/core/SharedCountVector.hxx>
 
 
 bpm::core::SharedCountVector::SharedCountVector(size_t size)
    : counts_(size)
 {
+   BPM_SCOPED_TRACE_COUT("SharedCountVector - size = " + std::to_string(size));
+
    if (0 == counts_.size())
    {
       throw("SharedCountVector size is 0");
@@ -27,6 +30,8 @@ void bpm::core::SharedCountVector::clear() noexcept
 bpm::core::SharedCountVectorLock::SharedCountVectorLock(size_t size)
    : counts_(size)
 {
+   BPM_SCOPED_TRACE_COUT("SharedCountVectorLock - size = " + std::to_string(size));
+
    if (0 == counts_.size())
    {
       throw("SharedCountVectorLock size is 0");
