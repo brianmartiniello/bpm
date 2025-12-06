@@ -34,14 +34,17 @@ set(VERSION_SRC_FILE ${PATH_CORE_SRC}/Version.cxx)
 configure_file(${VERSION_SRC_FILE}.in ${VERSION_SRC_FILE})
 
 set(SRC_FILES
+   ${PATH_CORE_SRC}/CoreTypes.cxx
    ${PATH_CORE_SRC}/CoreUtilities.cxx
    ${PATH_CORE_SRC}/Logger.cxx
+   ${PATH_CORE_SRC}/SharedCountVector.cxx
    ${PATH_CORE_SRC}/Timer.cxx
    ${PATH_CORE_SRC}/Version.cxx
 )
 
-# set(LINK_LIBS
-# )
+set(LINK_LIBS
+   atomic
+)
 
 # set(COMPILER_DEFS
 # )
