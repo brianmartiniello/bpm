@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
+set(PATH_CORE_TEST_BW ${PATH_CORE_TEST}/bw CACHE INTERNAL "")
 set(PATH_CORE_TEST_UT ${PATH_CORE_TEST}/ut CACHE INTERNAL "")
 
 # Set ctest variables
@@ -219,6 +220,44 @@ target_compile_definitions(${TestSharedCountVector_MAIN}
 
 ADD_GTEST(${TestSharedCountVector_MAIN} XML)
 set_tests_properties(${TestSharedCountVector_MAIN}
+   PROPERTIES
+      LABELS
+         ${CORE_TEST_LABEL}
+      ENVIRONMENT
+         "${CORE_TEST_ENV_VARS}"
+)
+
+##############################################
+##############################################
+
+set(TestBW_MAIN TestBW)
+
+add_executable(${TestBW_MAIN}
+   ${PATH_CORE_TEST_BW}/TestBW.cxx
+)
+
+# target_compile_options(${TestBW_MAIN}
+#    PRIVATE
+#       ${PLATFORM_COMPILE_OPTIONS}
+# )
+
+# target_include_directories(${TestBW_MAIN}
+#    PRIVATE
+#       ${INCLUDE_DIRS}
+# )
+
+target_link_libraries(${TestBW_MAIN}
+   PRIVATE
+      bpm_core
+)
+
+# target_compile_definitions(${TestBW_MAIN}
+#    PRIVATE
+#       ${COMPILER_DEFS}
+# )
+
+ADD_GTEST(${TestBW_MAIN} XML)
+set_tests_properties(${TestBW_MAIN}
    PROPERTIES
       LABELS
          ${CORE_TEST_LABEL}
