@@ -37,7 +37,6 @@ class TestSharedCountVector : public ::testing::Test
          auto thread =
             [&](std::size_t threadIndex, std::size_t countIndex)
             {
-
                auto& duration = durations[threadIndex];
 
                {
@@ -70,8 +69,8 @@ class TestSharedCountVector : public ::testing::Test
             ASSERT_TRUE(countIndex < threadCountIndices.size()) << "threadIndex = " << threadIndex;
             expectedCounts[countIndex] += NUM_ITERATIONS;
             threads.emplace_back(thread,
-                                   threadIndex,
-                                   threadCountIndices[threadIndex]);
+                                 threadIndex,
+                                 threadCountIndices[threadIndex]);
          }
 
          {

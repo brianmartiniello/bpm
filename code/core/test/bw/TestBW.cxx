@@ -1,10 +1,114 @@
 
+#include <atomic>
 #include <chrono>
 #include <cmath>
+#include <condition_variable>
 #include <iostream>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
+
+#include <bpm/core/Logger.hxx>
+#include <bpm/core/Timer.hxx>
+
+struct ThreadGroupRunner
+{
+   public:
+
+      ThreadGroupRunner()
+         : threadMutex_()
+         , threadConditionVar_()
+         , threadCount_(0)
+         , threadRun_(false)
+         , threads_()
+      {
+      }
+
+      std::vector<std::thread>& threads()
+      {
+         return threads_;
+      }
+
+      void reset()
+      {
+         std::lock_guard<std::mutex> guard(threadMutex_);
+         threadCount_ = 0;
+         threadRun_.store(false, std::memory_order_relaxed);
+         for (auto& t : threads_)
+         {
+            t.join();
+         }
+         threads_.clear();
+      }
+
+      void workerStart(std::size_t threadIndex)
+      {
+         // Indicate start
+         {
+            std::lock_guard<std::mutex> guard(threadMutex_);
+            BPM_TRACE_COUT("WORKER - threadIndex (" + std::to_string(threadIndex) +
+                           "), threadCount_ (" + std::to_string(threadCount_) + ")");
+            ++threadCount_;
+            threadConditionVar_.notify_all();
+         }
+
+         // Wait to run
+         while (false == threadRun_.load(std::memory_order_relaxed)) {}
+      }
+
+      double executeWorkers(std::size_t waitSeconds)
+      {
+         // Wait for threads to start
+         {
+            std::unique_lock<std::mutex> lock(threadMutex_);
+            auto waitSuccess = threadConditionVar_.wait_for(lock,
+                                                            std::chrono::seconds(waitSeconds),
+                                                            [&]
+                                                            {
+                                                               return threadCount_ >= threads_.size();
+                                                            });
+            if (false == waitSuccess)
+            {
+               const auto error = "Failed to wait for (" + std::to_string(waitSeconds) +
+                                  ") seconds - threads_.size() (" + std::to_string(threads_.size()) +
+                                  "), threadCount_ (" + std::to_string(threadCount_) + ")";
+               BPM_ERROR_COUT(error);
+               throw(error);
+            }
+         }
+
+         // Start timer
+         bpm::core::Timer timer;
+
+         // Run the threads
+         threadRun_.store(true, std::memory_order_relaxed);
+
+         // Wait for threads to complete
+         for (auto& thread : threads_)
+         {
+            thread.join();
+         }
+
+         // End timer
+         timer.end();
+
+         // Reset the parameters
+         reset();
+
+         // Return the elapsed time
+         return timer.elapsed();
+      }
+
+   private:
+
+      std::mutex threadMutex_;
+      std::condition_variable threadConditionVar_;
+      std::size_t threadCount_;
+      std::atomic<bool> threadRun_;
+      std::vector<std::thread> threads_;
+
+};
 
 void work(double* data,
           std::size_t start,
@@ -32,42 +136,95 @@ void work(double* data,
    }
 }
 
-int main(int argc, char** argv) {
-    if (argc < 4) {
-        std::cerr << "Usage: " << argv[0] << " <threads> <mode> <elements>" << std::endl;
-        return 1;
-    }
+int main(int argc,
+         char** argv)
+{
+   if (argc < 4)
+   {
+      BPM_ERROR_COUT("Usage: " + std::string(argv[0]) + " <threads> <bytes> <mode>");
+      return 1;
+   }
 
-    int num_threads = std::stoi(argv[1]);
-    std::string mode = argv[2];
-    size_t N = std::stoull(argv[3]);
-    bool compute_heavy = (mode == "compute");
+   // Input
+   std::size_t numThreads = 0;
+   std::size_t numBytesTotal = 0;
+   std::string mode;
+   try
+   {
+      numThreads = std::stoi(argv[1]);
+      numBytesTotal = std::stoull(argv[2]);
+      mode = std::string(argv[3]);
+   }
+   catch (const std::exception& e)
+   {
+      BPM_ERROR_COUT(std::string("Caught an exception handling inputs: ") + e.what());
+      return 1;
+   }
+   catch (...)
+   {
+      BPM_ERROR_COUT("Caught an unknown exception handling inputs");
+      return 1;
+   }
 
-    std::vector<double> data(N);
-    std::vector<std::thread> threads;
-    size_t chunk_size = N / num_threads;
+   BPM_TRACE_COUT("Input - numThreads (" + std::to_string(numThreads) +
+                  "), numBytesTotal (" + std::to_string(numBytesTotal) +
+                  "), mode (" + mode + ")");
 
-    // --- PHASE 1: FIRST TOUCH INITIALIZATION ---
-    for (int i = 0; i < num_threads; ++i) {
-        size_t start = i * chunk_size;
-        size_t end = (i == num_threads - 1) ? N : (i + 1) * chunk_size;
-        threads.emplace_back([&, start, end]() {
-            for (size_t j = start; j < end; ++j) data[j] = 1.0;
-        });
-    }
-    for (auto& t : threads) t.join();
-    threads.clear();
+   // Check input validity
+   if ((numThreads == 0) ||
+       (numBytesTotal == 0))
+   {
+      BPM_ERROR_COUT("numThreads (" + std::to_string(numThreads) +
+                     ") or numBytesTotal (" + std::to_string(numBytesTotal) +
+                     ") is 0");
+      return 1;
+   }
 
-    // --- PHASE 2: BENCHMARK ---
-    auto start_time = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < num_threads; ++i) {
-        size_t start = i * chunk_size;
-        size_t end = (i == num_threads - 1) ? N : (i + 1) * chunk_size;
-        threads.emplace_back(work, data.data(), start, end, compute_heavy);
-    }
-    for (auto& t : threads) t.join();
-    auto end_time = std::chrono::high_resolution_clock::now();
+   // Derived
+   const auto numBytesPerThread = (numBytesTotal / numThreads) +
+                                  ((numBytesTotal % numThreads) > 0);
+   const auto numElemsPerThread = (numBytesPerThread / sizeof(double)) +
+                                  ((numBytesPerThread % sizeof(double)) > 0);
+   const auto numElemsTotal = numElemsPerThread * numThreads;
+   const auto computeHeavy = (mode == "compute");
 
-    std::cout << std::chrono::duration<double>(end_time - start_time).count() << std::endl;
+   BPM_TRACE_COUT("Derived - numBytesPerThread (" + std::to_string(numBytesPerThread) +
+                  "), numElemsPerThread (" + std::to_string(numElemsPerThread) +
+                  "), numElemsTotal (" + std::to_string(numElemsTotal) +
+                  "), computeHeavy (" + std::to_string(computeHeavy) + ")");
+
+   std::vector<double> data(numElemsTotal);
+   std::vector<std::thread> threads;
+
+   // // --- PHASE 1: FIRST TOUCH INITIALIZATION ---
+   // for (auto i = 0; i < numThreads; ++i)
+   // {
+   //    const auto start = i * numElemsPerThread;
+   //    const auto end = start + numElemsPerThread;
+   //    threads.emplace_back([&, start, end]()
+   //                         {
+   //                            for (auto j = start; j < end; ++j)
+   //                            {
+   //                               data[j] = 1.0;
+   //                            }
+   //                         });
+   // }
+   // for (auto& t : threads)
+   // {
+   //    t.join();
+   // }
+   // threads.clear();
+
+   //  // --- PHASE 2: BENCHMARK ---
+   //  auto start_time = std::chrono::high_resolution_clock::now();
+   //  for (int i = 0; i < numThreads; ++i) {
+   //      size_t start = i * chunk_size;
+   //      size_t end = (i == numThreads - 1) ? N : (i + 1) * chunk_size;
+   //      threads.emplace_back(work, data.data(), start, end, compute_heavy);
+   //  }
+   //  for (auto& t : threads) t.join();
+   //  auto end_time = std::chrono::high_resolution_clock::now();
+
+   //  std::cout << std::chrono::duration<double>(end_time - start_time).count() << std::endl;
     return 0;
 }
