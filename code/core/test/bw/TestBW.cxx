@@ -12,7 +12,7 @@
 #include <bpm/core/Logger.hxx>
 #include <bpm/core/Timer.hxx>
 
-struct ThreadGroupRunner
+class ThreadGroupRunner
 {
    public:
 
@@ -209,36 +209,34 @@ int main(int argc,
 
    try
    {
-      // --- PHASE 1: FIRST TOUCH INITIALIZATION ---
-      for (auto i = 0; i < numThreads; ++i)
+      for (auto phase = 0; phase < 2; ++phase)
       {
-         const auto start = i * numElemsPerThread;
-         const auto end = start + numElemsPerThread;
-         runner.threads().emplace_back([&, i, start, end]()
-                                       {
-                                          runner.workerStart(i);
-                                          firstTouchWork(data.data(),
-                                                         start,
-                                                         end);
-                                       });
+         for (auto threadIndex = 0; threadIndex < numThreads; ++threadIndex)
+         {
+            const auto start = threadIndex * numElemsPerThread;
+            const auto end = start + numElemsPerThread;
+            runner.threads().emplace_back([&, threadIndex, start, end]()
+                                          {
+                                             runner.workerStart(threadIndex);
+                                             // --- PHASE 1: FIRST TOUCH INITIALIZATION ---
+                                             if (0 == phase)
+                                             {
+                                                firstTouchWork(data.data(),
+                                                               start,
+                                                               end);
+                                             }
+                                             // --- PHASE 2: BENCHMARK ---
+                                             else // (1 == phase)
+                                             {
+                                                benchmarkWork(data.data(),
+                                                              start,
+                                                              end,
+                                                              computeHeavy);
+                                             }
+                                          });
+         }
+         std::cout << runner.executeWorkers(WAIT_SECONDS) << std::endl;
       }
-      runner.executeWorkers(WAIT_SECONDS);
-
-      // --- PHASE 2: BENCHMARK ---
-      for (auto i = 0; i < numThreads; ++i)
-      {
-         const auto start = i * numElemsPerThread;
-         const auto end = start + numElemsPerThread;
-         runner.threads().emplace_back([&, i, start, end]()
-                                       {
-                                          runner.workerStart(i);
-                                          benchmarkWork(data.data(),
-                                                        start,
-                                                        end,
-                                                        computeHeavy);
-                                       });
-      }
-      std::cout << runner.executeWorkers(WAIT_SECONDS) << std::endl;
    }
    catch (...)
    {
