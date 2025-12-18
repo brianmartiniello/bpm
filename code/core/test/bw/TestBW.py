@@ -1,18 +1,42 @@
 
 import os
 import plotly.graph_objects as go
+import re
 import subprocess
 import sys
 
 # --- CONFIGURATION ---
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-EXE_PATH = os.path.join(SCRIPT_DIR, "TestBW")
+EXE_NAME = "TestBW"
+EXE_PATH = os.path.join(SCRIPT_DIR, EXE_NAME)
+HTML_PATH = EXE_PATH + ".html"
 # ~800MB. 
 # Make this significantly larger than your CPU Cache (usually 16MB-64MB)
 # to ensure you are testing RAM bandwidth, not cache bandwidth.
 DATA_SIZE_B = 800 * 1024 * 1024
 DATA_SIZE_GB = DATA_SIZE_B / 1e9
 MAX_THREADS = os.cpu_count()
+
+# --- extract_elapsed_float ---
+def extract_elapsed_float(text):
+   # Pattern explanation:
+   # ELAPSED\[  -> Matches the literal text "ELAPSED["
+   # (         -> Starts a capturing group
+   #  \d+      -> Matches one or more digits
+   #  \.?      -> Matches an optional decimal point
+   #  \d* -> Matches zero or more digits after the decimal
+   # )         -> Ends the capturing group
+   # \]        -> Matches the literal closing "]"
+    
+   pattern = r"ELAPSED\[(\d+\.?\d*)\]"
+    
+   match = re.search(pattern, text)
+    
+   if match:
+      # match.group(1) pulls the content inside the parentheses
+      return float(match.group(1))
+    
+   return None
 
 # --- resource_path ---
 def resource_path(relative_path):
@@ -35,20 +59,22 @@ def run_bench(num_threads, mode):
       print(f"Error {EXE_PATH}: {result.stderr}")
       return 0.0
 
-   return float(result.stdout.strip())
+   return extract_elapsed_float(result.stdout.strip())
 
 # --- main ---
 def main():
-   # --- DATA COLLECTION ---
-   threads, mem_bw, comp_scale = [], [], []
 
    print(f"SCRIPT_DIR ({SCRIPT_DIR})")
+   print(f"EXE_NAME ({EXE_NAME})")
    print(f"EXE_PATH ({EXE_PATH})")
+   print(f"HTML_PATH ({HTML_PATH})")
    print(f"DATA_SIZE_B ({DATA_SIZE_B})")
    print(f"DATA_SIZE_GB ({DATA_SIZE_GB:.2f})")
    print(f"{'Threads':<8} | {'Mem GB/s':<12} | {'Comp Speedup':<12}")
    print("-" * 40)
 
+   # --- DATA COLLECTION ---
+   threads, mem_bw, comp_scale = [], [], []
    for t in range(1, MAX_THREADS + 1):
       # Take the minimum time (best performance) across trials
       m_time = min([run_bench(t, "memory") for _ in range(3)])
@@ -110,7 +136,8 @@ def main():
        hovermode='x unified'
    )
 
-   fig.show()
+   fig.write_html(HTML_PATH)
+   # fig.show()
 
 if __name__ == "__main__":
    main()

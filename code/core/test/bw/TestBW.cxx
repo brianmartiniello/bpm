@@ -125,7 +125,11 @@ int main(int argc,
                                   }
                                });
          }
-         std::cout << taskRunner.execute(WAIT_SECONDS) << std::endl;
+
+         if (1 == phase)
+         {
+            std::cout << "ELAPSED[" << taskRunner.execute(WAIT_SECONDS) << "]" << std::endl;
+         }
       }
    }
    catch (const std::exception& e)
