@@ -13,11 +13,11 @@
 #include <bpm/core/Logger.hxx>
 #include <bpm/core/Timer.hxx>
 
-class ThreadGroupRunner
+class TaskRunner
 {
    public:
 
-      ThreadGroupRunner()
+      TaskRunner()
          : mutex_()
          , conditionVar_()
          , threadCount_(0)
@@ -37,15 +37,16 @@ class ThreadGroupRunner
       {
          std::unique_lock<std::mutex> lock(mutex_);
 
+         if (0 == tasks_.size())
+         {
+            BPM_ERROR_COUT("Task vector is empty");
+            return -1.0;
+         }
+
          std::vector<std::thread> threads;
 
          {
             BPM_SCOPED_TRACE_COUT("Starting threads");
-
-            if (0 == tasks_.size())
-            {
-               return 0.0;
-            }
 
             // Start threads
             for (auto taskIndex = 0; taskIndex < tasks_.size(); ++taskIndex)
@@ -223,7 +224,7 @@ int main(int argc,
                      "), computeHeavy (" + std::to_string(computeHeavy) + ")");
 
       std::vector<double> data(numElemsTotal);
-      ThreadGroupRunner runner;
+      TaskRunner taskRunner;
       const auto WAIT_SECONDS = 3U;
 
       for (auto phase = 0; phase < 2; ++phase)
@@ -232,27 +233,27 @@ int main(int argc,
          {
             const auto start = threadIndex * numElemsPerThread;
             const auto end = start + numElemsPerThread;
-            runner.addTask([&, threadIndex, start, end]
-                           ()
-                           {
-                              // --- PHASE 1: FIRST TOUCH INITIALIZATION ---
-                              if (0 == phase)
-                              {
-                                 firstTouchWork(data.data(),
-                                                start,
-                                                end);
-                              }
-                              // --- PHASE 2: BENCHMARK ---
-                              else // (1 == phase)
-                              {
-                                 benchmarkWork(data.data(),
-                                               start,
-                                               end,
-                                               computeHeavy);
-                              }
-                           });
+            taskRunner.addTask([&, threadIndex, start, end]
+                               ()
+                               {
+                                  // --- PHASE 1: FIRST TOUCH INITIALIZATION ---
+                                  if (0 == phase)
+                                  {
+                                     firstTouchWork(data.data(),
+                                                    start,
+                                                    end);
+                                  }
+                                  // --- PHASE 2: BENCHMARK ---
+                                  else // (1 == phase)
+                                  {
+                                     benchmarkWork(data.data(),
+                                                   start,
+                                                   end,
+                                                   computeHeavy);
+                                  }
+                               });
          }
-         std::cout << runner.execute(WAIT_SECONDS) << std::endl;
+         std::cout << taskRunner.execute(WAIT_SECONDS) << std::endl;
       }
    }
    catch (const std::exception& e)
