@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cmath>
 #include <condition_variable>
+#include <functional>
 #include <iostream>
 #include <mutex>
 #include <string>
@@ -17,75 +18,73 @@ class ThreadGroupRunner
    public:
 
       ThreadGroupRunner()
-         : threadMutex_()
-         , threadConditionVar_()
+         : mutex_()
+         , conditionVar_()
          , threadCount_(0)
-         , threadRun_(false)
-         , threads_()
+         , taskRun_(false)
+         , tasks_()
       {
       }
 
-      std::vector<std::thread>& threads()
+      void addTask(std::function<void()> task)
       {
-         return threads_;
+         std::lock_guard<std::mutex> lock(mutex_);
+
+         tasks_.push_back(std::move(task));
       }
 
-      void reset()
+      double execute(std::size_t waitSeconds)
       {
-         std::lock_guard<std::mutex> guard(threadMutex_);
-         threadCount_ = 0;
-         threadRun_.store(false, std::memory_order_relaxed);
-         for (auto& t : threads_)
+         std::unique_lock<std::mutex> lock(mutex_);
+
+         std::vector<std::thread> threads;
+
          {
-            t.join();
-         }
-         threads_.clear();
-      }
+            BPM_SCOPED_TRACE_COUT("Starting threads");
 
-      void workerStart(std::size_t threadIndex)
-      {
-         // Indicate start
-         {
-            std::lock_guard<std::mutex> guard(threadMutex_);
-            BPM_TRACE_COUT("WORKER - threadIndex (" + std::to_string(threadIndex) +
-                           "), threadCount_ (" + std::to_string(threadCount_) + ")");
-            ++threadCount_;
-            threadConditionVar_.notify_all();
-         }
+            if (0 == tasks_.size())
+            {
+               return 0.0;
+            }
 
-         // Wait to run
-         while (false == threadRun_.load(std::memory_order_relaxed)) {}
-      }
+            // Start threads
+            for (auto taskIndex = 0; taskIndex < tasks_.size(); ++taskIndex)
+            {
+               threads.emplace_back([this, taskIndex]
+                                    ()
+                                    {
+                                       this->workerThread(taskIndex);
+                                    });
+            }
 
-      double executeWorkers(std::size_t waitSeconds)
-      {
-         // Wait for threads to start
-         {
-            std::unique_lock<std::mutex> lock(threadMutex_);
-            auto waitSuccess = threadConditionVar_.wait_for(lock,
-                                                            std::chrono::seconds(waitSeconds),
-                                                            [&]
-                                                            {
-                                                               return threadCount_ >= threads_.size();
-                                                            });
+            // Wait for threads to start
+            auto waitSuccess = conditionVar_.wait_for(lock,
+                                                      std::chrono::seconds(waitSeconds),
+                                                      [&]
+                                                      ()
+                                                      {
+                                                         return threadCount_ >= threads.size();
+                                                      });
             if (false == waitSuccess)
             {
                const auto error = "Failed to wait for (" + std::to_string(waitSeconds) +
-                                  ") seconds - threads_.size() (" + std::to_string(threads_.size()) +
+                                  ") seconds - threads.size() (" + std::to_string(threads.size()) +
                                   "), threadCount_ (" + std::to_string(threadCount_) + ")";
                BPM_ERROR_COUT(error);
                throw(error);
             }
          }
 
+         BPM_SCOPED_TRACE_COUT("Run tasks");
+
          // Start timer
          bpm::core::Timer timer;
 
-         // Run the threads
-         threadRun_.store(true, std::memory_order_relaxed);
+         // Run the tasks
+         taskRun_.store(true, std::memory_order_relaxed);
 
          // Wait for threads to complete
-         for (auto& thread : threads_)
+         for (auto& thread : threads)
          {
             thread.join();
          }
@@ -94,7 +93,9 @@ class ThreadGroupRunner
          timer.end();
 
          // Reset the parameters
-         reset();
+         threadCount_ = 0;
+         taskRun_.store(false, std::memory_order_relaxed);
+         tasks_.clear();
 
          // Return the elapsed time
          return timer.elapsed();
@@ -102,11 +103,32 @@ class ThreadGroupRunner
 
    private:
 
-      std::mutex threadMutex_;
-      std::condition_variable threadConditionVar_;
+      void workerThread(std::size_t taskIndex)
+      {
+         // Point to task
+         auto& task = tasks_[taskIndex];
+
+         // Indicate start
+         {
+            std::lock_guard<std::mutex> guard(mutex_);
+            BPM_TRACE_COUT("WORKER - taskIndex (" + std::to_string(taskIndex) +
+                           "), threadCount_ (" + std::to_string(threadCount_) + ")");
+            ++threadCount_;
+            conditionVar_.notify_all();
+         }
+
+         // Wait to run
+         while (false == taskRun_.load(std::memory_order_relaxed)) {}
+
+         // Run task
+         task();
+      }
+
+      std::mutex mutex_;
+      std::condition_variable conditionVar_;
       std::size_t threadCount_;
-      std::atomic<bool> threadRun_;
-      std::vector<std::thread> threads_;
+      std::atomic<bool> taskRun_;
+      std::vector<std::function<void()>> tasks_;
 
 };
 
@@ -114,6 +136,9 @@ void firstTouchWork(double* data,
                     std::size_t start,
                     std::size_t end)
 {
+   // BPM_SCOPED_TRACE_COUT("start (" + std::to_string(start) +
+   //                       "), end (" + std::to_string(end) + ")");
+
    for (auto i = start; i < end; ++i)
    {
       data[i] = 1.0;
@@ -125,6 +150,10 @@ void benchmarkWork(double* data,
                    std::size_t end,
                    bool computeHeavy)
 {
+   // BPM_SCOPED_TRACE_COUT("start (" + std::to_string(start) +
+   //                       "), end (" + std::to_string(end) +
+   //                       "), computeHeavy (" + std::to_string(computeHeavy) + ")");
+
    if (true == computeHeavy)
    {
       for (auto i = start; i < end; ++i)
@@ -149,8 +178,12 @@ void benchmarkWork(double* data,
 int main(int argc,
          char** argv)
 {
+   BPM_SCOPED_TRACE_COUT("main");
+
    try
    {
+      BPM_SCOPED_TRACE_COUT("try");
+
       if (argc < 4)
       {
          BPM_ERROR_COUT("Usage: " + std::string(argv[0]) + " <threads> <bytes> <mode>");
@@ -199,27 +232,27 @@ int main(int argc,
          {
             const auto start = threadIndex * numElemsPerThread;
             const auto end = start + numElemsPerThread;
-            runner.threads().emplace_back([&, threadIndex, start, end]()
-                                          {
-                                             runner.workerStart(threadIndex);
-                                             // --- PHASE 1: FIRST TOUCH INITIALIZATION ---
-                                             if (0 == phase)
-                                             {
-                                                firstTouchWork(data.data(),
-                                                               start,
-                                                               end);
-                                             }
-                                             // --- PHASE 2: BENCHMARK ---
-                                             else // (1 == phase)
-                                             {
-                                                benchmarkWork(data.data(),
-                                                              start,
-                                                              end,
-                                                              computeHeavy);
-                                             }
-                                          });
+            runner.addTask([&, threadIndex, start, end]
+                           ()
+                           {
+                              // --- PHASE 1: FIRST TOUCH INITIALIZATION ---
+                              if (0 == phase)
+                              {
+                                 firstTouchWork(data.data(),
+                                                start,
+                                                end);
+                              }
+                              // --- PHASE 2: BENCHMARK ---
+                              else // (1 == phase)
+                              {
+                                 benchmarkWork(data.data(),
+                                               start,
+                                               end,
+                                               computeHeavy);
+                              }
+                           });
          }
-         std::cout << runner.executeWorkers(WAIT_SECONDS) << std::endl;
+         std::cout << runner.execute(WAIT_SECONDS) << std::endl;
       }
    }
    catch (const std::exception& e)
