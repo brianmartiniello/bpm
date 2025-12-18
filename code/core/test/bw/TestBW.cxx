@@ -149,66 +149,50 @@ void benchmarkWork(double* data,
 int main(int argc,
          char** argv)
 {
-   if (argc < 4)
-   {
-      BPM_ERROR_COUT("Usage: " + std::string(argv[0]) + " <threads> <bytes> <mode>");
-      return EXIT_FAILURE;
-   }
-
-   // Input
-   std::size_t numThreads = 0;
-   std::size_t numBytesTotal = 0;
-   std::string mode;
    try
    {
-      numThreads = std::stoi(argv[1]);
-      numBytesTotal = std::stoull(argv[2]);
-      mode = std::string(argv[3]);
-   }
-   catch (const std::exception& e)
-   {
-      BPM_ERROR_COUT(std::string("Caught an exception handling inputs: ") + e.what());
-      return EXIT_FAILURE;
-   }
-   catch (...)
-   {
-      BPM_ERROR_COUT("Caught an unknown exception handling inputs");
-      return EXIT_FAILURE;
-   }
+      if (argc < 4)
+      {
+         BPM_ERROR_COUT("Usage: " + std::string(argv[0]) + " <threads> <bytes> <mode>");
+         return EXIT_FAILURE;
+      }
 
-   BPM_TRACE_COUT("Input - numThreads (" + std::to_string(numThreads) +
-                  "), numBytesTotal (" + std::to_string(numBytesTotal) +
-                  "), mode (" + mode + ")");
+      // Input
+      const std::size_t numThreads = std::stoi(argv[1]);
+      const std::size_t numBytesTotal = std::stoull(argv[2]);
+      const std::string mode = std::string(argv[3]);
 
-   // Check input validity
-   if ((numThreads == 0) ||
-       (numBytesTotal == 0))
-   {
-      BPM_ERROR_COUT("numThreads (" + std::to_string(numThreads) +
-                     ") or numBytesTotal (" + std::to_string(numBytesTotal) +
-                     ") is 0");
-      return EXIT_FAILURE;
-   }
+      BPM_TRACE_COUT("Input - numThreads (" + std::to_string(numThreads) +
+                     "), numBytesTotal (" + std::to_string(numBytesTotal) +
+                     "), mode (" + mode + ")");
 
-   // Derived
-   const auto numBytesPerThread = (numBytesTotal / numThreads) +
-                                  ((numBytesTotal % numThreads) > 0);
-   const auto numElemsPerThread = (numBytesPerThread / sizeof(double)) +
-                                  ((numBytesPerThread % sizeof(double)) > 0);
-   const auto numElemsTotal = numElemsPerThread * numThreads;
-   const auto computeHeavy = (mode == "compute");
+      // Check input validity
+      if ((numThreads == 0) ||
+          (numBytesTotal == 0))
+      {
+         BPM_ERROR_COUT("numThreads (" + std::to_string(numThreads) +
+                        ") or numBytesTotal (" + std::to_string(numBytesTotal) +
+                        ") is 0");
+         return EXIT_FAILURE;
+      }
 
-   BPM_TRACE_COUT("Derived - numBytesPerThread (" + std::to_string(numBytesPerThread) +
-                  "), numElemsPerThread (" + std::to_string(numElemsPerThread) +
-                  "), numElemsTotal (" + std::to_string(numElemsTotal) +
-                  "), computeHeavy (" + std::to_string(computeHeavy) + ")");
+      // Derived
+      const auto numBytesPerThread = (numBytesTotal / numThreads) +
+                                     ((numBytesTotal % numThreads) > 0);
+      const auto numElemsPerThread = (numBytesPerThread / sizeof(double)) +
+                                     ((numBytesPerThread % sizeof(double)) > 0);
+      const auto numElemsTotal = numElemsPerThread * numThreads;
+      const auto computeHeavy = (mode == "compute");
 
-   std::vector<double> data(numElemsTotal);
-   ThreadGroupRunner runner;
-   const auto WAIT_SECONDS = 3U;
+      BPM_TRACE_COUT("Derived - numBytesPerThread (" + std::to_string(numBytesPerThread) +
+                     "), numElemsPerThread (" + std::to_string(numElemsPerThread) +
+                     "), numElemsTotal (" + std::to_string(numElemsTotal) +
+                     "), computeHeavy (" + std::to_string(computeHeavy) + ")");
 
-   try
-   {
+      std::vector<double> data(numElemsTotal);
+      ThreadGroupRunner runner;
+      const auto WAIT_SECONDS = 3U;
+
       for (auto phase = 0; phase < 2; ++phase)
       {
          for (auto threadIndex = 0; threadIndex < numThreads; ++threadIndex)
@@ -238,9 +222,19 @@ int main(int argc,
          std::cout << runner.executeWorkers(WAIT_SECONDS) << std::endl;
       }
    }
+   catch (const std::exception& e)
+   {
+      BPM_ERROR_COUT(std::string("Caught a standard exceptions: ") + e.what());
+      return EXIT_FAILURE;
+   }
+   catch (const std::string& e)
+   {
+      BPM_ERROR_COUT("Caught a string exception: " + e);
+      return EXIT_FAILURE;
+   }
    catch (...)
    {
-      BPM_ERROR_COUT("Caught an unknown exception executing workers");
+      BPM_ERROR_COUT("Caught an unknown exception");
       return EXIT_FAILURE;
    }
    return EXIT_SUCCESS;
