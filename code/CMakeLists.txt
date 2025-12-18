@@ -31,6 +31,10 @@ if("${CMAKE_POSITION_INDEPENDENT_CODE}" STREQUAL "")
 endif()
 message(STATUS "CMAKE_POSITION_INDEPENDENT_CODE (${CMAKE_POSITION_INDEPENDENT_CODE}) set by (${CMAKE_POSITION_INDEPENDENT_CODE_SOURCE})")
 
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+message(STATUS "Python3_FOUND (${Python3_FOUND})")
+message(STATUS "Python3_VERSION (${Python3_VERSION})")
+
 # Threads
 find_package(Threads REQUIRED)
 #set(Threads_VERSION ${Threads_VERSION} CACHE INTERNAL "")

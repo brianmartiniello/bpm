@@ -265,5 +265,26 @@ set_tests_properties(${TestBW_MAIN}
          "${CORE_TEST_ENV_VARS}"
 )
 
+set(TestBW_MAIN_PY "${TestBW_MAIN}.py")
+set(TestBW_MAIN_PY_SRC_PATH "${PATH_CORE_TEST_BW}/${TestBW_MAIN_PY}")
+set(TestBW_MAIN_PY_DEST_PATH "${CMAKE_CURRENT_BINARY_DIR}/${TestBW_MAIN_PY}")
+add_custom_command(
+   TARGET ${TestBW_MAIN}
+   POST_BUILD
+   COMMAND ${CMAKE_COMMAND} -E copy ${TestBW_MAIN_PY_SRC_PATH} ${TestBW_MAIN_PY_DEST_PATH}
+   COMMENT "Copying (${TestBW_MAIN_PY}) to build directory"
+   VERBATIM
+)
+# add_custom_command(
+#    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dist/${TestBW_MAIN_PY}"
+#    COMMAND ${Python3_EXECUTABLE} -m PyInstaller --onefile --name ${TestBW_MAIN_PY} ${TestBW_MAIN_PY_SRC_PATH}
+#    DEPENDS ${TestBW_MAIN_PY_SRC_PATH}
+#    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+#    COMMENT "Bundling Python script into an executable (${TestBW_MAIN_PY})..."
+# )
+# add_custom_target(${TestBW_MAIN_PY} ALL
+#    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/dist/${TestBW_MAIN_PY}"
+# )
+
 ##############################################
 ##############################################
