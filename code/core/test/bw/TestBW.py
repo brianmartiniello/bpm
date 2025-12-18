@@ -13,6 +13,8 @@ HTML_PATH = EXE_PATH + ".html"
 # ~800MB. 
 # Make this significantly larger than your CPU Cache (usually 16MB-64MB)
 # to ensure you are testing RAM bandwidth, not cache bandwidth.
+# DATA_SIZE_B = 1024
+# DATA_SIZE_B = 1024 * 1024
 DATA_SIZE_B = 800 * 1024 * 1024
 DATA_SIZE_GB = DATA_SIZE_B / 1e9
 MAX_THREADS = os.cpu_count()
@@ -59,7 +61,9 @@ def run_bench(num_threads, mode):
       print(f"Error {EXE_PATH}: {result.stderr}")
       return 0.0
 
-   return extract_elapsed_float(result.stdout.strip())
+   text = result.stdout.strip()
+   # print(f"text ({text})")
+   return extract_elapsed_float(text)
 
 # --- main ---
 def main():
@@ -120,20 +124,20 @@ def main():
    )
 
    fig.update_layout(
-       title=f'Performance Scaling ({DATA_SIZE_GB:.2f} GB Data)',
-       xaxis=dict(title='Number of Threads',
-                  tickmode='linear',
-                  dtick=1),
-       yaxis=dict(title='Bandwidth (GB/s)',
-                  side='left'),
-       yaxis2=dict(title='Compute Speedup Factor',
-                   overlaying='y',
-                   side='right',
-                   range=[0, MAX_THREADS]),
-       legend=dict(x=0.01,
-                   y=0.99),
-       template='plotly_white',
-       hovermode='x unified'
+      title=f'Performance Scaling ({DATA_SIZE_GB:.2f} GB Data)',
+      xaxis=dict(title='Number of Threads',
+                 tickmode='linear',
+                 dtick=1),
+      yaxis=dict(title='Bandwidth (GB/s)',
+                 side='left'),
+      yaxis2=dict(title='Compute Speedup Factor',
+                  overlaying='y',
+                  side='right',
+                  range=[0, MAX_THREADS]),
+      legend=dict(x=0.01,
+                  y=0.99),
+      template='plotly_white',
+      hovermode='x unified'
    )
 
    fig.write_html(HTML_PATH)

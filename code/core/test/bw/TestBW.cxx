@@ -95,6 +95,9 @@ int main(int argc,
                      "), numElemsTotal (" + std::to_string(numElemsTotal) +
                      "), computeHeavy (" + std::to_string(computeHeavy) + ")");
 
+      // std::cout << "ELAPSED[1.00]" << std::endl;
+      // return EXIT_SUCCESS;
+
       std::vector<double> data(numElemsTotal);
       bpm::core::TaskRunner taskRunner;
       const auto WAIT_SECONDS = 3U;
@@ -126,9 +129,11 @@ int main(int argc,
                                });
          }
 
+         const auto elapsed = taskRunner.execute(WAIT_SECONDS);
+
          if (1 == phase)
          {
-            std::cout << "ELAPSED[" << taskRunner.execute(WAIT_SECONDS) << "]" << std::endl;
+            BPM_TRACE_COUT("ELAPSED[" + std::to_string(elapsed) + "]");
          }
       }
    }
