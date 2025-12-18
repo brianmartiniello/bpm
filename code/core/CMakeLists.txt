@@ -38,12 +38,14 @@ set(SRC_FILES
    ${PATH_CORE_SRC}/CoreUtilities.cxx
    ${PATH_CORE_SRC}/Logger.cxx
    ${PATH_CORE_SRC}/SharedCountVector.cxx
+   ${PATH_CORE_SRC}/TaskRunner.cxx
    ${PATH_CORE_SRC}/Timer.cxx
    ${PATH_CORE_SRC}/Version.cxx
 )
 
 set(LINK_LIBS
    atomic
+   Threads::Threads
 )
 
 # set(COMPILER_DEFS
@@ -97,7 +99,6 @@ target_include_directories(${TARGET_LIB}
 target_link_libraries(${TARGET_LIB}
    PRIVATE
       ${LINK_LIBS}
-      Threads::Threads
 )
 
 if(COMPILER_DEFS)
@@ -265,6 +266,7 @@ foreach(TARGET_LIB ${TARGET_LIBS_CORE})
       PUBLIC
          ${LINK_LIBS}
          ${TARGET_LIBS_CORE_PREFIX}common
+         atomic
          Threads::Threads
    )
 
