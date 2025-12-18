@@ -142,7 +142,7 @@ int main(int argc,
    if (argc < 4)
    {
       BPM_ERROR_COUT("Usage: " + std::string(argv[0]) + " <threads> <bytes> <mode>");
-      return 1;
+      return EXIT_FAILURE;
    }
 
    // Input
@@ -158,12 +158,12 @@ int main(int argc,
    catch (const std::exception& e)
    {
       BPM_ERROR_COUT(std::string("Caught an exception handling inputs: ") + e.what());
-      return 1;
+      return EXIT_FAILURE;
    }
    catch (...)
    {
       BPM_ERROR_COUT("Caught an unknown exception handling inputs");
-      return 1;
+      return EXIT_FAILURE;
    }
 
    BPM_TRACE_COUT("Input - numThreads (" + std::to_string(numThreads) +
@@ -177,7 +177,7 @@ int main(int argc,
       BPM_ERROR_COUT("numThreads (" + std::to_string(numThreads) +
                      ") or numBytesTotal (" + std::to_string(numBytesTotal) +
                      ") is 0");
-      return 1;
+      return EXIT_FAILURE;
    }
 
    // Derived
@@ -194,37 +194,44 @@ int main(int argc,
                   "), computeHeavy (" + std::to_string(computeHeavy) + ")");
 
    std::vector<double> data(numElemsTotal);
-   std::vector<std::thread> threads;
+   ThreadGroupRunner runner;
+   const auto WAIT_SECONDS = 3U;
 
-   // // --- PHASE 1: FIRST TOUCH INITIALIZATION ---
-   // for (auto i = 0; i < numThreads; ++i)
-   // {
-   //    const auto start = i * numElemsPerThread;
-   //    const auto end = start + numElemsPerThread;
-   //    threads.emplace_back([&, start, end]()
-   //                         {
-   //                            for (auto j = start; j < end; ++j)
-   //                            {
-   //                               data[j] = 1.0;
-   //                            }
-   //                         });
-   // }
-   // for (auto& t : threads)
-   // {
-   //    t.join();
-   // }
-   // threads.clear();
+   try
+   {
+      // --- PHASE 1: FIRST TOUCH INITIALIZATION ---
+      for (auto i = 0; i < numThreads; ++i)
+      {
+         const auto start = i * numElemsPerThread;
+         const auto end = start + numElemsPerThread;
+         runner.threads().emplace_back([&, i, start, end]()
+                                       {
+                                          runner.workerStart(i);
+                                          for (auto j = start; j < end; ++j)
+                                          {
+                                             data[j] = 1.0;
+                                          }
+                                       });
+      }
+      runner.executeWorkers(WAIT_SECONDS);
 
-   //  // --- PHASE 2: BENCHMARK ---
-   //  auto start_time = std::chrono::high_resolution_clock::now();
-   //  for (int i = 0; i < numThreads; ++i) {
-   //      size_t start = i * chunk_size;
-   //      size_t end = (i == numThreads - 1) ? N : (i + 1) * chunk_size;
-   //      threads.emplace_back(work, data.data(), start, end, compute_heavy);
-   //  }
-   //  for (auto& t : threads) t.join();
-   //  auto end_time = std::chrono::high_resolution_clock::now();
-
-   //  std::cout << std::chrono::duration<double>(end_time - start_time).count() << std::endl;
-    return 0;
+      // --- PHASE 2: BENCHMARK ---
+      for (auto i = 0; i < numThreads; ++i)
+      {
+         const auto start = i * numElemsPerThread;
+         const auto end = start + numElemsPerThread;
+         runner.threads().emplace_back([&, i, start, end]()
+                                       {
+                                          runner.workerStart(i);
+                                          work(data.data(), start, end, computeHeavy);
+                                       });
+      }
+      std::cout << runner.executeWorkers(WAIT_SECONDS) << std::endl;
+   }
+   catch (...)
+   {
+      BPM_ERROR_COUT("Caught an unknown exception executing workers");
+      return EXIT_FAILURE;
+   }
+   return EXIT_SUCCESS;
 }
