@@ -110,10 +110,20 @@ struct ThreadGroupRunner
 
 };
 
-void work(double* data,
-          std::size_t start,
-          std::size_t end,
-          bool computeHeavy)
+void firstTouchWork(double* data,
+                    std::size_t start,
+                    std::size_t end)
+{
+   for (auto i = start; i < end; ++i)
+   {
+      data[i] = 1.0;
+   }
+}
+
+void benchmarkWork(double* data,
+                   std::size_t start,
+                   std::size_t end,
+                   bool computeHeavy)
 {
    if (true == computeHeavy)
    {
@@ -207,10 +217,9 @@ int main(int argc,
          runner.threads().emplace_back([&, i, start, end]()
                                        {
                                           runner.workerStart(i);
-                                          for (auto j = start; j < end; ++j)
-                                          {
-                                             data[j] = 1.0;
-                                          }
+                                          firstTouchWork(data.data(),
+                                                         start,
+                                                         end);
                                        });
       }
       runner.executeWorkers(WAIT_SECONDS);
@@ -223,7 +232,10 @@ int main(int argc,
          runner.threads().emplace_back([&, i, start, end]()
                                        {
                                           runner.workerStart(i);
-                                          work(data.data(), start, end, computeHeavy);
+                                          benchmarkWork(data.data(),
+                                                        start,
+                                                        end,
+                                                        computeHeavy);
                                        });
       }
       std::cout << runner.executeWorkers(WAIT_SECONDS) << std::endl;
