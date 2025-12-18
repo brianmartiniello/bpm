@@ -133,6 +133,7 @@ if(OpenMP_CXX_FOUND)
    target_compile_definitions(${TestOpenMP_MAIN}
       PRIVATE
          ${COMPILER_DEFS}
+         BPM_OPENMP_ENABLED
    )
 
    ADD_GTEST(${TestOpenMP_MAIN} XML)
