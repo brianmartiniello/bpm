@@ -21,6 +21,7 @@ void firstTouchWork(double* data,
 void benchmarkWork(double* data,
                    std::size_t start,
                    std::size_t end,
+                   std::size_t intensity,
                    bool computeHeavy)
 {
    // BPM_SCOPED_TRACE_COUT("start (" + std::to_string(start) +
@@ -29,10 +30,11 @@ void benchmarkWork(double* data,
 
    if (true == computeHeavy)
    {
+      // Compute-bound: Repeat heavy math to keep CPU busy
       for (auto i = start; i < end; ++i)
       {
          auto val = data[i];
-         for (auto j = 0; j < 100; ++j)
+         for (auto j = 0; j < intensity; ++j)
          {
             val = std::sqrt(std::sin(val) + 2.0);
          }
@@ -41,9 +43,13 @@ void benchmarkWork(double* data,
    }
    else
    {
+      // Memory-bound: Simple scaling (Intensity acts as repeat-access if needed)
       for (auto i = start; i < end; ++i)
       {
-         data[i] = data[i] * 0.5 + 0.2;
+         for (auto j = 0; j < intensity; ++j)
+         {
+            data[i] = data[i] * 0.5 + 0.2;
+         }
       }
    }
 }
@@ -57,27 +63,31 @@ int main(int argc,
    {
       BPM_SCOPED_TRACE_COUT("try");
 
-      if (argc < 4)
+      if (argc < 5)
       {
-         BPM_ERROR_COUT("Usage: " + std::string(argv[0]) + " <threads> <bytes> <mode>");
+         BPM_ERROR_COUT("Usage: " + std::string(argv[0]) + " <threads> <bytes> <intensity> <mode>");
          return EXIT_FAILURE;
       }
 
       // Input
       const std::size_t numThreads = std::stoi(argv[1]);
       const std::size_t numBytesTotal = std::stoull(argv[2]);
-      const std::string mode = std::string(argv[3]);
+      const std::size_t intensity = std::stoull(argv[3]);
+      const std::string mode = std::string(argv[4]);
 
       BPM_TRACE_COUT("Input - numThreads (" + std::to_string(numThreads) +
                      "), numBytesTotal (" + std::to_string(numBytesTotal) +
+                     "), intensity (" + std::to_string(intensity) +
                      "), mode (" + mode + ")");
 
       // Check input validity
       if ((numThreads == 0) ||
-          (numBytesTotal == 0))
+          (numBytesTotal == 0) ||
+          (intensity == 0))
       {
          BPM_ERROR_COUT("numThreads (" + std::to_string(numThreads) +
                         ") or numBytesTotal (" + std::to_string(numBytesTotal) +
+                        ") or intensity (" + std::to_string(intensity) +
                         ") is 0");
          return EXIT_FAILURE;
       }
@@ -124,6 +134,7 @@ int main(int argc,
                                      benchmarkWork(data.data(),
                                                    start,
                                                    end,
+                                                   intensity,
                                                    computeHeavy);
                                   }
                                });

@@ -62,9 +62,9 @@ def resource_path(relative_path):
    return os.path.join(base_path, relative_path)
 
 # --- run_bench ---
-def run_bench(num_threads, mode):
+def run_bench(num_threads, intensity, mode):
    # Arguments: <threads> <bytes> <mode>
-   args = [EXE_PATH, str(num_threads), str(DATA_SIZE_B), mode]
+   args = [EXE_PATH, str(num_threads), str(DATA_SIZE_B), str(intensity), mode]
    result = subprocess.run(args, capture_output=True, text=True)
     
    if result.returncode != 0:
@@ -86,15 +86,16 @@ def main():
    print(f"DATA_SIZE_KB ({DATA_SIZE_KB:.2f})")
    print(f"DATA_SIZE_MB ({DATA_SIZE_MB:.2f})")
    print(f"DATA_SIZE_GB ({DATA_SIZE_GB:.2f})")
+
+   # --- RUN 1: BANDWIDTH SATURATION (Fixed Intensity = 1) ---
+   print(f"Running Bandwidth Sweep ...")
    print(f"{'Threads':<8} | {'Mem time (s)':<12} | {'Mem GB/s':<12} | {'Comp time (s)':<14} | {'Comp Speedup':<12}")
    print("-" * 72)
-
-   # --- DATA COLLECTION ---
    threads, mem_bw, comp_scale = [], [], []
    for t in range(1, MAX_THREADS + 1):
       # Take the minimum time (best performance) across trials
-      m_time = min([run_bench(t, "memory") for _ in range(3)])
-      c_time = min([run_bench(t, "compute") for _ in range(3)])
+      m_time = min([run_bench(t, 1, "memory") for _ in range(3)])
+      c_time = min([run_bench(t, 1, "compute") for _ in range(3)])
        
       if t == 1: 
          base_c_time = c_time
@@ -122,6 +123,9 @@ def main():
          yaxis="y1"
       )
    )
+   # fig.add_hline(y=max(mem_bw),
+   #               line_dash="dash",
+   #               annotation_text="Hardware Cap")
 
    # Compute Scaling Trace
    fig.add_trace(
@@ -153,7 +157,58 @@ def main():
       hovermode='x unified'
    )
 
-   fig.write_html(HTML_PATH)
+   fig.write_html(EXE_PATH + "_mem.html")
+   # fig.show()
+
+   # --- RUN 2: INTENSITY CROSSOVER (1 vs MAX threads) ---
+   print("Running Intensity Sweep...")
+   print(f"{'Intensity':<10} | {'1 thread (s)':<14} | {'Max threads (s)':<16} | {'Speedup':<12}")
+   print("-" * 72)
+   intensities = list(range(5, 51, 5))
+   # print("Intensities (" + str(intensities) + ")")
+   speedups = []
+   for intensity in intensities:
+      # Take the minimum time (best performance) across trials
+      t1 = min([run_bench(1, intensity, "compute") for _ in range(3)])
+      t_max = min([run_bench(MAX_THREADS, intensity, "compute") for _ in range(3)])
+      speedup = t1 / t_max
+      speedups.append(speedup)
+
+      print(f"{intensity:<10} | {t1:<14.2f} | {t_max:<16.2f} | {speedup:<12.2f}")
+
+   # --- PLOTTING ---
+   fig = go.Figure()
+
+   fig.add_trace(
+      go.Scatter(
+         x=intensities,
+         y=speedups,
+         mode='lines+markers',
+         name='Speedup (x)'
+      )
+   )
+   fig.add_hline(y=1.0,
+                 line_dash="dot",
+                 line_color="red",
+                 annotation_text="Break-even")
+   fig.add_hline(y=MAX_THREADS,
+                 line_dash="dot",
+                 line_color="green",
+                 annotation_text="Ideal Scaling")
+
+   fig.update_layout(
+      title=f'Parallel Speedup vs Math Intensity',
+      xaxis=dict(title='Intensity',
+                 tickmode='linear',
+                 dtick=1),
+      yaxis=dict(title='Compute Speedup Factor'),
+      legend=dict(x=0.01,
+                  y=0.99),
+      template='plotly_white',
+      hovermode='x unified'
+   )
+
+   fig.write_html(EXE_PATH + "_intensity.html")
    # fig.show()
 
 if __name__ == "__main__":
