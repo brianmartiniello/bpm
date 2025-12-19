@@ -87,6 +87,12 @@ def main():
    print(f"DATA_SIZE_MB ({DATA_SIZE_MB:.2f})")
    print(f"DATA_SIZE_GB ({DATA_SIZE_GB:.2f})")
 
+   # What to Look For in the Unified Results
+   #  1. The Bandwidth Plateau (Plot 1): On your Pi, this will likely hit a wall at 1 or 2 threads. This confirms that for "thin" tasks, using par is actually slower because of the overhead.
+   #  2. The Tipping Point (Plot 2): Look for where the speedup line crosses 1.0.
+   #      - If it crosses at intensity 5, and your real work does 10 math operations per element, Parallelize!
+   #      - If it crosses at intensity 20, but your work is just a simple sum, Stay Sequential.
+
    # --- RUN 1: BANDWIDTH SATURATION (Fixed Intensity = 1) ---
    print(f"Running Bandwidth Sweep ...")
    print(f"{'Threads':<8} | {'Mem time (s)':<12} | {'Mem GB/s':<12} | {'Comp time (s)':<14} | {'Comp Speedup':<12}")
@@ -107,7 +113,7 @@ def main():
       mem_bw.append(bw)
       comp_scale.append(speedup)
 
-      print(f"{t:<8} | {m_time:<12.6f} | {bw:<12.2f} | {c_time:<14.6f} | {speedup:<12.2f}")
+      print(f"{t:<8} | {m_time:<12.6f} | {bw:<12.6f} | {c_time:<14.6f} | {speedup:<12.6f}")
 
    # --- PLOTTING ---
    fig = go.Figure()
@@ -164,17 +170,18 @@ def main():
    print("Running Intensity Sweep...")
    print(f"{'Intensity':<10} | {'1 thread (s)':<14} | {'Max threads (s)':<16} | {'Speedup':<12}")
    print("-" * 72)
-   intensities = list(range(5, 51, 5))
+   intensities = list(range(0, 51, 5))
    # print("Intensities (" + str(intensities) + ")")
    speedups = []
    for intensity in intensities:
+      intensity = 1 if intensity == 0 else intensity
       # Take the minimum time (best performance) across trials
       t1 = min([run_bench(1, intensity, "compute") for _ in range(3)])
       t_max = min([run_bench(MAX_THREADS, intensity, "compute") for _ in range(3)])
       speedup = t1 / t_max
       speedups.append(speedup)
 
-      print(f"{intensity:<10} | {t1:<14.2f} | {t_max:<16.2f} | {speedup:<12.2f}")
+      print(f"{intensity:<10} | {t1:<14.6f} | {t_max:<16.6f} | {speedup:<12.6f}")
 
    # --- PLOTTING ---
    fig = go.Figure()
