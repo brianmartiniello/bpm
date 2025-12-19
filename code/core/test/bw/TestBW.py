@@ -10,13 +10,12 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 EXE_NAME = "TestBW"
 EXE_PATH = os.path.join(SCRIPT_DIR, EXE_NAME)
 HTML_PATH = EXE_PATH + ".html"
-# ~800MB. 
 # Make this significantly larger than your CPU Cache (usually 16MB-64MB)
 # to ensure you are testing RAM bandwidth, not cache bandwidth.
 # DATA_SIZE_B = 1024
-# DATA_SIZE_B = 1024 * 1024
-DATA_SIZE_B = 2 * 1024 * 1024
-# DATA_SIZE_B = 4 * 1024 * 1024
+# DATA_SIZE_B = 1 * 1024 * 1024
+# DATA_SIZE_B = 2 * 1024 * 1024
+DATA_SIZE_B = 4 * 1024 * 1024
 # DATA_SIZE_B = 8 * 1024 * 1024
 # DATA_SIZE_B = 16 * 1024 * 1024
 # DATA_SIZE_B = 32 * 1024 * 1024
@@ -106,6 +105,7 @@ def main():
       threads.append(t)
       mem_bw.append(bw)
       comp_scale.append(speedup)
+
       print(f"{t:<8} | {m_time:<12.6f} | {bw:<12.2f} | {c_time:<14.6f} | {speedup:<12.2f}")
 
    # --- PLOTTING ---
