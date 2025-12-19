@@ -15,8 +15,19 @@ HTML_PATH = EXE_PATH + ".html"
 # to ensure you are testing RAM bandwidth, not cache bandwidth.
 # DATA_SIZE_B = 1024
 # DATA_SIZE_B = 1024 * 1024
-DATA_SIZE_B = 800 * 1024 * 1024
-DATA_SIZE_GB = DATA_SIZE_B / 1e9
+DATA_SIZE_B = 2 * 1024 * 1024
+# DATA_SIZE_B = 4 * 1024 * 1024
+# DATA_SIZE_B = 8 * 1024 * 1024
+# DATA_SIZE_B = 16 * 1024 * 1024
+# DATA_SIZE_B = 32 * 1024 * 1024
+# DATA_SIZE_B = 64 * 1024 * 1024
+# DATA_SIZE_B = 128 * 1024 * 1024
+# DATA_SIZE_B = 256 * 1024 * 1024
+# DATA_SIZE_B = 512 * 1024 * 1024
+# DATA_SIZE_B = 1024 * 1024 * 1024
+DATA_SIZE_KB = DATA_SIZE_B / 1024
+DATA_SIZE_MB = DATA_SIZE_KB / 1024
+DATA_SIZE_GB = DATA_SIZE_MB / 1024
 MAX_THREADS = os.cpu_count()
 
 # --- extract_elapsed_float ---
@@ -73,9 +84,11 @@ def main():
    print(f"EXE_PATH ({EXE_PATH})")
    print(f"HTML_PATH ({HTML_PATH})")
    print(f"DATA_SIZE_B ({DATA_SIZE_B})")
+   print(f"DATA_SIZE_KB ({DATA_SIZE_KB:.2f})")
+   print(f"DATA_SIZE_MB ({DATA_SIZE_MB:.2f})")
    print(f"DATA_SIZE_GB ({DATA_SIZE_GB:.2f})")
-   print(f"{'Threads':<8} | {'Mem GB/s':<12} | {'Comp Speedup':<12}")
-   print("-" * 40)
+   print(f"{'Threads':<8} | {'Mem time (s)':<12} | {'Mem GB/s':<12} | {'Comp time (s)':<14} | {'Comp Speedup':<12}")
+   print("-" * 72)
 
    # --- DATA COLLECTION ---
    threads, mem_bw, comp_scale = [], [], []
@@ -93,7 +106,7 @@ def main():
       threads.append(t)
       mem_bw.append(bw)
       comp_scale.append(speedup)
-      print(f"{t:<8} | {bw:<12.2f} | {speedup:<12.2f}")
+      print(f"{t:<8} | {m_time:<12.6f} | {bw:<12.2f} | {c_time:<14.6f} | {speedup:<12.2f}")
 
    # --- PLOTTING ---
    fig = go.Figure()
