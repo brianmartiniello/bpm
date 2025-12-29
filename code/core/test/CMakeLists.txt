@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(PATH_CORE_TEST_BW ${PATH_CORE_TEST}/bw CACHE INTERNAL "")
+set(PATH_CORE_TEST_OMP ${PATH_CORE_TEST}/omp CACHE INTERNAL "")
 set(PATH_CORE_TEST_UT ${PATH_CORE_TEST}/ut CACHE INTERNAL "")
 
 # Set ctest variables
@@ -111,7 +112,7 @@ if(OpenMP_CXX_FOUND)
    add_executable(${TestOpenMP_MAIN}
       ${PATH_CORE_SRC}/Logger.cxx
       ${PATH_CORE_SRC}/Timer.cxx
-      ${PATH_CORE_TEST_UT}/TestOpenMP.cxx
+      ${PATH_CORE_TEST_OMP}/TestOpenMP.cxx
    )
 
    # target_compile_options(${TestOpenMP_MAIN}
@@ -143,7 +144,7 @@ if(OpenMP_CXX_FOUND)
             ${CORE_TEST_LABEL}
          ENVIRONMENT
             "${CORE_TEST_ENV_VARS}"
-)
+   )
 endif()
 
 ##############################################
