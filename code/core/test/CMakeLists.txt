@@ -359,7 +359,7 @@ target_compile_definitions(${TestGuardBenchmark_MAIN}
       ${COMPILER_DEFS}
 )
 
-ADD_GTEST(${TestGuardBenchmark_MAIN} XML)
+ADD_GTEST(${TestGuardBenchmark_MAIN} "")
 set_tests_properties(${TestGuardBenchmark_MAIN}
    PROPERTIES
       LABELS
