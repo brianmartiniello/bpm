@@ -42,6 +42,21 @@ class TestScopedGuard : public ::testing::Test
 
             EXPECT_EQ(count, 0);
          }
+         
+         {
+            BPM_SCOPED_TRACE_COUT("makeScopedGuard");
+
+            auto count = 0U;
+
+            auto cleanup = [&](){ ++count; };
+
+            {
+               auto scopedGuard = bpm::core::makeScopedGuard(cleanup);
+               (void) scopedGuard;
+            }
+
+            EXPECT_EQ(count, 1);
+         }
       }
 
    private:

@@ -41,6 +41,12 @@ namespace bpm
             bool active_;
 
       };
+
+      template <typename F>
+      ScopeGuard<F> makeScopedGuard(F&& f)
+      {
+         return ScopeGuard<F>(std::forward<F>(f));
+      }
    }
 }
 
