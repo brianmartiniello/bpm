@@ -102,6 +102,12 @@ struct GenericGuard
    F cleanup;
    bool active = true;
    
+   GenericGuard(F&& f)
+      : cleanup(std::forward<F>(f))
+      , active(true)
+   {
+   }
+   
    ~GenericGuard()
    {
       if (active)
@@ -116,6 +122,12 @@ struct GenericGuard
    }
 };
 
+template <typename F>
+GenericGuard<F> makeGenericGuard(F&& f)
+{
+   return GenericGuard<F>(std::forward<F>(f));
+}
+
 static void BM_GenericLambda(benchmark::State& state)
 {
    std::vector<Data> input(state.range(0),
@@ -126,7 +138,7 @@ static void BM_GenericLambda(benchmark::State& state)
    {
       for (size_t i = 0; i < input.size(); ++i)
       {
-         auto guard = GenericGuard<std::function<void()>>{[&] { output[i].valid = false; }};
+         auto guard = makeGenericGuard([&]{ output[i].valid = false; });
 
          if (!input[i].valid)
          {
