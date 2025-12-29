@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
+set(PATH_CORE_TEST_BENCHMARK ${PATH_CORE_TEST}/benchmark CACHE INTERNAL "")
 set(PATH_CORE_TEST_BW ${PATH_CORE_TEST}/bw CACHE INTERNAL "")
 set(PATH_CORE_TEST_OMP ${PATH_CORE_TEST}/omp CACHE INTERNAL "")
 set(PATH_CORE_TEST_UT ${PATH_CORE_TEST}/ut CACHE INTERNAL "")
@@ -20,6 +21,7 @@ set(INCLUDE_DIRS
 set(LINK_LIBS
    atomic
    GTest::GTest
+   benchmark::benchmark
 )
 set(COMPILER_DEFS)
 
@@ -326,6 +328,45 @@ add_custom_command(
 # add_custom_target(${TestBW_MAIN_PY} ALL
 #    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/dist/${TestBW_MAIN_PY}"
 # )
+
+##############################################
+##############################################
+
+set(TestGuardBenchmark_MAIN TestGuardBenchmark)
+
+add_executable(${TestGuardBenchmark_MAIN}
+   ${PATH_CORE_SRC}/Logger.cxx
+   ${PATH_CORE_TEST_BENCHMARK}/TestGuard.cxx
+)
+
+# target_compile_options(${TestGuardBenchmark_MAIN}
+#    PRIVATE
+#       ${PLATFORM_COMPILE_OPTIONS}
+# )
+
+target_include_directories(${TestGuardBenchmark_MAIN}
+   PRIVATE
+      ${INCLUDE_DIRS}
+)
+
+target_link_libraries(${TestGuardBenchmark_MAIN}
+   PRIVATE
+      ${LINK_LIBS}
+)
+
+target_compile_definitions(${TestGuardBenchmark_MAIN}
+   PRIVATE
+      ${COMPILER_DEFS}
+)
+
+ADD_GTEST(${TestGuardBenchmark_MAIN} XML)
+set_tests_properties(${TestGuardBenchmark_MAIN}
+   PROPERTIES
+      LABELS
+         ${CORE_TEST_LABEL}
+      ENVIRONMENT
+         "${CORE_TEST_ENV_VARS}"
+)
 
 ##############################################
 ##############################################
