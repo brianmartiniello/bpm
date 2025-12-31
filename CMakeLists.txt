@@ -1,5 +1,39 @@
 cmake_minimum_required(VERSION 3.16)
 
+# CMAKE_ASM_COMPILER:FILEPATH=/usr/bin/cc
+# CMAKE_ASM_COMPILER_AR:FILEPATH=/usr/bin/gcc-ar
+# CMAKE_ASM_COMPILER_RANLIB:FILEPATH=/usr/bin/gcc-ranlib
+# CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++
+# CMAKE_CXX_COMPILER_AR:FILEPATH=/usr/bin/gcc-ar-8
+# CMAKE_CXX_COMPILER_RANLIB:FILEPATH=/usr/bin/gcc-ranlib-8
+# CMAKE_C_COMPILER:FILEPATH=/usr/bin/cc
+# CMAKE_C_COMPILER_AR:FILEPATH=/usr/bin/gcc-ar-8
+# CMAKE_C_COMPILER_RANLIB:FILEPATH=/usr/bin/gcc-ranlib-8
+
+# set(CMAKE_ASM_COMPILER "/opt/gcc-10.1.0/bin/gcc-10.1" CACHE INTERNAL "")
+# set(CMAKE_ASM_COMPILER_AR "/opt/gcc-10.1.0/bin/gcc-ar-10.1" CACHE INTERNAL "")
+# set(CMAKE_ASM_COMPILER_RANLIB "/opt/gcc-10.1.0/bin/gcc-ranlib-10.1" CACHE INTERNAL "")
+# set(CMAKE_CXX_COMPILER "/opt/gcc-10.1.0/bin/g++-10.1" CACHE INTERNAL "")
+# set(CMAKE_CXX_COMPILER_AR "/opt/gcc-10.1.0/bin/gcc-ar-10.1" CACHE INTERNAL "")
+# set(CMAKE_CXX_COMPILER_RANLIB "/opt/gcc-10.1.0/bin/gcc-ranlib-10.1" CACHE INTERNAL "")
+# set(CMAKE_C_COMPILER "/opt/gcc-10.1.0/bin/gcc-10.1" CACHE INTERNAL "")
+# set(CMAKE_C_COMPILER_AR "/opt/gcc-10.1.0/bin/gcc-ar-10.1" CACHE INTERNAL "")
+# set(CMAKE_C_COMPILER_RANLIB "/opt/gcc-10.1.0/bin/gcc-ranlib-10.1" CACHE INTERNAL "")
+
+set(CMAKE_CXX_COMPILER "/opt/gcc-10.1.0/bin/g++-10.1" CACHE INTERNAL "")
+message(STATUS "CMAKE_CXX_COMPILER (${CMAKE_CXX_COMPILER})")
+# Tell the compiler where the system libraries are
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/usr/lib/arm-linux-gnueabihf")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/include/arm-linux-gnueabihf")
+# set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
+# export LIBRARY_PATH=/usr/lib/arm-linux-gnueabihf:$LIBRARY_PATH
+# export CPATH=/usr/include/arm-linux-gnueabihf:$CPATH
+# export C_INCLUDE_PATH=/usr/include/arm-linux-gnueabihf:$C_INCLUDE_PATH
+# export CPLUS_INCLUDE_PATH=/usr/include/arm-linux-gnueabihf:$CPLUS_INCLUDE_PATH
+# sudo ln -s /usr/lib/arm-linux-gnueabihf/crt1.o /usr/lib/crt1.o
+# sudo ln -s /usr/lib/arm-linux-gnueabihf/crti.o /usr/lib/crti.o
+# sudo ln -s /usr/lib/arm-linux-gnueabihf/crtn.o /usr/lib/crtn.o
+
 # Name of the project is bpm.
 # The variables bpm_SOURCE_DIR and bpm_BINARY_DIR are set with this command.
 # Version number is set here manually.
