@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 set(PATH_CORE_TEST_BENCHMARK ${PATH_CORE_TEST}/benchmark CACHE INTERNAL "")
 set(PATH_CORE_TEST_BW ${PATH_CORE_TEST}/bw CACHE INTERNAL "")
+set(PATH_CORE_TEST_CONCEPTS ${PATH_CORE_TEST}/concepts CACHE INTERNAL "")
 set(PATH_CORE_TEST_OMP ${PATH_CORE_TEST}/omp CACHE INTERNAL "")
 set(PATH_CORE_TEST_UT ${PATH_CORE_TEST}/ut CACHE INTERNAL "")
 
@@ -22,6 +23,8 @@ set(LINK_LIBS
    atomic
    GTest::GTest
    benchmark::benchmark
+   # Threads::Threads
+   pthread
 )
 set(COMPILER_DEFS)
 
@@ -361,6 +364,45 @@ target_compile_definitions(${TestGuardBenchmark_MAIN}
 
 ADD_GTEST(${TestGuardBenchmark_MAIN} "")
 set_tests_properties(${TestGuardBenchmark_MAIN}
+   PROPERTIES
+      LABELS
+         ${CORE_TEST_LABEL}
+      ENVIRONMENT
+         "${CORE_TEST_ENV_VARS}"
+)
+
+##############################################
+##############################################
+
+set(TestDerivedFromConcept_MAIN TestDerivedFromConcept)
+
+add_executable(${TestDerivedFromConcept_MAIN}
+   ${PATH_CORE_SRC}/Logger.cxx
+   ${PATH_CORE_TEST_CONCEPTS}/TestDerivedFrom.cxx
+)
+
+# target_compile_options(${TestDerivedFromConcept_MAIN}
+#    PRIVATE
+#       ${PLATFORM_COMPILE_OPTIONS}
+# )
+
+target_include_directories(${TestDerivedFromConcept_MAIN}
+   PRIVATE
+      ${INCLUDE_DIRS}
+)
+
+target_link_libraries(${TestDerivedFromConcept_MAIN}
+   PRIVATE
+      ${LINK_LIBS}
+)
+
+target_compile_definitions(${TestDerivedFromConcept_MAIN}
+   PRIVATE
+      ${COMPILER_DEFS}
+)
+
+ADD_GTEST(${TestDerivedFromConcept_MAIN} "")
+set_tests_properties(${TestDerivedFromConcept_MAIN}
    PROPERTIES
       LABELS
          ${CORE_TEST_LABEL}
