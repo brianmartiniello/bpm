@@ -302,13 +302,20 @@ target_link_libraries(${TestBW_MAIN}
 #       ${COMPILER_DEFS}
 # )
 
-ADD_GTEST(${TestBW_MAIN} XML)
-set_tests_properties(${TestBW_MAIN}
-   PROPERTIES
-      LABELS
-         ${CORE_TEST_LABEL}
-      ENVIRONMENT
-         "${CORE_TEST_ENV_VARS}"
+# ADD_GTEST(${TestBW_MAIN} XML)
+# set_tests_properties(${TestBW_MAIN}
+#    PROPERTIES
+#       LABELS
+#          ${CORE_TEST_LABEL}
+#       ENVIRONMENT
+#          "${CORE_TEST_ENV_VARS}"
+# )
+set(TestBW_MAIN_THREADS 4)
+set(TestBW_MAIN_BYTES 1024)
+set(TestBW_MAIN_INTENSITY 1000)
+set(TestBW_MAIN_MODE memory)
+add_test(NAME ${TestBW_MAIN}
+   COMMAND ${TestBW_MAIN} ${TestBW_MAIN_THREADS} ${TestBW_MAIN_BYTES} ${TestBW_MAIN_INTENSITY} ${TestBW_MAIN_MODE}
 )
 
 set(TestBW_MAIN_PY "${TestBW_MAIN}.py")
