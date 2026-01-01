@@ -3,16 +3,20 @@
 #include <concepts>
 #include <cstdint>
 #include <iostream>
+#include <type_traits>
 
 #include <gtest/gtest.h>
 
 #include <bpm/core/Logger.hxx>
 
+struct Unrelated {};
+
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+
 struct Base {};
 
 struct Derived : Base {};
-
-struct Unrelated {};
 
 template<typename D>
 concept DerivedFromBase = std::derived_from<D, Base>;
@@ -24,6 +28,61 @@ void analyze(T obj)
    std::cout << "Success: Type is derived from Base.\n";
 }
 
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+
+// 1. Your templated base
+template<typename T>
+struct BaseT {};
+
+struct DerivedT : BaseT<int> {};
+
+// 2. Create a helper namespace to hide the detection logic
+namespace detail
+{
+   template<typename T>
+   void is_derived_from_baseT(const BaseT<T>&);
+}
+
+// 3. Define the concept by checking if a call to that function is valid
+template<typename D>
+concept DerivedFromTemplatedBaseT = requires(D d)
+{
+   detail::is_derived_from_baseT(d);
+};
+
+// // 2A. A helper trait to check for inheritance from Base<T>
+// template <typename T>
+// struct is_derived_from_baseT
+// {
+//    static constexpr bool value = false;
+// };
+
+// // 2B. This specialization "unwraps" the Base<U> inheritance
+// template <typename U>
+// struct is_derived_from_baseT<BaseT<U>>
+// {
+//    static constexpr bool value = true;
+// };
+
+// // 3. Define the concept using a "requires" expression to check 
+// //    if the type can be converted to its own Base version
+// template<typename D>
+// concept DerivedFromTemplatedBaseT = requires(D d)
+// {
+//    []<typename T>(BaseT<T>&){}(d);
+// };
+
+template<DerivedFromTemplatedBaseT T>
+void analyzeT(T obj)
+{
+   // Works for any BaseT<int>, BaseT<double>, etc.
+   std::cout << "Success: Type is derived from BaseT.\n";
+}
+
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+
 class TestDerivedFrom : public ::testing::Test
 {
    public:
@@ -34,15 +93,36 @@ class TestDerivedFrom : public ::testing::Test
       {
          BPM_SCOPED_TRACE_COUT("test");
 
-         Derived d;
          Unrelated u;
-
-         analyze(d); // Compiles perfectly
-
          // analyze(u);
          // ^ ERROR: constraints not satisfied.
          // The compiler will explicitly tell you that 'Unrelated'
          // does not satisfy 'DerivedFromBase'.
+         (void) u;
+
+         Base b;
+         analyze(b); // Success
+
+         Derived d;
+         analyze(d); // Success
+      }
+
+      void testT()
+      {
+         BPM_SCOPED_TRACE_COUT("testT");
+
+         Unrelated u;
+         // analyzeT(u);
+         // ^ ERROR: constraints not satisfied.
+         // The compiler will explicitly tell you that 'Unrelated'
+         // does not satisfy 'DerivedFromBase'.
+         (void) u;
+
+         BaseT<double> b;
+         analyzeT(b); // Success
+
+         DerivedT d; // Inherits Base<int>   
+         analyzeT(d); // Success
       }
 
    private:
@@ -53,6 +133,12 @@ class TestDerivedFrom : public ::testing::Test
 TEST_F(TestDerivedFrom, test)
 {
    test();
+}
+
+
+TEST_F(TestDerivedFrom, testT)
+{
+   testT();
 }
 
 
