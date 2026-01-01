@@ -44,6 +44,16 @@ namespace detail
    void is_derived_from_baseT(const BaseT<T>&);
 }
 
+// Why it works without a body - When the compiler evaluates a concept, it performs Substitution and Overload Resolution:
+// A. Substitution: It looks at detail::is_base_of_templated_base(d).
+// B. Deduction: It asks, "Can I find a version of this function where d fits the arguments?"
+// C. Validation: If d is a DerivedT (which inherits from BaseT<int>), the compiler realizes it can treat d as a BaseT<int>&. It successfully deduces that T = int.
+// D. Discard: Once the compiler proves that a valid function call could be formed, it is satisfied. It never generates a call to that address, so the linker never looks for a function body.
+
+// Key Properties of this Pattern
+// A. No Runtime Overhead: Since the function is never called, it adds zero bytes to your final executable.
+// B. Compile-Time Only: This exists purely to "trick" the compiler into performing template argument deduction for us.
+
 // 3. Define the concept by checking if a call to that function is valid
 template<typename D>
 concept DerivedFromTemplatedBaseT = requires(D d)
