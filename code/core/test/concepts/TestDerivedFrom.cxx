@@ -8,6 +8,21 @@
 
 #include <bpm/core/Logger.hxx>
 
+struct Base {};
+
+struct Derived : Base {};
+
+struct Unrelated {};
+
+template<typename D>
+concept DerivedFromBase = std::derived_from<D, Base>;
+
+// Using the concept shorthand
+template<DerivedFromBase T>
+void analyze(T obj)
+{
+   std::cout << "Success: Type is derived from Base.\n";
+}
 
 class TestDerivedFrom : public ::testing::Test
 {
@@ -18,6 +33,16 @@ class TestDerivedFrom : public ::testing::Test
       void test()
       {
          BPM_SCOPED_TRACE_COUT("test");
+
+         Derived d;
+         Unrelated u;
+
+         analyze(d); // Compiles perfectly
+
+         // analyze(u);
+         // ^ ERROR: constraints not satisfied.
+         // The compiler will explicitly tell you that 'Unrelated'
+         // does not satisfy 'DerivedFromBase'.
       }
 
    private:
