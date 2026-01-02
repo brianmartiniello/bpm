@@ -22,6 +22,18 @@ template<typename D>
 concept DerivedFromBase = std::derived_from<D, Base>;
 
 // Using the concept shorthand
+//template<DerivedFromBase T>
+//void analyze(T obj)
+
+// Using the concept requires clause
+//template<typename T>
+//requires DerivedFromBase<T>
+//void analyze(T obj)
+
+// Using the concept trailing requires clause
+//template<typename T>
+//void analyze(T obj) requires DerivedFromBase<T>
+
 template<DerivedFromBase T>
 void analyze(T obj)
 {
@@ -83,7 +95,8 @@ concept DerivedFromTemplatedBaseT = requires(D d)
 //    []<typename T>(BaseT<T>&){}(d);
 // };
 
-template<DerivedFromTemplatedBaseT T>
+template<typename T>
+requires DerivedFromTemplatedBaseT<T>
 void analyzeT(T obj)
 {
    // Works for any BaseT<int>, BaseT<double>, etc.
