@@ -419,3 +419,43 @@ set_tests_properties(${TestDerivedFromConcept_MAIN}
 
 ##############################################
 ##############################################
+
+set(TestThread_MAIN TestThread)
+
+add_executable(${TestThread_MAIN}
+   ${PATH_CORE_SRC}/Logger.cxx
+   ${PATH_CORE_SRC}/Thread.cxx
+   ${PATH_CORE_TEST_UT}/TestThread.cxx
+)
+
+# target_compile_options(${TestThread_MAIN}
+#    PRIVATE
+#       ${PLATFORM_COMPILE_OPTIONS}
+# )
+
+target_include_directories(${TestThread_MAIN}
+   PRIVATE
+      ${INCLUDE_DIRS}
+)
+
+target_link_libraries(${TestThread_MAIN}
+   PRIVATE
+      ${LINK_LIBS}
+)
+
+target_compile_definitions(${TestThread_MAIN}
+   PRIVATE
+      ${COMPILER_DEFS}
+)
+
+ADD_GTEST(${TestThread_MAIN} "")
+set_tests_properties(${TestThread_MAIN}
+   PROPERTIES
+      LABELS
+         ${CORE_TEST_LABEL}
+      ENVIRONMENT
+         "${CORE_TEST_ENV_VARS}"
+)
+
+##############################################
+##############################################
