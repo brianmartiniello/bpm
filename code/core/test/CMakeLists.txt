@@ -424,7 +424,6 @@ set(TestThread_MAIN TestThread)
 
 add_executable(${TestThread_MAIN}
    ${PATH_CORE_SRC}/Logger.cxx
-   ${PATH_CORE_SRC}/Thread.cxx
    ${PATH_CORE_TEST_UT}/TestThread.cxx
 )
 

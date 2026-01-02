@@ -1,10 +1,10 @@
 
 
 #include <bpm/core/Logger.hxx>
-#include <bpm/core/Thread.hxx>
 
 
-bpm::core::Thread::Thread()
+template<class Derived>
+bpm::core::Thread<Derived>::Thread()
    : conditionVariable_()
    , mutex_()
    , thread_()
@@ -13,13 +13,15 @@ bpm::core::Thread::Thread()
 }
 
 
-bpm::core::Thread::~Thread()
-{
-   // jthread joins automatically in its destructor or when reassigned.
-}
+// jthread joins automatically in its destructor or when reassigned
+// template<class Derived>
+// bpm::core::Thread<Derived>::~Thread()
+// {
+// }
 
 
-void bpm::core::Thread::start()
+template<class Derived>
+void bpm::core::Thread<Derived>::start()
 {
    BPM_SCOPED_TRACE_COUT("Start");
 
@@ -39,7 +41,8 @@ void bpm::core::Thread::start()
 }
 
 
-void bpm::core::Thread::stop()
+template<class Derived>
+void bpm::core::Thread<Derived>::stop()
 {
    BPM_SCOPED_TRACE_COUT("Stop");
 
@@ -48,13 +51,15 @@ void bpm::core::Thread::stop()
 }
 
 
-bool bpm::core::Thread::joinable()
+template<class Derived>
+bool bpm::core::Thread<Derived>::joinable()
 {
    return thread_.joinable();
 }
 
 
-void bpm::core::Thread::execute(std::stop_token stoken)
+template<class Derived>
+void bpm::core::Thread<Derived>::execute(std::stop_token stoken)
 {
    BPM_SCOPED_TRACE_COUT("Execute");
 

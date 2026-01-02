@@ -10,17 +10,28 @@ namespace bpm
 {
    namespace core
    {
+      template<class Derived>
       class Thread
       {
          public:
 
             Thread();
 
-            ~Thread();
+            ~Thread() = default;
 
             bool joinable();
 
             void stop();
+
+         protected:
+
+            Thread(const Thread&) = delete;
+
+            Thread& operator=(const Thread&) = delete;
+
+            Thread(Thread&&) = delete;
+
+            Thread& operator=(Thread&&) = delete;
 
          private:
      
@@ -35,5 +46,7 @@ namespace bpm
       };
    }
 }
+
+#include <bpm/core/Thread.tmpl.hxx>
 
 #endif

@@ -39,7 +39,6 @@ set(SRC_FILES
    ${PATH_CORE_SRC}/Logger.cxx
    ${PATH_CORE_SRC}/SharedCountVector.cxx
    ${PATH_CORE_SRC}/TaskRunner.cxx
-   ${PATH_CORE_SRC}/Thread.cxx
    ${PATH_CORE_SRC}/Timer.cxx
    ${PATH_CORE_SRC}/Version.cxx
 )

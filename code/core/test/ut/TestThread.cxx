@@ -8,6 +8,13 @@
 #include <bpm/core/Logger.hxx>
 #include <bpm/core/Thread.hxx>
 
+class MyThread : public bpm::core::Thread<MyThread>
+{
+   public:
+
+      MyThread() = default;
+
+};
 
 class TestThread : public ::testing::Test
 {
@@ -21,13 +28,13 @@ class TestThread : public ::testing::Test
 
          {
             BPM_SCOPED_TRACE_COUT("thread");
-            bpm::core::Thread thread;
+            MyThread thread;
             EXPECT_TRUE(thread.joinable());
          }
 
          {
             BPM_SCOPED_TRACE_COUT("thread stop");
-            bpm::core::Thread thread;
+            MyThread thread;
             EXPECT_TRUE(thread.joinable());
             thread.stop();
             EXPECT_FALSE(thread.joinable());
