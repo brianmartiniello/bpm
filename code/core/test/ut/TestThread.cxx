@@ -17,6 +17,13 @@ class TestThread : public ::testing::Test
 
       void test()
       {
+         BPM_SCOPED_TRACE_COUT("test");
+
+         {
+            BPM_SCOPED_TRACE_COUT("thread");
+            bpm::core::Thread thread;
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+         }
       }
 
    private:

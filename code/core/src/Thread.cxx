@@ -7,6 +7,7 @@
 bpm::core::Thread::Thread()
    : thread_()
 {
+   start();
 }
 
 

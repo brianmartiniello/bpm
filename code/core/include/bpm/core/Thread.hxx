@@ -16,11 +16,11 @@ namespace bpm
 
             ~Thread();
 
+            void stop();
+
          private:
      
             void start();
-
-            void stop();
 
             void execute(std::stop_token stoken);
 
