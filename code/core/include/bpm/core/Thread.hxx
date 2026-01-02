@@ -2,6 +2,8 @@
 #ifndef BPM_CORE_THREAD_HXX
 #define BPM_CORE_THREAD_HXX
 
+#include <condition_variable>
+#include <mutex>
 #include <thread>
 
 namespace bpm
@@ -16,6 +18,8 @@ namespace bpm
 
             ~Thread();
 
+            bool joinable();
+
             void stop();
 
          private:
@@ -24,6 +28,8 @@ namespace bpm
 
             void execute(std::stop_token stoken);
 
+            std::condition_variable conditionVariable_;
+            std::mutex mutex_;
             std::jthread thread_;
 
       };

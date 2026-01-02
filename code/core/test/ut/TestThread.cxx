@@ -22,7 +22,15 @@ class TestThread : public ::testing::Test
          {
             BPM_SCOPED_TRACE_COUT("thread");
             bpm::core::Thread thread;
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            EXPECT_TRUE(thread.joinable());
+         }
+
+         {
+            BPM_SCOPED_TRACE_COUT("thread stop");
+            bpm::core::Thread thread;
+            EXPECT_TRUE(thread.joinable());
+            thread.stop();
+            EXPECT_FALSE(thread.joinable());
          }
       }
 
