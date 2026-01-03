@@ -14,16 +14,24 @@ class MyThread : public bpm::core::Thread<MyThread>
 
       MyThread()
          : Thread<MyThread>()
+         , count(0)
       {
          start();
       }
 
+      std::uint64_t count;
+
    private:
 
-      void threadFunction(std::stop_token /* stopToken */)
+      void threadFunction()
       {
-         BPM_SCOPED_TRACE_COUT("MyThread sleep");
-         std::this_thread::sleep_for(std::chrono::milliseconds(500));
+         while (keepRunning())
+         {
+            ++count;
+            const auto waitMs = 500U;
+            BPM_SCOPED_TRACE_COUT("MyThread sleep, " + std::to_string(waitMs) + " ms");
+            std::this_thread::sleep_for(std::chrono::milliseconds(waitMs));
+         }
       }
 
       friend class bpm::core::Thread<MyThread>;
@@ -43,14 +51,19 @@ class TestThread : public ::testing::Test
             BPM_SCOPED_TRACE_COUT("thread");
             MyThread thread;
             EXPECT_TRUE(thread.joinable());
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            EXPECT_TRUE(thread.joinable());
+            EXPECT_GT(thread.count, 0);
          }
 
          {
             BPM_SCOPED_TRACE_COUT("thread stop");
             MyThread thread;
             EXPECT_TRUE(thread.joinable());
+            std::this_thread::sleep_for(std::chrono::seconds(1));
             thread.stop();
             EXPECT_FALSE(thread.joinable());
+            EXPECT_GT(thread.count, 0);
          }
       }
 

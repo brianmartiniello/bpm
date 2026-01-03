@@ -9,6 +9,7 @@ bpm::core::Thread<Derived>::Thread()
    , mutex_()
    , thread_()
    , running_(false)
+   , stopToken_()
 {
 }
 
@@ -23,7 +24,7 @@ bpm::core::Thread<Derived>::Thread()
 template<class Derived>
 void bpm::core::Thread<Derived>::start()
 {
-   BPM_SCOPED_TRACE_COUT("Start");
+   BPM_SCOPED_TRACE_COUT("");
 
    std::unique_lock<std::mutex> lock(mutex_);
 
@@ -39,7 +40,8 @@ void bpm::core::Thread<Derived>::start()
       [this]
       (std::stop_token stopToken)
       {
-         execute(stopToken);
+         stopToken_ = stopToken;
+         execute();
       }
    );
 
@@ -49,9 +51,22 @@ void bpm::core::Thread<Derived>::start()
 
 
 template<class Derived>
+bool bpm::core::Thread<Derived>::keepRunning() const
+{
+   // BPM_TRACE_COUT("stopToken_.stop_requested() = " +
+   //                std::to_string(stopToken_.stop_requested()));
+
+   // Add stop conditions here
+   bool stop = stopToken_.stop_requested();
+
+   return !stop;
+}
+
+
+template<class Derived>
 void bpm::core::Thread<Derived>::stop()
 {
-   BPM_SCOPED_TRACE_COUT("Stop");
+   BPM_SCOPED_TRACE_COUT("");
 
    thread_.request_stop();
    thread_.join();
@@ -66,9 +81,9 @@ bool bpm::core::Thread<Derived>::joinable()
 
 
 template<class Derived>
-void bpm::core::Thread<Derived>::execute(std::stop_token stopToken)
+void bpm::core::Thread<Derived>::execute()
 {
-   BPM_SCOPED_TRACE_COUT("Execute");
+   BPM_SCOPED_TRACE_COUT("");
 
    {
       std::lock_guard<std::mutex> lock(mutex_);
@@ -77,9 +92,9 @@ void bpm::core::Thread<Derived>::execute(std::stop_token stopToken)
    }
 
    auto& derived = static_cast<Derived&>(*this);
-   while (!stopToken.stop_requested())
+   while (keepRunning())
    {
       BPM_SCOPED_TRACE_COUT("threadFunction");
-      derived.threadFunction(stopToken);
+      derived.threadFunction();
    }
 }
