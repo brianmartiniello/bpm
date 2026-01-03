@@ -12,13 +12,16 @@ class MyThread : public bpm::core::Thread<MyThread>
 {
    public:
 
-      MyThread() = default;
+      MyThread()
+         : Thread<MyThread>()
+      {
+      }
 
    private:
 
       void threadFunction(std::stop_token /* stopToken */)
       {
-         BPM_SCOPED_TRACE_COUT("MyThread Sleep");
+         BPM_SCOPED_TRACE_COUT("MyThread sleep");
          std::this_thread::sleep_for(std::chrono::milliseconds(500));
       }
 
