@@ -15,6 +15,7 @@ class MyThread : public bpm::core::Thread<MyThread>
       MyThread()
          : Thread<MyThread>()
       {
+         start();
       }
 
    private:

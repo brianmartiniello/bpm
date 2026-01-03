@@ -32,16 +32,17 @@ namespace bpm
             Thread(Thread&&) noexcept = delete;
 
             Thread& operator=(Thread&&) noexcept = delete;
-
-         private:
      
             void start();
+
+         private:
 
             void execute(std::stop_token stoken);
 
             std::condition_variable conditionVariable_;
             std::mutex mutex_;
             std::jthread thread_;
+            bool running_;
 
       };
    }

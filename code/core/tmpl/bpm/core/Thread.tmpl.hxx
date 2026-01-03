@@ -8,8 +8,8 @@ bpm::core::Thread<Derived>::Thread()
    : conditionVariable_()
    , mutex_()
    , thread_()
+   , running_(false)
 {
-   start();
 }
 
 
@@ -27,6 +27,12 @@ void bpm::core::Thread<Derived>::start()
 
    std::unique_lock<std::mutex> lock(mutex_);
 
+   if (running_)
+   {
+      BPM_ERROR_COUT("Already running");
+      return;
+   }
+
    // jthread passes a stop_token automatically if the function accepts it
    thread_ = std::jthread
    (
@@ -37,7 +43,8 @@ void bpm::core::Thread<Derived>::start()
       }
    );
 
-   conditionVariable_.wait(lock);
+   conditionVariable_.wait(lock,
+                           [this]{ return running_; });
 }
 
 
@@ -65,7 +72,8 @@ void bpm::core::Thread<Derived>::execute(std::stop_token stopToken)
 
    {
       std::lock_guard<std::mutex> lock(mutex_);
-      conditionVariable_.notify_one();
+      running_ = true;
+      conditionVariable_.notify_all();
    }
 
    auto& derived = static_cast<Derived&>(*this);
