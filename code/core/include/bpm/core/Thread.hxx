@@ -15,23 +15,23 @@ namespace bpm
       {
          public:
 
-            Thread();
-
-            ~Thread() = default;
-
             bool joinable();
 
             void stop();
 
          protected:
 
+            Thread();
+
+            ~Thread() = default;
+
             Thread(const Thread&) = delete;
 
             Thread& operator=(const Thread&) = delete;
 
-            Thread(Thread&&) = delete;
+            Thread(Thread&&) noexcept = delete;
 
-            Thread& operator=(Thread&&) = delete;
+            Thread& operator=(Thread&&) noexcept = delete;
 
          private:
      

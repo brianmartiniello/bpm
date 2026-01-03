@@ -14,6 +14,15 @@ class MyThread : public bpm::core::Thread<MyThread>
 
       MyThread() = default;
 
+   private:
+
+      void threadFunction(std::stop_token /* stopToken */)
+      {
+         BPM_SCOPED_TRACE_COUT("MyThread Sleep");
+         std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      }
+
+      friend class bpm::core::Thread<MyThread>;
 };
 
 class TestThread : public ::testing::Test

@@ -31,9 +31,9 @@ void bpm::core::Thread<Derived>::start()
    thread_ = std::jthread
    (
       [this]
-      (std::stop_token stoken)
+      (std::stop_token stopToken)
       {
-         execute(stoken);
+         execute(stopToken);
       }
    );
 
@@ -59,7 +59,7 @@ bool bpm::core::Thread<Derived>::joinable()
 
 
 template<class Derived>
-void bpm::core::Thread<Derived>::execute(std::stop_token stoken)
+void bpm::core::Thread<Derived>::execute(std::stop_token stopToken)
 {
    BPM_SCOPED_TRACE_COUT("Execute");
 
@@ -68,9 +68,10 @@ void bpm::core::Thread<Derived>::execute(std::stop_token stoken)
       conditionVariable_.notify_one();
    }
 
-   while (!stoken.stop_requested())
+   auto& derived = static_cast<Derived&>(*this);
+   while (!stopToken.stop_requested())
    {
-      BPM_SCOPED_TRACE_COUT("Sleep");
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      BPM_SCOPED_TRACE_COUT("threadFunction");
+      derived.threadFunction(stopToken);
    }
 }
