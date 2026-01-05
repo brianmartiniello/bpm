@@ -17,10 +17,146 @@
 #include <system_error>
 #include <utility>
 
+// #include <fstream>
+// #include <source_location>
+// #include <string_view>
+// #include <format>
+// #include <mutex>
+// #include <filesystem>
+
 namespace bpm
 {
    namespace core
    {
+      // class Logger
+      // {
+      //    public:
+
+      //       enum class LogLevel
+      //       {
+      //          trace = 0,
+      //          debug = 1,
+      //          info = 2,
+      //          warning = 3,
+      //          error = 4,
+      //          disabled = 5
+      //       };
+
+      //       static std::string logLevelTostring(LogLevel level)
+      //       {
+      //          switch (level)
+      //          {
+      //             case LogLevel::trace:    return "TRACE";
+      //             case LogLevel::debug:    return "DEBUG";
+      //             case LogLevel::info:     return "INFO ";
+      //             case LogLevel::warning:  return "WARN ";
+      //             case LogLevel::error:    return "ERROR";
+      //             case LogLevel::disabled: return "DSBLD";
+      //             default:                 return "UNKN ";
+      //          }
+      //       }
+
+      //       static std::string getTimestamp()
+      //       {
+      //          return std::format("{:%H:%M:%S}",
+      //                             std::chrono::system_clock::now());
+      //       }
+
+      //       static Logger& getInstance(const std::string& baseFilename = "app.log",
+      //                                  LogLevel minLevel = LogLevel::trace)
+      //       {
+      //          static Logger instance(baseFilename,
+      //                                 minLevel);
+      //          return instance;
+      //       }
+
+      //       inline bool logEnabled(LogLevel level = LogLevel::trace)
+      //       {
+      //          return level < minLevel_;
+      //       }
+
+      //       void log(std::string_view message, 
+      //                LogLevel level = LogLevel::trace/* , 
+      //                const std::source_location loc = std::source_location::current() */)
+      //       {
+      //          if (level < minLevel_)
+      //          {
+      //             return; 
+      //          }
+
+      //          std::lock_guard<std::mutex> lock(mutex_);
+
+      //          // Check if we need to rotate before writing
+      //          rotateIfNeeded();
+
+      //          // std::string output = std::format("[{}] [{}] [{}:{}] -> {}\n", 
+      //          //                                  getTimestamp(),
+      //          //                                  logLevelTostring(level),
+      //          //                                  loc.file_name(),
+      //          //                                  loc.line(),
+      //          //                                  message);
+      //          std::string output = std::format("[{}] [{}] > {}\n", 
+      //                                           getTimestamp(),
+      //                                           logLevelTostring(level),
+      //                                           message);
+
+      //          file_ << output;
+      //          std::cout << output;
+      //       }
+
+      //    private:
+    
+      //       Logger(const std::string& baseFilename,
+      //              LogLevel minLevel)
+      //          : mutex_()
+      //          , minLevel_(minLevel)
+      //          , baseFilename_(baseFilename)
+      //          , fileCount_(0)
+      //          , currentFilename_(getCurrentFileName())
+      //          , file_(currentFilename_,
+      //                  std::ios::trunc)
+      //          , maxFilesize_(10 * 1024 * 1024)
+      //       {
+      //       }
+
+      //       ~Logger()
+      //       {
+      //          file_.flush();
+      //       }
+
+      //       std::string getCurrentFilename()
+      //       {
+      //          const auto out = baseFilename_ + "_" + std::to_string(fileCount_);
+      //          ++fileCount_;
+      //          return out;
+      //       }
+
+      //       void rotateIfNeeded()
+      //       {
+      //          // If file is small enough, do nothing
+      //          if (std::filesystem::file_size(currentFilename_) < maxFilesize_)
+      //          {
+      //             return;
+      //          }
+
+      //          file_.close();
+
+      //          currentFilename_ = getCurrentFileName();
+
+      //          file_.open(currentFilename_,
+      //                     std::ios::trunc);
+      //       }
+
+      //       std::mutex mutex_;
+      //       const LogLevel minLevel_;
+      //       const std::string baseFilename_;
+      //       std::size_t fileCount_;
+      //       std::string currentFilename_;
+      //       std::ofstream file_;
+      //       const std::streamsize maxFilesize_;
+
+      // };
+
       class ScopedLog
       {
          public:
