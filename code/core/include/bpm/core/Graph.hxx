@@ -21,6 +21,13 @@ namespace bpm
             bool connectNodes(const std::string& upstreamName,
                               const std::string& downstreamName);
 
+            // const std::vector<Node*>& getNodesByLevel()
+            // {
+            //    return nodesByLevel_;
+            // }
+
+            void listNodesByLevel();
+
             std::string toString(const std::string& leadingText = "") const;
 
          private:
@@ -63,6 +70,7 @@ namespace bpm
             std::vector<Node*> nodesWithoughUpstream_;
             std::vector<Node*> nodesWithoughDownstream_;
             std::size_t maxLevel_;
+            std::vector<Node*> nodesByLevel_;
 
             friend class TestGraph;
       };
