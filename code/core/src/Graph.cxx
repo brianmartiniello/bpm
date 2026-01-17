@@ -63,13 +63,19 @@ bool bpm::core::Graph::addNode(const std::string& name)
       return false;
    }
 
-   auto pair = graph_.emplace(name, Node(name));
+   auto pair = graph_.emplace(name,
+                              Node(name));
    if (pair.second == false)
    {
       BPM_TRACE_COUT("Name (" + name + "): Already found in map");
 
       return false;
    }
+
+   nodesWithoughUpstream_.emplace(name,
+                                  &pair.first->second);
+   nodesWithoughDownstream_.emplace(name,
+                                    &pair.first->second);
 
    return true;
 }
@@ -80,7 +86,8 @@ bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
 {
    BPM_SCOPED_TRACE_COUT("");
 
-   auto upstreamIter = graph_.find(upstreamName);
+   // Find upstream node name
+   const auto upstreamIter = graph_.find(upstreamName);
    if (graph_.end() == upstreamIter)
    {
       BPM_TRACE_COUT("Upstream name (" + upstreamName + ") not found");
@@ -88,7 +95,8 @@ bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
       return false;
    }
 
-   auto downstreamIter = graph_.find(downstreamName);
+   // Find downstream node name
+   const auto downstreamIter = graph_.find(downstreamName);
    if (graph_.end() == downstreamIter)
    {
       BPM_TRACE_COUT("Downstream name (" + downstreamName + ") not found");
@@ -96,8 +104,25 @@ bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
       return false;
    }
 
+   // Add the downstream node to the upstream node
    upstreamIter->second.downstreamNodes.emplace_back(&downstreamIter->second);
+
+   // The upstream node has a downstream node, so remove it
+   const auto upstreamEraseIter = nodesWithoughDownstream_.find(upstreamName);
+   if (nodesWithoughDownstream_.end() != upstreamEraseIter)
+   {
+      nodesWithoughDownstream_.erase(upstreamEraseIter);
+   }
+
+   // Add the upstream node to the downstream node
    downstreamIter->second.upstreamNodes.emplace_back(&upstreamIter->second);
+
+   // The downstream node has a upstream node, so remove it
+   const auto downstreamEraseIter = nodesWithoughUpstream_.find(downstreamName);
+   if (nodesWithoughUpstream_.end() != downstreamEraseIter)
+   {
+      nodesWithoughUpstream_.erase(downstreamEraseIter);
+   }
 
    return true;
 }
