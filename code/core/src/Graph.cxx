@@ -4,10 +4,10 @@
 #include <bpm/core/Logger.hxx>
 
 
-bpm::core::Graph::Node::Node(const std::string& name,
-                             std::vector<Node*>& nodesWithoughUpstream,
-                             std::vector<Node*>& nodesWithoughDownstream,
-                             std::size_t maxLevel)
+bpm::core::Node::Node(const std::string& name,
+                      PtrVector& nodesWithoughUpstream,
+                      PtrVector& nodesWithoughDownstream,
+                      std::size_t maxLevel)
    : name_(name)
    , level_()
    , upstreamNodes_()
@@ -21,7 +21,7 @@ bpm::core::Graph::Node::Node(const std::string& name,
 }
 
 
-void bpm::core::Graph::Node::addUpstreamNode(Node& node)
+void bpm::core::Node::addUpstreamNode(Node& node)
 {
    const auto foundIter = std::find(upstreamNodes_.begin(),
                                     upstreamNodes_.end(),
@@ -48,7 +48,7 @@ void bpm::core::Graph::Node::addUpstreamNode(Node& node)
 }
 
 
-void bpm::core::Graph::Node::addDownstreamNode(Node& node)
+void bpm::core::Node::addDownstreamNode(Node& node)
 {
    const auto foundIter = std::find(downstreamNodes_.begin(),
                                     downstreamNodes_.end(),
@@ -75,7 +75,7 @@ void bpm::core::Graph::Node::addDownstreamNode(Node& node)
 }
 
 
-void bpm::core::Graph::Node::updateLevel(std::size_t newLevel)
+void bpm::core::Node::updateLevel(std::size_t newLevel)
 {
    // Exit if lower level or no change
    if (newLevel <= level_)
@@ -96,7 +96,7 @@ void bpm::core::Graph::Node::updateLevel(std::size_t newLevel)
 }
 
 
-std::string bpm::core::Graph::Node::toString(const std::string& leadingText) const
+std::string bpm::core::Node::toString(const std::string& leadingText) const
 {
    auto out = leadingText + "name (" + name_ + ")" +
               "\n" + leadingText + "level (" + std::to_string(level_) + ")";

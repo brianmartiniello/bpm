@@ -10,6 +10,42 @@ namespace bpm
 {
    namespace core
    {
+      struct Node
+      {
+         using PtrVector = std::vector<Node*>;
+
+         const std::string name_;
+         std::size_t level_;
+         PtrVector upstreamNodes_;
+         PtrVector downstreamNodes_;
+         PtrVector& nodesWithoughUpstream_;
+         PtrVector& nodesWithoughDownstream_;
+         std::size_t maxLevel_;
+
+         Node(const std::string& name,
+              PtrVector& nodesWithoughUpstream,
+              PtrVector& nodesWithoughDownstream,
+              std::size_t maxLevel);
+
+         bool hasUpstreamNodes() const
+         {
+            return upstreamNodes_.size() > 0;
+         }
+
+         void addUpstreamNode(Node& node);
+
+         bool hasDownstreamNodes() const
+         {
+            return downstreamNodes_.size() > 0;
+         }
+
+         void addDownstreamNode(Node& node);
+
+         void updateLevel(std::size_t newLevel);
+
+         std::string toString(const std::string& leadingText = "") const;
+      };
+
       class Graph
       {
          public:
@@ -21,10 +57,10 @@ namespace bpm
             bool connectNodes(const std::string& upstreamName,
                               const std::string& downstreamName);
 
-            // const std::vector<Node*>& getNodesByLevel()
-            // {
-            //    return nodesByLevel_;
-            // }
+            const Node::PtrVector& getNodesByLevel()
+            {
+               return nodesByLevel_;
+            }
 
             void listNodesByLevel();
 
@@ -32,45 +68,11 @@ namespace bpm
 
          private:
 
-            struct Node
-            {
-               const std::string name_;
-               std::size_t level_;
-               std::vector<Node*> upstreamNodes_;
-               std::vector<Node*> downstreamNodes_;
-               std::vector<Node*>& nodesWithoughUpstream_;
-               std::vector<Node*>& nodesWithoughDownstream_;
-               std::size_t maxLevel_;
-
-               Node(const std::string& name,
-                    std::vector<Node*>& nodesWithoughUpstream,
-                    std::vector<Node*>& nodesWithoughDownstream,
-                    std::size_t maxLevel);
-
-               bool hasUpstreamNodes() const
-               {
-                  return upstreamNodes_.size() > 0;
-               }
-
-               void addUpstreamNode(Node& node);
-
-               bool hasDownstreamNodes() const
-               {
-                  return downstreamNodes_.size() > 0;
-               }
-
-               void addDownstreamNode(Node& node);
-
-               void updateLevel(std::size_t newLevel);
-
-               std::string toString(const std::string& leadingText = "") const;
-            };
-
             std::unordered_map<std::string, Node> graph_;
-            std::vector<Node*> nodesWithoughUpstream_;
-            std::vector<Node*> nodesWithoughDownstream_;
+            Node::PtrVector nodesWithoughUpstream_;
+            Node::PtrVector nodesWithoughDownstream_;
             std::size_t maxLevel_;
-            std::vector<Node*> nodesByLevel_;
+            Node::PtrVector nodesByLevel_;
 
             friend class TestGraph;
       };
