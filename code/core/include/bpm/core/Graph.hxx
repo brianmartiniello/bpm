@@ -27,12 +27,12 @@ namespace bpm
 
             struct Node
             {
-               const std::string name;
-               std::size_t level;
-               std::vector<Node*> upstreamNodes;
-               std::vector<Node*> downstreamNodes;
-               std::vector<Node*>& nodesWithoughUpstream;
-               std::vector<Node*>& nodesWithoughDownstream;
+               const std::string name_;
+               std::size_t level_;
+               std::vector<Node*> upstreamNodes_;
+               std::vector<Node*> downstreamNodes_;
+               std::vector<Node*>& nodesWithoughUpstream_;
+               std::vector<Node*>& nodesWithoughDownstream_;
 
                Node(const std::string& name,
                     std::vector<Node*>& nodesWithoughUpstream,
@@ -40,17 +40,19 @@ namespace bpm
 
                bool hasUpstreamNodes() const
                {
-                  return upstreamNodes.size() > 0;
+                  return upstreamNodes_.size() > 0;
                }
 
                void addUpstreamNode(Node& node);
 
                bool hasDownstreamNodes() const
                {
-                  return downstreamNodes.size() > 0;
+                  return downstreamNodes_.size() > 0;
                }
 
                void addDownstreamNode(Node& node);
+
+               void updateLevel(std::size_t newLevel);
 
                std::string toString(const std::string& leadingText = "") const;
             };

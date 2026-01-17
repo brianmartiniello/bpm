@@ -7,85 +7,110 @@
 bpm::core::Graph::Node::Node(const std::string& name,
                              std::vector<Node*>& nodesWithoughUpstream,
                              std::vector<Node*>& nodesWithoughDownstream)
-   : name(name)
-   , level()
-   , upstreamNodes()
-   , downstreamNodes()
-   , nodesWithoughUpstream(nodesWithoughUpstream)
-   , nodesWithoughDownstream(nodesWithoughDownstream)
+   : name_(name)
+   , level_()
+   , upstreamNodes_()
+   , downstreamNodes_()
+   , nodesWithoughUpstream_(nodesWithoughUpstream)
+   , nodesWithoughDownstream_(nodesWithoughDownstream)
 {
-   nodesWithoughUpstream.emplace_back(this);
-   nodesWithoughDownstream.emplace_back(this);
+   nodesWithoughUpstream_.emplace_back(this);
+   nodesWithoughDownstream_.emplace_back(this);
 }
 
 
 void bpm::core::Graph::Node::addUpstreamNode(Node& node)
 {
-   const auto foundIter = std::find(upstreamNodes.begin(),
-                                    upstreamNodes.end(),
+   const auto foundIter = std::find(upstreamNodes_.begin(),
+                                    upstreamNodes_.end(),
                                     &node);
-   if (upstreamNodes.end() != foundIter)
+   if (upstreamNodes_.end() != foundIter)
    {
       // Already connected
       return;
    }
 
-   upstreamNodes.emplace_back(&node);
+   upstreamNodes_.emplace_back(&node);
 
    // This node now has an upstream node, so remove it
-   const auto eraseIter = std::find(nodesWithoughUpstream.begin(),
-                                    nodesWithoughUpstream.end(),
+   const auto eraseIter = std::find(nodesWithoughUpstream_.begin(),
+                                    nodesWithoughUpstream_.end(),
                                     this);
-   if (nodesWithoughUpstream.end() != eraseIter)
+   if (nodesWithoughUpstream_.end() != eraseIter)
    {
-      nodesWithoughUpstream.erase(eraseIter);
+      nodesWithoughUpstream_.erase(eraseIter);
    }
+
+   // Make sure the upstream node has a higher level than this node
+   node.updateLevel(level_ + 1);
 }
 
 
 void bpm::core::Graph::Node::addDownstreamNode(Node& node)
 {
-   const auto foundIter = std::find(downstreamNodes.begin(),
-                                    downstreamNodes.end(),
+   const auto foundIter = std::find(downstreamNodes_.begin(),
+                                    downstreamNodes_.end(),
                                     &node);
-   if (downstreamNodes.end() != foundIter)
+   if (downstreamNodes_.end() != foundIter)
    {
       // Already connected
       return;
    }
 
-   downstreamNodes.emplace_back(&node);
+   downstreamNodes_.emplace_back(&node);
 
    // This node now has a downstream node, so remove it
-   const auto eraseIter = std::find(nodesWithoughDownstream.begin(),
-                                    nodesWithoughDownstream.end(),
+   const auto eraseIter = std::find(nodesWithoughDownstream_.begin(),
+                                    nodesWithoughDownstream_.end(),
                                     this);
-   if (nodesWithoughDownstream.end() != eraseIter)
+   if (nodesWithoughDownstream_.end() != eraseIter)
    {
-      nodesWithoughDownstream.erase(eraseIter);
+      nodesWithoughDownstream_.erase(eraseIter);
+   }
+
+   // Make sure this node has a higher level than the upstream node
+   updateLevel(node.level_ + 1);
+}
+
+
+void bpm::core::Graph::Node::updateLevel(std::size_t newLevel)
+{
+   // Exit if lower level or no change
+   if (newLevel <= level_)
+   {
+      return;
+   }
+
+   // New level is greater than current
+   level_ = newLevel;
+
+   // The other upsteam nodes now need to be re-leveled
+   for (auto& upstreamNode : upstreamNodes_)
+   {
+      upstreamNode->updateLevel(level_ + 1);
    }
 }
 
 
 std::string bpm::core::Graph::Node::toString(const std::string& leadingText) const
 {
-   auto out = leadingText + "name (" + name + ")" +
-              "\n" + leadingText + "level (" + std::to_string(level) + ")";
+   auto out = leadingText + "name (" + name_ + ")" +
+              "\n" + leadingText + "level (" + std::to_string(level_) + ")";
 
-   out += "\n" + leadingText + "upstreamNodes.size() (" + std::to_string(upstreamNodes.size()) + ")";
+   out += "\n" + leadingText + "upstreamNodes.size() (" + std::to_string(upstreamNodes_.size()) + ")";
    auto index = -1U;
-   for (const auto upstreamNode : upstreamNodes)
+   for (const auto upstreamNode : upstreamNodes_)
    {
       ++index;
-      out += "\n" + leadingText + "upstreamNodes[" + std::to_string(index) + "] (" + upstreamNode->name + ")";
+      out += "\n" + leadingText + "upstreamNodes[" + std::to_string(index) + "] (" + upstreamNode->name_ + ")";
    }
 
-   out += "\n" + leadingText + "downstreamNodes.size() (" + std::to_string(downstreamNodes.size()) + ")";
+   out += "\n" + leadingText + "downstreamNodes.size() (" + std::to_string(downstreamNodes_.size()) + ")";
    index = -1U;
-   for (const auto downstreamNode : downstreamNodes)
+   for (const auto downstreamNode : downstreamNodes_)
    {
       ++index;
-      out += "\n" + leadingText + "downstreamNodes[" + std::to_string(index) + "] (" + downstreamNode->name + ")";
+      out += "\n" + leadingText + "downstreamNodes[" + std::to_string(index) + "] (" + downstreamNode->name_ + ")";
    }
 
    return out;
