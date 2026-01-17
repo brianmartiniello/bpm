@@ -4,12 +4,66 @@
 #include <bpm/core/Logger.hxx>
 
 
-bpm::core::Graph::Node::Node(const std::string& name)
+bpm::core::Graph::Node::Node(const std::string& name,
+                             std::vector<Node*>& nodesWithoughUpstream,
+                             std::vector<Node*>& nodesWithoughDownstream)
    : name(name)
    , level()
    , upstreamNodes()
    , downstreamNodes()
+   , nodesWithoughUpstream(nodesWithoughUpstream)
+   , nodesWithoughDownstream(nodesWithoughDownstream)
 {
+   nodesWithoughUpstream.emplace_back(this);
+   nodesWithoughDownstream.emplace_back(this);
+}
+
+
+void bpm::core::Graph::Node::addUpstreamNode(Node& node)
+{
+   const auto foundIter = std::find(upstreamNodes.begin(),
+                                    upstreamNodes.end(),
+                                    &node);
+   if (upstreamNodes.end() != foundIter)
+   {
+      // Already connected
+      return;
+   }
+
+   upstreamNodes.emplace_back(&node);
+
+   // This node now has an upstream node, so remove it
+   const auto eraseIter = std::find(nodesWithoughUpstream.begin(),
+                                    nodesWithoughUpstream.end(),
+                                    this);
+   if (nodesWithoughUpstream.end() != eraseIter)
+   {
+      nodesWithoughUpstream.erase(eraseIter);
+   }
+}
+
+
+void bpm::core::Graph::Node::addDownstreamNode(Node& node)
+{
+   const auto foundIter = std::find(downstreamNodes.begin(),
+                                    downstreamNodes.end(),
+                                    &node);
+   if (downstreamNodes.end() != foundIter)
+   {
+      // Already connected
+      return;
+   }
+
+   downstreamNodes.emplace_back(&node);
+
+   // This node now has a downstream node, so remove it
+   const auto eraseIter = std::find(nodesWithoughDownstream.begin(),
+                                    nodesWithoughDownstream.end(),
+                                    this);
+   if (nodesWithoughDownstream.end() != eraseIter)
+   {
+      nodesWithoughDownstream.erase(eraseIter);
+   }
 }
 
 
@@ -64,18 +118,15 @@ bool bpm::core::Graph::addNode(const std::string& name)
    }
 
    auto pair = graph_.emplace(name,
-                              Node(name));
+                              Node(name,
+                                   nodesWithoughUpstream_,
+                                   nodesWithoughDownstream_));
    if (pair.second == false)
    {
       BPM_TRACE_COUT("Name (" + name + "): Already found in map");
 
       return false;
    }
-
-   nodesWithoughUpstream_.emplace(name,
-                                  &pair.first->second);
-   nodesWithoughDownstream_.emplace(name,
-                                    &pair.first->second);
 
    return true;
 }
@@ -94,6 +145,7 @@ bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
 
       return false;
    }
+   auto& upstreamNode = upstreamIter->second;
 
    // Find downstream node name
    const auto downstreamIter = graph_.find(downstreamName);
@@ -103,26 +155,13 @@ bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
 
       return false;
    }
+   auto& downstreamNode = downstreamIter->second;
 
    // Add the downstream node to the upstream node
-   upstreamIter->second.downstreamNodes.emplace_back(&downstreamIter->second);
-
-   // The upstream node has a downstream node, so remove it
-   const auto upstreamEraseIter = nodesWithoughDownstream_.find(upstreamName);
-   if (nodesWithoughDownstream_.end() != upstreamEraseIter)
-   {
-      nodesWithoughDownstream_.erase(upstreamEraseIter);
-   }
+   upstreamNode.addDownstreamNode(downstreamNode);
 
    // Add the upstream node to the downstream node
-   downstreamIter->second.upstreamNodes.emplace_back(&upstreamIter->second);
-
-   // The downstream node has a upstream node, so remove it
-   const auto downstreamEraseIter = nodesWithoughUpstream_.find(downstreamName);
-   if (nodesWithoughUpstream_.end() != downstreamEraseIter)
-   {
-      nodesWithoughUpstream_.erase(downstreamEraseIter);
-   }
+   downstreamNode.addUpstreamNode(upstreamNode);
 
    return true;
 }
