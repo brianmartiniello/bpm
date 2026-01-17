@@ -6,13 +6,15 @@
 
 bpm::core::Graph::Node::Node(const std::string& name,
                              std::vector<Node*>& nodesWithoughUpstream,
-                             std::vector<Node*>& nodesWithoughDownstream)
+                             std::vector<Node*>& nodesWithoughDownstream,
+                             std::size_t maxLevel)
    : name_(name)
    , level_()
    , upstreamNodes_()
    , downstreamNodes_()
    , nodesWithoughUpstream_(nodesWithoughUpstream)
    , nodesWithoughDownstream_(nodesWithoughDownstream)
+   , maxLevel_(maxLevel)
 {
    nodesWithoughUpstream_.emplace_back(this);
    nodesWithoughDownstream_.emplace_back(this);
@@ -83,6 +85,8 @@ void bpm::core::Graph::Node::updateLevel(std::size_t newLevel)
 
    // New level is greater than current
    level_ = newLevel;
+   maxLevel_ = std::max(maxLevel_,
+                        level_);
 
    // The other upsteam nodes now need to be re-leveled
    for (auto& upstreamNode : upstreamNodes_)
@@ -145,7 +149,8 @@ bool bpm::core::Graph::addNode(const std::string& name)
    auto pair = graph_.emplace(name,
                               Node(name,
                                    nodesWithoughUpstream_,
-                                   nodesWithoughDownstream_));
+                                   nodesWithoughDownstream_,
+                                   maxLevel_));
    if (pair.second == false)
    {
       BPM_TRACE_COUT("Name (" + name + "): Already found in map");

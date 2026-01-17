@@ -33,10 +33,12 @@ namespace bpm
                std::vector<Node*> downstreamNodes_;
                std::vector<Node*>& nodesWithoughUpstream_;
                std::vector<Node*>& nodesWithoughDownstream_;
+               std::size_t maxLevel_;
 
                Node(const std::string& name,
                     std::vector<Node*>& nodesWithoughUpstream,
-                    std::vector<Node*>& nodesWithoughDownstream);
+                    std::vector<Node*>& nodesWithoughDownstream,
+                    std::size_t maxLevel);
 
                bool hasUpstreamNodes() const
                {
@@ -60,6 +62,7 @@ namespace bpm
             std::unordered_map<std::string, Node> graph_;
             std::vector<Node*> nodesWithoughUpstream_;
             std::vector<Node*> nodesWithoughDownstream_;
+            std::size_t maxLevel_;
 
             friend class TestGraph;
       };
