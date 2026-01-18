@@ -30,13 +30,13 @@ void bpm::core::Node::addUpstreamNode(Node& node)
    upstreamNodes_.emplace_back(&node);
 
    // Exit if there is a circular dependency, cannot update level
-   if (circularDependency_) return;
+   if (true == circularDependency_) return;
 
    // Make sure the upstream node has a higher level than this node
    node.updateLevel(level_ + 1,
                     name_);
 
-   if (circularDependency_)
+   if (true == circularDependency_)
    {
       BPM_TRACE_COUT("Circular dependency detected when connecting node (" + name_ +
                      ") to upstream node (" + node.name_ + ")");
@@ -55,13 +55,13 @@ void bpm::core::Node::addDownstreamNode(Node& node)
    downstreamNodes_.emplace_back(&node);
 
    // Exit if there is a circular dependency, cannot update level
-   if (circularDependency_) return;
+   if (true == circularDependency_) return;
 
    // Make sure this node has a higher level than the downstream node
    updateLevel(node.level_ + 1,
                node.name_);
 
-   if (circularDependency_)
+   if (true == circularDependency_)
    {
       BPM_TRACE_COUT("Circular dependency detected when connecting node (" + name_ +
                      ") to downstream node (" + node.name_ + ")");
@@ -80,7 +80,7 @@ void bpm::core::Node::updateLevel(std::size_t newLevel,
    }
 
    // Exit if no change
-   if (!setLevel(newLevel)) return;
+   if (false == setLevel(newLevel)) return;
 
    // The other upsteam nodes now need to be re-leveled
    for (auto& upstreamNode : upstreamNodes_)
@@ -94,7 +94,7 @@ void bpm::core::Node::updateLevel(std::size_t newLevel,
 void bpm::core::Node::updateLevel(std::size_t newLevel)
 {
    // Exit if no change
-   if (!setLevel(newLevel)) return;
+   if (false == setLevel(newLevel)) return;
 
    // The other upsteam nodes now need to be re-leveled
    for (auto& upstreamNode : upstreamNodes_)
@@ -175,7 +175,7 @@ bool bpm::core::Graph::addNode(const std::string& name,
                                    hasInputPort,
                                    maxLevel_,
                                    circularDependency_));
-   if (pair.second == false)
+   if (false == pair.second)
    {
       BPM_TRACE_COUT("Name (" + name + "): Already found in map");
 
@@ -280,7 +280,7 @@ void bpm::core::Graph::assignMaxLevel()
    for (const auto node : nodesWithoughUpstream_)
    {
       // Skip nodes without an input port
-      if (!node->hasInputPort()) continue;
+      if (false == node->hasInputPort()) continue;
 
       // Skip if less than max level
       if (node->level() < maxLevel_) continue;
@@ -293,7 +293,7 @@ void bpm::core::Graph::assignMaxLevel()
    for (const auto node : nodesWithoughUpstream_)
    {
       // Skip nodes with an input port
-      if (node->hasInputPort()) continue;
+      if (CLOCK_THREAD_CPUTIME_ID == node->hasInputPort()) continue;
 
       node->updateLevel(maxLevel_);
    }
