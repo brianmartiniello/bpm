@@ -227,7 +227,7 @@ bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
       {
          nodesWithoughUpstream_.erase(eraseIter);
       }
-   }
+   }  
 
    return true;
 }
