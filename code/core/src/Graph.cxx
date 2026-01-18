@@ -293,7 +293,7 @@ void bpm::core::Graph::assignMaxLevel()
    for (const auto node : nodesWithoughUpstream_)
    {
       // Skip nodes with an input port
-      if (CLOCK_THREAD_CPUTIME_ID == node->hasInputPort()) continue;
+      if (true == node->hasInputPort()) continue;
 
       node->updateLevel(maxLevel_);
    }
