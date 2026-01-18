@@ -16,22 +16,19 @@ namespace bpm
 
             using PtrVector = std::vector<Node*>;
 
-            const std::string name_;
-            std::size_t level_;
-            PtrVector upstreamNodes_;
-            PtrVector downstreamNodes_;
-            std::size_t& maxLevel_;
-            bool& circularDependency_;
-            const bool hasInputPort_;
-
             Node(const std::string& name,
                  bool hasInputPort,
                  std::size_t& maxLevel,
                  bool& circularDependency);
             
-            bool hasInputPort() const
+            const std::string& name() const
             {
-               return hasInputPort_;
+               return name_;
+            }
+            
+            std::size_t level() const
+            {
+               return level_;
             }
 
             bool hasUpstreamNodes() const
@@ -54,6 +51,14 @@ namespace bpm
 
             void updateLevel(std::size_t newLevel,
                              const std::string& originatingNodeName);
+
+            const std::string name_;
+            std::size_t level_;
+            PtrVector upstreamNodes_;
+            PtrVector downstreamNodes_;
+            std::size_t& maxLevel_;
+            bool& circularDependency_;
+            const bool hasInputPort_;
 
       };
 

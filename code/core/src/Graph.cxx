@@ -256,7 +256,7 @@ void bpm::core::Graph::listNodesByLevel()
          auto& node = pair.second;
 
          // Skip mimatched levels
-         if (node.level_ != level)
+         if (node.level() != level)
          {
             continue;
          }
