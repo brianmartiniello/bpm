@@ -47,7 +47,16 @@ namespace bpm
 
             std::string toString(const std::string& leadingText = "") const;
 
+            bool hasInputPort() const
+            {
+               return hasInputPort_;
+            }
+
+            void updateLevel(std::size_t newLevel);
+
          private:
+
+            bool setLevel(std::size_t newLevel);
 
             void updateLevel(std::size_t newLevel,
                              const std::string& originatingNodeName);
@@ -70,6 +79,8 @@ namespace bpm
 
             bool addNode(const std::string& name,
                          bool hasInputPort = false);
+
+            void assignMaxLevel();
 
             bool circularDependency() const
             {

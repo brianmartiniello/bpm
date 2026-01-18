@@ -21,22 +21,16 @@ bpm::core::Node::Node(const std::string& name,
 
 void bpm::core::Node::addUpstreamNode(Node& node)
 {
+   // Exit if already connected
    const auto foundIter = std::find(upstreamNodes_.begin(),
                                     upstreamNodes_.end(),
                                     &node);
-   if (upstreamNodes_.end() != foundIter)
-   {
-      // Already connected
-      return;
-   }
+   if (upstreamNodes_.end() != foundIter) return;
 
    upstreamNodes_.emplace_back(&node);
 
-   if (circularDependency_)
-   {
-      // Exit if there is a circular dependency, cannot update level
-      return;
-   }
+   // Exit if there is a circular dependency, cannot update level
+   if (circularDependency_) return;
 
    // Make sure the upstream node has a higher level than this node
    node.updateLevel(level_ + 1,
@@ -52,22 +46,16 @@ void bpm::core::Node::addUpstreamNode(Node& node)
 
 void bpm::core::Node::addDownstreamNode(Node& node)
 {
+   // Exit if already connected
    const auto foundIter = std::find(downstreamNodes_.begin(),
                                     downstreamNodes_.end(),
                                     &node);
-   if (downstreamNodes_.end() != foundIter)
-   {
-      // Already connected
-      return;
-   }
+   if (downstreamNodes_.end() != foundIter) return;
 
    downstreamNodes_.emplace_back(&node);
 
-   if (circularDependency_)
-   {
-      // Exit if there is a circular dependency, cannot update level
-      return;
-   }
+   // Exit if there is a circular dependency, cannot update level
+   if (circularDependency_) return;
 
    // Make sure this node has a higher level than the downstream node
    updateLevel(node.level_ + 1,
@@ -87,19 +75,12 @@ void bpm::core::Node::updateLevel(std::size_t newLevel,
    // Exit if match with originating node, circular dependency detected
    if (originatingNodeName == name_)
    {
+      circularDependency_ = true;
       return;
    }
 
-   // Exit if lower level or no change
-   if (newLevel <= level_)
-   {
-      return;
-   }
-
-   // New level is greater than current
-   level_ = newLevel;
-   maxLevel_ = std::max(maxLevel_,
-                        level_);
+   // Exit if no change
+   if (!setLevel(newLevel)) return;
 
    // The other upsteam nodes now need to be re-leveled
    for (auto& upstreamNode : upstreamNodes_)
@@ -107,6 +88,34 @@ void bpm::core::Node::updateLevel(std::size_t newLevel,
       upstreamNode->updateLevel(level_ + 1,
                                 originatingNodeName);
    }
+}
+
+
+void bpm::core::Node::updateLevel(std::size_t newLevel)
+{
+   // Exit if no change
+   if (!setLevel(newLevel)) return;
+
+   // The other upsteam nodes now need to be re-leveled
+   for (auto& upstreamNode : upstreamNodes_)
+   {
+      upstreamNode->updateLevel(level_ + 1,
+                                name_);
+   }
+}
+
+
+bool bpm::core::Node::setLevel(std::size_t newLevel)
+{
+   // Exit if lower level or no change
+   if (newLevel <= level_) return false;
+
+   // New level is greater than current
+   level_ = newLevel;
+   maxLevel_ = std::max(maxLevel_,
+                        level_);
+
+   return true;
 }
 
 
@@ -239,6 +248,8 @@ bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
 
 void bpm::core::Graph::listNodesByLevel()
 {
+   assignMaxLevel();
+
    // Clear current list
    nodesByLevel_.clear();
 
@@ -256,12 +267,34 @@ void bpm::core::Graph::listNodesByLevel()
          auto& node = pair.second;
 
          // Skip mimatched levels
-         if (node.level() != level)
-         {
-            continue;
-         }
+         if (node.level() != level) continue;
 
          nodesByLevel_.emplace_back(&node);
       }
+   }
+}
+
+
+void bpm::core::Graph::assignMaxLevel()
+{
+   for (const auto node : nodesWithoughUpstream_)
+   {
+      // Skip nodes without an input port
+      if (!node->hasInputPort()) continue;
+
+      // Skip if less than max level
+      if (node->level() < maxLevel_) continue;
+
+      // Max level is one greater
+      maxLevel_ = node->level() + 1;
+      break;
+   }
+
+   for (const auto node : nodesWithoughUpstream_)
+   {
+      // Skip nodes with an input port
+      if (node->hasInputPort()) continue;
+
+      node->updateLevel(maxLevel_);
    }
 }
