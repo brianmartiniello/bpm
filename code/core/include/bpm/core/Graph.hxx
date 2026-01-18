@@ -12,38 +12,46 @@ namespace bpm
    {
       struct Node
       {
-         using PtrVector = std::vector<Node*>;
+         public:
 
-         const std::string name_;
-         std::size_t level_;
-         PtrVector upstreamNodes_;
-         PtrVector downstreamNodes_;
-         PtrVector& nodesWithoughUpstream_;
-         PtrVector& nodesWithoughDownstream_;
-         std::size_t maxLevel_;
+            using PtrVector = std::vector<Node*>;
 
-         Node(const std::string& name,
-              PtrVector& nodesWithoughUpstream,
-              PtrVector& nodesWithoughDownstream,
-              std::size_t maxLevel);
+            const std::string name_;
+            std::size_t level_;
+            PtrVector upstreamNodes_;
+            PtrVector downstreamNodes_;
+            PtrVector& nodesWithoughUpstream_;
+            PtrVector& nodesWithoughDownstream_;
+            std::size_t& maxLevel_;
+            bool& circularDependency_;
 
-         bool hasUpstreamNodes() const
-         {
-            return upstreamNodes_.size() > 0;
-         }
+            Node(const std::string& name,
+                 PtrVector& nodesWithoughUpstream,
+                 PtrVector& nodesWithoughDownstream,
+                 std::size_t& maxLevel,
+                 bool& circularDependency);
 
-         void addUpstreamNode(Node& node);
+            bool hasUpstreamNodes() const
+            {
+               return upstreamNodes_.size() > 0;
+            }
 
-         bool hasDownstreamNodes() const
-         {
-            return downstreamNodes_.size() > 0;
-         }
+            void addUpstreamNode(Node& node);
 
-         void addDownstreamNode(Node& node);
+            bool hasDownstreamNodes() const
+            {
+               return downstreamNodes_.size() > 0;
+            }
 
-         void updateLevel(std::size_t newLevel);
+            void addDownstreamNode(Node& node);
 
-         std::string toString(const std::string& leadingText = "") const;
+            std::string toString(const std::string& leadingText = "") const;
+
+         private:
+
+            void updateLevel(std::size_t newLevel,
+                             const std::string& originatingNodeName);
+
       };
 
       class Graph
@@ -53,6 +61,11 @@ namespace bpm
             Graph() = default;
 
             bool addNode(const std::string& name);
+
+            bool circularDependency() const
+            {
+               return circularDependency_;
+            }
 
             bool connectNodes(const std::string& upstreamName,
                               const std::string& downstreamName);
@@ -73,6 +86,7 @@ namespace bpm
             Node::PtrVector nodesWithoughDownstream_;
             std::size_t maxLevel_;
             Node::PtrVector nodesByLevel_;
+            bool circularDependency_;
 
             friend class TestGraph;
       };
