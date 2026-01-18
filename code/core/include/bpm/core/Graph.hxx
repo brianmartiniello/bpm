@@ -22,10 +22,17 @@ namespace bpm
             PtrVector downstreamNodes_;
             std::size_t& maxLevel_;
             bool& circularDependency_;
+            const bool hasInputPort_;
 
             Node(const std::string& name,
+                 bool hasInputPort,
                  std::size_t& maxLevel,
                  bool& circularDependency);
+            
+            bool hasInputPort() const
+            {
+               return hasInputPort_;
+            }
 
             bool hasUpstreamNodes() const
             {
@@ -56,7 +63,8 @@ namespace bpm
 
             Graph() = default;
 
-            bool addNode(const std::string& name);
+            bool addNode(const std::string& name,
+                         bool hasInputPort = false);
 
             bool circularDependency() const
             {

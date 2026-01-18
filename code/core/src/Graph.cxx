@@ -5,6 +5,7 @@
 
 
 bpm::core::Node::Node(const std::string& name,
+                      bool hasInputPort,
                       std::size_t& maxLevel,
                       bool& circularDependency)
    : name_(name)
@@ -13,6 +14,7 @@ bpm::core::Node::Node(const std::string& name,
    , downstreamNodes_()
    , maxLevel_(maxLevel)
    , circularDependency_(circularDependency)
+   , hasInputPort_(hasInputPort)
 {
 }
 
@@ -147,7 +149,8 @@ std::string bpm::core::Graph::toString(const std::string& leadingText) const
 }
 
 
-bool bpm::core::Graph::addNode(const std::string& name)
+bool bpm::core::Graph::addNode(const std::string& name,
+                               bool hasInputPort)
 {
    BPM_SCOPED_TRACE_COUT("Name (" + name + ")");
 
@@ -160,6 +163,7 @@ bool bpm::core::Graph::addNode(const std::string& name)
 
    auto pair = graph_.emplace(name,
                               Node(name,
+                                   hasInputPort,
                                    maxLevel_,
                                    circularDependency_));
    if (pair.second == false)
