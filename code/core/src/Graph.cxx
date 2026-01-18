@@ -5,21 +5,15 @@
 
 
 bpm::core::Node::Node(const std::string& name,
-                      PtrVector& nodesWithoughUpstream,
-                      PtrVector& nodesWithoughDownstream,
                       std::size_t& maxLevel,
                       bool& circularDependency)
    : name_(name)
    , level_()
    , upstreamNodes_()
    , downstreamNodes_()
-   , nodesWithoughUpstream_(nodesWithoughUpstream)
-   , nodesWithoughDownstream_(nodesWithoughDownstream)
    , maxLevel_(maxLevel)
    , circularDependency_(circularDependency)
 {
-   nodesWithoughUpstream_.emplace_back(this);
-   nodesWithoughDownstream_.emplace_back(this);
 }
 
 
@@ -35,15 +29,6 @@ void bpm::core::Node::addUpstreamNode(Node& node)
    }
 
    upstreamNodes_.emplace_back(&node);
-
-   // This node now has an upstream node, so remove it
-   const auto eraseIter = std::find(nodesWithoughUpstream_.begin(),
-                                    nodesWithoughUpstream_.end(),
-                                    this);
-   if (nodesWithoughUpstream_.end() != eraseIter)
-   {
-      nodesWithoughUpstream_.erase(eraseIter);
-   }
 
    if (circularDependency_)
    {
@@ -75,15 +60,6 @@ void bpm::core::Node::addDownstreamNode(Node& node)
    }
 
    downstreamNodes_.emplace_back(&node);
-
-   // This node now has a downstream node, so remove it
-   const auto eraseIter = std::find(nodesWithoughDownstream_.begin(),
-                                    nodesWithoughDownstream_.end(),
-                                    this);
-   if (nodesWithoughDownstream_.end() != eraseIter)
-   {
-      nodesWithoughDownstream_.erase(eraseIter);
-   }
 
    if (circularDependency_)
    {
@@ -184,8 +160,6 @@ bool bpm::core::Graph::addNode(const std::string& name)
 
    auto pair = graph_.emplace(name,
                               Node(name,
-                                   nodesWithoughUpstream_,
-                                   nodesWithoughDownstream_,
                                    maxLevel_,
                                    circularDependency_));
    if (pair.second == false)
@@ -194,6 +168,9 @@ bool bpm::core::Graph::addNode(const std::string& name)
 
       return false;
    }
+
+   nodesWithoughUpstream_.emplace_back(&pair.first->second);
+   nodesWithoughDownstream_.emplace_back(&pair.first->second);
 
    return true;
 }
@@ -227,8 +204,30 @@ bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
    // Add the downstream node to the upstream node
    upstreamNode.addDownstreamNode(downstreamNode);
 
+   // This node now has a downstream node, so remove it
+   {
+      const auto eraseIter = std::find(nodesWithoughDownstream_.begin(),
+                                       nodesWithoughDownstream_.end(),
+                                       &upstreamNode);
+      if (nodesWithoughDownstream_.end() != eraseIter)
+      {
+         nodesWithoughDownstream_.erase(eraseIter);
+      }
+   }
+
    // Add the upstream node to the downstream node
    downstreamNode.addUpstreamNode(upstreamNode);
+
+   // This node now has an upstream node, so remove it
+   {
+      const auto eraseIter = std::find(nodesWithoughUpstream_.begin(),
+                                       nodesWithoughUpstream_.end(),
+                                       &downstreamNode);
+      if (nodesWithoughUpstream_.end() != eraseIter)
+      {
+         nodesWithoughUpstream_.erase(eraseIter);
+      }
+   }
 
    return true;
 }

@@ -20,14 +20,10 @@ namespace bpm
             std::size_t level_;
             PtrVector upstreamNodes_;
             PtrVector downstreamNodes_;
-            PtrVector& nodesWithoughUpstream_;
-            PtrVector& nodesWithoughDownstream_;
             std::size_t& maxLevel_;
             bool& circularDependency_;
 
             Node(const std::string& name,
-                 PtrVector& nodesWithoughUpstream,
-                 PtrVector& nodesWithoughDownstream,
                  std::size_t& maxLevel,
                  bool& circularDependency);
 
