@@ -115,8 +115,8 @@ namespace bpm
          private:
 
             std::unordered_map<std::string, Node> graph_;
-            Node::PtrVector nodesWithoughUpstream_;
-            Node::PtrVector nodesWithoughDownstream_;
+            Node::PtrUSet nodesWithoughUpstream_;
+            Node::PtrUSet nodesWithoughDownstream_;
             std::size_t maxLevel_;
             Node::PtrVector nodesByLevel_;
             bool circularDependency_;

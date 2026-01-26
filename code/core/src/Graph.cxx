@@ -206,8 +206,8 @@ bool bpm::core::Graph::addNode(const std::string& name,
       return false;
    }
 
-   nodesWithoughUpstream_.emplace_back(&pair.first->second);
-   nodesWithoughDownstream_.emplace_back(&pair.first->second);
+   nodesWithoughUpstream_.emplace(&pair.first->second);
+   nodesWithoughDownstream_.emplace(&pair.first->second);
 
    return true;
 }
@@ -243,9 +243,7 @@ bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
 
    // This node now has a downstream node, so remove it
    {
-      const auto eraseIter = std::find(nodesWithoughDownstream_.begin(),
-                                       nodesWithoughDownstream_.end(),
-                                       &upstreamNode);
+      const auto eraseIter = nodesWithoughDownstream_.find(&upstreamNode);
       if (nodesWithoughDownstream_.end() != eraseIter)
       {
          nodesWithoughDownstream_.erase(eraseIter);
@@ -254,9 +252,7 @@ bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
 
    // This node now has an upstream node, so remove it
    {
-      const auto eraseIter = std::find(nodesWithoughUpstream_.begin(),
-                                       nodesWithoughUpstream_.end(),
-                                       &downstreamNode);
+      const auto eraseIter = nodesWithoughUpstream_.find(&downstreamNode);
       if (nodesWithoughUpstream_.end() != eraseIter)
       {
          nodesWithoughUpstream_.erase(eraseIter);
@@ -298,24 +294,24 @@ void bpm::core::Graph::listNodesByLevel()
 
 void bpm::core::Graph::assignMaxLevel()
 {
-   for (const auto node : nodesWithoughUpstream_)
+   for (const auto nodePtr : nodesWithoughUpstream_)
    {
       // Skip nodes without an input port
-      if (false == node->hasInputPort()) continue;
+      if (false == nodePtr->hasInputPort()) continue;
 
       // Skip if less than max level
-      if (node->level() < maxLevel_) continue;
+      if (nodePtr->level() < maxLevel_) continue;
 
       // Max level is one greater
-      maxLevel_ = node->level() + 1;
+      maxLevel_ = nodePtr->level() + 1;
       break;
    }
 
-   for (const auto node : nodesWithoughUpstream_)
+   for (const auto nodePtr : nodesWithoughUpstream_)
    {
       // Skip nodes with an input port
-      if (true == node->hasInputPort()) continue;
+      if (true == nodePtr->hasInputPort()) continue;
 
-      node->updateLevel(maxLevel_);
+      nodePtr->updateLevel(maxLevel_);
    }
 }
