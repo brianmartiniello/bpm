@@ -4,6 +4,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace bpm
@@ -15,6 +16,7 @@ namespace bpm
          public:
 
             using PtrVector = std::vector<Node*>;
+            using PtrUSet = std::unordered_set<Node*>;
 
             Node(const std::string& name,
                  bool hasInputPort,
@@ -36,11 +38,21 @@ namespace bpm
                return upstreamNodes_.size() > 0;
             }
 
+            bool hasUpstreamNode(Node& node) const
+            {
+               return upstreamNodes_.find(&node) != upstreamNodes_.end();
+            }
+
             void addUpstreamNode(Node& node);
 
             bool hasDownstreamNodes() const
             {
                return downstreamNodes_.size() > 0;
+            }
+
+            bool hasDownstreamNode(Node& node) const
+            {
+               return downstreamNodes_.find(&node) != downstreamNodes_.end();
             }
 
             void addDownstreamNode(Node& node);
@@ -63,12 +75,13 @@ namespace bpm
 
             const std::string name_;
             std::size_t level_;
-            PtrVector upstreamNodes_;
-            PtrVector downstreamNodes_;
+            PtrUSet upstreamNodes_;
+            PtrUSet downstreamNodes_;
             std::size_t& maxLevel_;
             bool& circularDependency_;
             const bool hasInputPort_;
 
+            friend class TestNode;
       };
 
       class Graph

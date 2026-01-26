@@ -22,12 +22,24 @@ bpm::core::Node::Node(const std::string& name,
 void bpm::core::Node::addUpstreamNode(Node& node)
 {
    // Exit if already connected
-   const auto foundIter = std::find(upstreamNodes_.begin(),
-                                    upstreamNodes_.end(),
-                                    &node);
-   if (upstreamNodes_.end() != foundIter) return;
+   if (this == &node)
+   {
+      BPM_TRACE_COUT("Attempting to connected node (" + name_ +
+                     ") to itself");
+      return;
+   }
 
-   upstreamNodes_.emplace_back(&node);
+   // Exit if already connected
+   auto insterPair = upstreamNodes_.emplace(&node);
+   if (false == insterPair.second)
+   {
+      BPM_TRACE_COUT("Already connected node (" + name_ +
+                     ") to upstream node (" + node.name() + ")");
+      return;
+   }
+
+   // Add this node as downstream to the upstream node
+   node.addDownstreamNode(*this);
 
    // Exit if there is a circular dependency, cannot update level
    if (true == circularDependency_) return;
@@ -39,7 +51,7 @@ void bpm::core::Node::addUpstreamNode(Node& node)
    if (true == circularDependency_)
    {
       BPM_TRACE_COUT("Circular dependency detected when connecting node (" + name_ +
-                     ") to upstream node (" + node.name_ + ")");
+                     ") to upstream node (" + node.name() + ")");
    }
 }
 
@@ -47,24 +59,36 @@ void bpm::core::Node::addUpstreamNode(Node& node)
 void bpm::core::Node::addDownstreamNode(Node& node)
 {
    // Exit if already connected
-   const auto foundIter = std::find(downstreamNodes_.begin(),
-                                    downstreamNodes_.end(),
-                                    &node);
-   if (downstreamNodes_.end() != foundIter) return;
+   if (this == &node)
+   {
+      BPM_TRACE_COUT("Attempting to connected node (" + name_ +
+                     ") to itself");
+      return;
+   }
 
-   downstreamNodes_.emplace_back(&node);
+   // Exit if already connected
+   auto insterPair = downstreamNodes_.emplace(&node);
+   if (false == insterPair.second)
+   {
+      BPM_TRACE_COUT("Already connected node (" + name_ +
+                     ") to downstream node (" + node.name() + ")");
+      return;
+   }
+
+   // Add this node as upstream to the downstream node
+   node.addUpstreamNode(*this);
 
    // Exit if there is a circular dependency, cannot update level
    if (true == circularDependency_) return;
 
    // Make sure this node has a higher level than the downstream node
-   updateLevel(node.level_ + 1,
-               node.name_);
+   updateLevel(node.level() + 1,
+               node.name());
 
    if (true == circularDependency_)
    {
       BPM_TRACE_COUT("Circular dependency detected when connecting node (" + name_ +
-                     ") to downstream node (" + node.name_ + ")");
+                     ") to downstream node (" + node.name() + ")");
    }
 }
 
@@ -129,7 +153,7 @@ std::string bpm::core::Node::toString(const std::string& leadingText) const
    for (const auto upstreamNode : upstreamNodes_)
    {
       ++index;
-      out += "\n" + leadingText + "upstreamNodes[" + std::to_string(index) + "] (" + upstreamNode->name_ + ")";
+      out += "\n" + leadingText + "upstreamNodes[" + std::to_string(index) + "] (" + upstreamNode->name() + ")";
    }
 
    out += "\n" + leadingText + "downstreamNodes.size() (" + std::to_string(downstreamNodes_.size()) + ")";
@@ -137,7 +161,7 @@ std::string bpm::core::Node::toString(const std::string& leadingText) const
    for (const auto downstreamNode : downstreamNodes_)
    {
       ++index;
-      out += "\n" + leadingText + "downstreamNodes[" + std::to_string(index) + "] (" + downstreamNode->name_ + ")";
+      out += "\n" + leadingText + "downstreamNodes[" + std::to_string(index) + "] (" + downstreamNode->name() + ")";
    }
 
    return out;
@@ -227,9 +251,6 @@ bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
          nodesWithoughDownstream_.erase(eraseIter);
       }
    }
-
-   // Add the upstream node to the downstream node
-   downstreamNode.addUpstreamNode(upstreamNode);
 
    // This node now has an upstream node, so remove it
    {
