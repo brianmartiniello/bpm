@@ -10,22 +10,22 @@
 #include <bpm/core/Logger.hxx>
 
 template<typename T>
-class Data
+class Params
 {
    public :
 
-      Data() = default;
+      Params() = default;
 
-      ~Data() = default;
+      ~Params() = default;
 
       T* ptr()
       {
-         return &data_;
+         return &params_;
       };
 
    private :
 
-      T data_ = {};
+      T params_ = {};
 };
 
 class WorkBase
@@ -48,16 +48,16 @@ class WorkBase
 };
 
 template<typename ParamsT>
-class ModWork : public WorkBase
+class Work : public WorkBase
 {
    public :
 
-      ModWork()
+      Work()
       {
          BPM_TRACE_COUT("");
       };
 
-      ~ModWork() override
+      ~Work() override
       {
          BPM_TRACE_COUT("");
       };
@@ -72,58 +72,58 @@ class ModWork : public WorkBase
 
    private:
 
-      Data<ParamsT> params_ = {};
+      Params<ParamsT> params_ = {};
 };
 
-struct ModParamsA
+struct ParamsA
 {
-   std::string name_ = "ModA";
+   std::string name_ = "A";
    std::size_t value_ = 0;
 };
 
-class ModWorkA : public ModWork<ModParamsA>
+class WorkA : public Work<ParamsA>
 {
    public :
 
-      ModWorkA()
+      WorkA()
       {
          BPM_TRACE_COUT("");
       };
 
-      ~ModWorkA()
+      ~WorkA()
       {
          BPM_TRACE_COUT("");
       };
 
       std::string name() override
       {
-         return "ModWorkA";
+         return "WorkA";
       };
 };
 
-struct ModParamsB
+struct ParamsB
 {
-   std::string name_ = "ModB";
+   std::string name_ = "B";
    std::size_t value_ = 100;
 };
 
-class ModWorkB : public ModWork<ModParamsB>
+class WorkB : public Work<ParamsB>
 {
    public :
 
-      ModWorkB()
+      WorkB()
       {
          BPM_TRACE_COUT("");
       };
 
-      ~ModWorkB()
+      ~WorkB()
       {
          BPM_TRACE_COUT("");
       };
 
       std::string name() override
       {
-         return "ModWorkB";
+         return "WorkB";
       };
 };
 
@@ -138,10 +138,10 @@ class TestWorkParams : public ::testing::Test
 
       void test()
       {
-         ModWorkA modWorkA;
-         modWorkA.execute();
-         ModWorkB modWorkB;
-         modWorkB.execute();
+         WorkA WorkA;
+         WorkA.execute();
+         WorkB WorkB;
+         WorkB.execute();
       }
 
    private:
