@@ -22,8 +22,8 @@ class Data
 
 struct ModParams
 {
-   std::size_t scaleFactor_;
-   std::size_t offset_;
+   std::string name_ = "ModA";
+   std::size_t value_ = 0;
 };
 
 class WorkBase
@@ -32,19 +32,38 @@ class WorkBase
       WorkBase() = default;
       virtual ~WorkBase() = default;
       virtual std::string name() = 0;
-      virtual void initialize() = 0;
       virtual void execute() = 0;
 };
 
 class ModWork : public WorkBase
 {
    public :
-      ModWork() { BPM_TRACE_COUT(""); };
-      ~ModWork() override { BPM_TRACE_COUT(""); };
-      std::string name() override { return "ModWork"; };
-      void initialize() override { BPM_TRACE_COUT(""); };
-      void execute() override { BPM_TRACE_COUT(""); };
+
+      ModWork()
+      {
+         BPM_TRACE_COUT("");
+      };
+
+      ~ModWork() override
+      {
+         BPM_TRACE_COUT("");
+      };
+
+      std::string name() override
+      {
+         return "ModWork";
+      };
+
+      void execute() override
+      {
+         BPM_TRACE_COUT("Work name (" << name()
+                        << "): param name (" << params_.ptr()->name_
+                        << "), param value (" << params_.ptr()->value_
+                        << ")");
+      };
+
    private:
+
       Data<ModParams> params_ = {};
 };
 
@@ -60,7 +79,6 @@ class TestWorkParams : public ::testing::Test
       void test()
       {
          ModWork modWork;
-         modWork.initialize();
          modWork.execute();
       }
 
