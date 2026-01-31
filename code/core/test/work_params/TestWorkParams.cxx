@@ -13,14 +13,22 @@ template<typename T>
 class Data
 {
    public :
+
       Data() = default;
+
       ~Data() = default;
-      T* ptr() { return &data_; };
+
+      T* ptr()
+      {
+         return &data_;
+      };
+
    private :
+
       T data_ = {};
 };
 
-struct ModParams
+struct ModParamsA
 {
    std::string name_ = "ModA";
    std::size_t value_ = 0;
@@ -29,9 +37,19 @@ struct ModParams
 class WorkBase
 {
    public :
-      WorkBase() = default;
-      virtual ~WorkBase() = default;
+
+      WorkBase()
+      {
+         BPM_TRACE_COUT("");
+      };
+
+      virtual ~WorkBase()
+      {
+         BPM_TRACE_COUT("");
+      };
+
       virtual std::string name() = 0;
+
       virtual void execute() = 0;
 };
 
@@ -49,11 +67,6 @@ class ModWork : public WorkBase
          BPM_TRACE_COUT("");
       };
 
-      std::string name() override
-      {
-         return "ModWork";
-      };
-
       void execute() override
       {
          BPM_TRACE_COUT("Work name (" << name()
@@ -64,7 +77,27 @@ class ModWork : public WorkBase
 
    private:
 
-      Data<ModParams> params_ = {};
+      Data<ModParamsA> params_ = {};
+};
+
+class ModWorkA : public ModWork
+{
+   public :
+
+      ModWorkA()
+      {
+         BPM_TRACE_COUT("");
+      };
+
+      ~ModWorkA()
+      {
+         BPM_TRACE_COUT("");
+      };
+
+      std::string name() override
+      {
+         return "ModWorkA";
+      };
 };
 
 ///////////////////////////////////////////////
@@ -78,8 +111,8 @@ class TestWorkParams : public ::testing::Test
 
       void test()
       {
-         ModWork modWork;
-         modWork.execute();
+         ModWorkA modWorkA;
+         modWorkA.execute();
       }
 
    private:
