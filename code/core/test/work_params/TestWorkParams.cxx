@@ -47,7 +47,23 @@ class WorkBase
       virtual void execute() = 0;
 };
 
-template<typename ParamsT>
+// The Generic Concept
+// T: The class to check
+// MemberPtr: The pointer to the member (e.g., &User::name)
+// ExpectedType: What the member should be (e.g., std::string)
+template <typename T,
+          auto MemberPtr,
+          typename ExpectedType>
+concept IsValidMember = 
+    std::is_member_object_pointer_v<decltype(MemberPtr)> && 
+    std::convertible_to<std::invoke_result_t<decltype(MemberPtr), T>, ExpectedType>;
+
+template <typename ParamsT>
+concept ValidParams = 
+    IsValidMember<ParamsT, &ParamsT::name_, std::string> &&
+    IsValidMember<ParamsT, &ParamsT::value_, std::size_t>;
+
+template<ValidParams ParamsT>
 class Work : public WorkBase
 {
    public :
