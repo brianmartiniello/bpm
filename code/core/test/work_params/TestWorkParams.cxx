@@ -105,6 +105,7 @@ struct ParamsB
 {
    std::string name_ = "B";
    std::size_t value_ = 100;
+   std::size_t unused_ = 321;
 };
 
 class WorkB : public Work<ParamsB>
