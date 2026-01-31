@@ -5,6 +5,7 @@ set(PATH_CORE_TEST_BW ${PATH_CORE_TEST}/bw CACHE INTERNAL "")
 set(PATH_CORE_TEST_CONCEPTS ${PATH_CORE_TEST}/concepts CACHE INTERNAL "")
 set(PATH_CORE_TEST_OMP ${PATH_CORE_TEST}/omp CACHE INTERNAL "")
 set(PATH_CORE_TEST_UT ${PATH_CORE_TEST}/ut CACHE INTERNAL "")
+set(PATH_CORE_TEST_WORK_PARAMS ${PATH_CORE_TEST}/work_params CACHE INTERNAL "")
 
 # Set ctest variables
 set(CORE_TEST_LABEL ${TARGET_LIBS_CORE_PREFIX}test)
@@ -449,6 +450,45 @@ target_compile_definitions(${TestThread_MAIN}
 
 ADD_GTEST(${TestThread_MAIN} "")
 set_tests_properties(${TestThread_MAIN}
+   PROPERTIES
+      LABELS
+         ${CORE_TEST_LABEL}
+      ENVIRONMENT
+         "${CORE_TEST_ENV_VARS}"
+)
+
+##############################################
+##############################################
+
+set(TestWorkParams_MAIN TestWorkParams)
+
+add_executable(${TestWorkParams_MAIN}
+   ${PATH_CORE_SRC}/Logger.cxx
+   ${PATH_CORE_TEST_WORK_PARAMS}/TestWorkParams.cxx
+)
+
+# target_compile_options(${TestWorkParams_MAIN}
+#    PRIVATE
+#       ${PLATFORM_COMPILE_OPTIONS}
+# )
+
+target_include_directories(${TestWorkParams_MAIN}
+   PRIVATE
+      ${INCLUDE_DIRS}
+)
+
+target_link_libraries(${TestWorkParams_MAIN}
+   PRIVATE
+      ${LINK_LIBS}
+)
+
+target_compile_definitions(${TestWorkParams_MAIN}
+   PRIVATE
+      ${COMPILER_DEFS}
+)
+
+ADD_GTEST(${TestWorkParams_MAIN} "")
+set_tests_properties(${TestWorkParams_MAIN}
    PROPERTIES
       LABELS
          ${CORE_TEST_LABEL}
