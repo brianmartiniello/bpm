@@ -28,12 +28,6 @@ class Data
       T data_ = {};
 };
 
-struct ModParamsA
-{
-   std::string name_ = "ModA";
-   std::size_t value_ = 0;
-};
-
 class WorkBase
 {
    public :
@@ -53,6 +47,7 @@ class WorkBase
       virtual void execute() = 0;
 };
 
+template<typename ParamsT>
 class ModWork : public WorkBase
 {
    public :
@@ -77,10 +72,16 @@ class ModWork : public WorkBase
 
    private:
 
-      Data<ModParamsA> params_ = {};
+      Data<ParamsT> params_ = {};
 };
 
-class ModWorkA : public ModWork
+struct ModParamsA
+{
+   std::string name_ = "ModA";
+   std::size_t value_ = 0;
+};
+
+class ModWorkA : public ModWork<ModParamsA>
 {
    public :
 
@@ -100,6 +101,32 @@ class ModWorkA : public ModWork
       };
 };
 
+struct ModParamsB
+{
+   std::string name_ = "ModB";
+   std::size_t value_ = 100;
+};
+
+class ModWorkB : public ModWork<ModParamsB>
+{
+   public :
+
+      ModWorkB()
+      {
+         BPM_TRACE_COUT("");
+      };
+
+      ~ModWorkB()
+      {
+         BPM_TRACE_COUT("");
+      };
+
+      std::string name() override
+      {
+         return "ModWorkB";
+      };
+};
+
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 
@@ -113,6 +140,8 @@ class TestWorkParams : public ::testing::Test
       {
          ModWorkA modWorkA;
          modWorkA.execute();
+         ModWorkB modWorkB;
+         modWorkB.execute();
       }
 
    private:
