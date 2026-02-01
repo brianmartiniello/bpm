@@ -75,10 +75,12 @@ namespace bpm
             bool setLevel(std::size_t newLevel);
 
             void updateLevel(std::size_t newLevel,
-                             const std::string& originatingNodeName);
+                             std::size_t updateLevelPhase,
+                             const std::string& previousNodeName);
 
             const std::string name_;
             std::size_t level_;
+            std::size_t updateLevelPhase_;
             PtrUSet upstreamNodes_;
             PtrUSet downstreamNodes_;
             std::size_t& maxLevel_;

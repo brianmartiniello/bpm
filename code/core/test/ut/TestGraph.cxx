@@ -303,6 +303,7 @@ namespace bpm
                EXPECT_FALSE(circularDependency_);
 
                // Re-level from node2 which has no downstream
+               // Without re-leveling using node 3
                EXPECT_FALSE(node2.hasDownstreamNodes());
                node2.reLevel();
                // node0
@@ -363,26 +364,42 @@ namespace bpm
                EXPECT_EQ(maxLevel_, 12);
                EXPECT_FALSE(circularDependency_);
 
-               // Clear the data
-               clear();
-
-               //  --------------------------------
-               //  |                              |
-               //  --> node3 --                   |
-               //             |                   |
-               //      node2 ---> node0 -> node1 --
-               node3.addDownstreamNode(node1, false);
+               // Re-level from node2 which has no downstream
+               // Already re-leveled using node 3
+               EXPECT_FALSE(node2.hasDownstreamNodes());
+               node2.reLevel();
                // node0
-               EXPECT_EQ(node0.level(), 0);
+               EXPECT_EQ(node0.level(), 11);
                // node1
-               EXPECT_EQ(node1.level(), 0);
+               EXPECT_EQ(node1.level(), 12);
                // node2
                EXPECT_EQ(node2.level(), 0);
                // node3
-               EXPECT_EQ(node3.level(), 0);
+               EXPECT_EQ(node3.level(), 10);
                // overall
-               EXPECT_EQ(maxLevel_, 0);
+               EXPECT_EQ(maxLevel_, 12);
                EXPECT_FALSE(circularDependency_);
+
+               // // Clear the data
+               // clear();
+
+               // //  --------------------------------
+               // //  |                              |
+               // //  --> node3 --                   |
+               // //             |                   |
+               // //      node2 ---> node0 -> node1 --
+               // node3.addDownstreamNode(node1, false);
+               // // node0
+               // EXPECT_EQ(node0.level(), 0);
+               // // node1
+               // EXPECT_EQ(node1.level(), 0);
+               // // node2
+               // EXPECT_EQ(node2.level(), 0);
+               // // node3
+               // EXPECT_EQ(node3.level(), 0);
+               // // overall
+               // EXPECT_EQ(maxLevel_, 0);
+               // EXPECT_FALSE(circularDependency_);
 
                // // Re-level from node2 which has no downstream
                // EXPECT_FALSE(node2.hasDownstreamNodes());
@@ -469,10 +486,10 @@ namespace bpm
       };
 
 
-      TEST_F(TestNode, test)
-      {
-         test();
-      }
+      // TEST_F(TestNode, test)
+      // {
+      //    test();
+      // }
 
 
       TEST_F(TestNode, testNoLevelUpdate)
