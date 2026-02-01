@@ -47,21 +47,41 @@ class WorkBase
       virtual void execute() = 0;
 };
 
-// The Generic Concept
-// T: The class to check
-// MemberPtr: The pointer to the member (e.g., &User::name)
+// ** Member variable check **
+// MemberPtr: The pointer to the member variable of the type (e.g., &User::name)
 // ExpectedType: What the member should be (e.g., std::string)
-template <typename T,
+template <typename ParamsT,
           auto MemberPtr,
           typename ExpectedType>
-concept IsValidMember = 
+concept ParamsHasdMember = 
     std::is_member_object_pointer_v<decltype(MemberPtr)> && 
-    std::convertible_to<std::invoke_result_t<decltype(MemberPtr), T>, ExpectedType>;
+    std::convertible_to<std::invoke_result_t<decltype(MemberPtr), ParamsT>, ExpectedType>;
 
 template <typename ParamsT>
-concept ValidParams = 
-    IsValidMember<ParamsT, &ParamsT::name_, std::string> &&
-    IsValidMember<ParamsT, &ParamsT::value_, std::size_t>;
+concept ValidParamsVars = 
+    ParamsHasdMember<ParamsT, &ParamsT::name_, std::string> &&
+    ParamsHasdMember<ParamsT, &ParamsT::value_, std::size_t>;
+
+// ** Params member method check **
+// Check for:
+// class MyParams
+// {
+//    ReturnType methodName(const& std::string& workName);
+// }
+#define DEFINE_PARAMS_HAS_METHOD(methodName) \
+template <typename ParamsT, \
+          typename ReturnType> \
+concept ParamsHasMethod_##methodName = requires(ParamsT params, const std::string& workName) \
+{ \
+   { params.methodName(workName) } -> std::same_as<ReturnType>; \
+}
+
+DEFINE_PARAMS_HAS_METHOD(name);
+DEFINE_PARAMS_HAS_METHOD(value);
+template <typename ParamsT>
+concept ValidParams =
+   ParamsHasMethod_name<ParamsT, std::string> &&
+   ParamsHasMethod_value<ParamsT, std::size_t>;
 
 template<ValidParams ParamsT>
 class Work : public WorkBase
@@ -81,8 +101,8 @@ class Work : public WorkBase
       void execute() override
       {
          BPM_TRACE_COUT("Work name (" << name()
-                        << "): param name (" << params_.ptr()->name_
-                        << "), param value (" << params_.ptr()->value_
+                        << "): param name (" << params_.ptr()->name(name())
+                        << "), param value (" << params_.ptr()->value(name())
                         << ")");
       };
 
@@ -93,8 +113,8 @@ class Work : public WorkBase
 
 struct ParamsA
 {
-   std::string name_ = "A";
-   std::size_t value_ = 0;
+   std::string name(const std::string& /* s */) { return "A"; };
+   std::size_t value(const std::string& /* s */) { return 1; };
 };
 
 class WorkA final : public Work<ParamsA>
@@ -119,9 +139,9 @@ class WorkA final : public Work<ParamsA>
 
 struct ParamsB
 {
-   std::string name_ = "B";
-   std::size_t value_ = 100;
-   std::size_t unused_ = 321;
+   std::string name(const std::string& /* s */) { return "B"; };
+   std::size_t value(const std::string& /* s */) { return 100; };
+   std::size_t unused(const std::string& /* s */) { return 321; };
 };
 
 class WorkB final : public Work<ParamsB>
@@ -146,9 +166,9 @@ class WorkB final : public Work<ParamsB>
 
 struct ParamsC
 {
-   std::string name_ = "C";
-   std::size_t value_ = 1000;
-   std::string unused_ = "546";
+   std::string name(const std::string& /* s */) { return "C"; };
+   std::size_t value(const std::string& /* s */) { return 1000; };
+   std::string unused(const std::string& /* s */) { return "654"; };
 };
 
 #define CREATE_WORK(WorkName, ParamsNam) \
