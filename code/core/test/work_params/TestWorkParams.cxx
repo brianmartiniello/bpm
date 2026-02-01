@@ -97,7 +97,7 @@ struct ParamsA
    std::size_t value_ = 0;
 };
 
-class WorkA : public Work<ParamsA>
+class WorkA final : public Work<ParamsA>
 {
    public :
 
@@ -124,7 +124,7 @@ struct ParamsB
    std::size_t unused_ = 321;
 };
 
-class WorkB : public Work<ParamsB>
+class WorkB final : public Work<ParamsB>
 {
    public :
 
@@ -144,6 +144,24 @@ class WorkB : public Work<ParamsB>
       };
 };
 
+struct ParamsC
+{
+   std::string name_ = "C";
+   std::size_t value_ = 1000;
+   std::string unused_ = "546";
+};
+
+#define CREATE_WORK(WorkName, ParamsNam) \
+class WorkName final : public Work<ParamsNam> \
+{ \
+   public : \
+      WorkName() { BPM_TRACE_COUT(""); }; \
+      ~WorkName() { BPM_TRACE_COUT(""); }; \
+      std::string name() override { return #WorkName; }; \
+};
+
+CREATE_WORK(WorkC, ParamsC)
+
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 
@@ -155,10 +173,12 @@ class TestWorkParams : public ::testing::Test
 
       void test()
       {
-         WorkA WorkA;
-         WorkA.execute();
-         WorkB WorkB;
-         WorkB.execute();
+         WorkA workA;
+         workA.execute();
+         WorkB workB;
+         workB.execute();
+         WorkC workC;
+         workC.execute();
       }
 
    private:
