@@ -43,7 +43,8 @@ namespace bpm
                return upstreamNodes_.find(&node) != upstreamNodes_.end();
             }
 
-            void addUpstreamNode(Node& node);
+            void addUpstreamNode(Node& node,
+                                 bool updateLevels = true);
 
             bool hasDownstreamNodes() const
             {
@@ -55,7 +56,8 @@ namespace bpm
                return downstreamNodes_.find(&node) != downstreamNodes_.end();
             }
 
-            void addDownstreamNode(Node& node);
+            void addDownstreamNode(Node& node,
+                                   bool updateLevels = true);
 
             std::string toString(const std::string& leadingText = "") const;
 
@@ -65,6 +67,8 @@ namespace bpm
             }
 
             void updateLevel(std::size_t newLevel);
+
+            void reLevel();
 
          private:
 
@@ -109,6 +113,8 @@ namespace bpm
             }
 
             void listNodesByLevel();
+
+            void reLevel();
 
             std::string toString(const std::string& leadingText = "") const;
 

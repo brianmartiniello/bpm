@@ -19,12 +19,14 @@ bpm::core::Node::Node(const std::string& name,
 }
 
 
-void bpm::core::Node::addUpstreamNode(Node& /* node */)
+void bpm::core::Node::addUpstreamNode(Node& /* node */,
+                                      bool /* updateLevels */)
 {
 }
 
 
-void bpm::core::Node::addDownstreamNode(Node& /* node */)
+void bpm::core::Node::addDownstreamNode(Node& /* node */,
+                                        bool /* updateLevels */)
 {
 }
 
@@ -35,7 +37,7 @@ void bpm::core::Node::updateLevel(std::size_t /* newLevel */,
 }
 
 
-void bpm::core::Node::updateLevel(std::size_t /* newLevel */)
+void bpm::core::Node::reLevel()
 {
 }
 
@@ -105,5 +107,10 @@ void bpm::core::Graph::listNodesByLevel()
 
 
 void bpm::core::Graph::assignMaxLevel()
+{
+}
+
+
+void bpm::core::Graph::reLevel()
 {
 }

@@ -19,7 +19,8 @@ bpm::core::Node::Node(const std::string& name,
 }
 
 
-void bpm::core::Node::addUpstreamNode(Node& node)
+void bpm::core::Node::addUpstreamNode(Node& node,
+                                      bool updateLevels)
 {
    // Exit if already connected
    if (this == &node)
@@ -39,7 +40,11 @@ void bpm::core::Node::addUpstreamNode(Node& node)
    }
 
    // Add this node as downstream to the upstream node
-   node.addDownstreamNode(*this);
+   node.addDownstreamNode(*this,
+                          updateLevels);
+
+   // Exit if not updating level
+   if (false == updateLevels) return;
 
    // Exit if there is a circular dependency, cannot update level
    if (true == circularDependency_) return;
@@ -56,7 +61,8 @@ void bpm::core::Node::addUpstreamNode(Node& node)
 }
 
 
-void bpm::core::Node::addDownstreamNode(Node& node)
+void bpm::core::Node::addDownstreamNode(Node& node,
+                                        bool updateLevels)
 {
    // Exit if already connected
    if (this == &node)
@@ -76,7 +82,11 @@ void bpm::core::Node::addDownstreamNode(Node& node)
    }
 
    // Add this node as upstream to the downstream node
-   node.addUpstreamNode(*this);
+   node.addUpstreamNode(*this,
+                        updateLevels);
+
+   // Exit if not updating level
+   if (false == updateLevels) return;
 
    // Exit if there is a circular dependency, cannot update level
    if (true == circularDependency_) return;
@@ -106,7 +116,7 @@ void bpm::core::Node::updateLevel(std::size_t newLevel,
    // Exit if no change
    if (false == setLevel(newLevel)) return;
 
-   // The other upsteam nodes now need to be re-leveled
+   // The upsteam nodes now need to be re-leveled
    for (auto& upstreamNode : upstreamNodes_)
    {
       upstreamNode->updateLevel(level_ + 1,
@@ -120,7 +130,18 @@ void bpm::core::Node::updateLevel(std::size_t newLevel)
    // Exit if no change
    if (false == setLevel(newLevel)) return;
 
-   // The other upsteam nodes now need to be re-leveled
+   // The upsteam nodes now need to be re-leveled
+   for (auto& upstreamNode : upstreamNodes_)
+   {
+      upstreamNode->updateLevel(level_ + 1,
+                                name_);
+   }
+}
+
+
+void bpm::core::Node::reLevel()
+{
+   // Check if the upsteam nodes need to be re-leveled
    for (auto& upstreamNode : upstreamNodes_)
    {
       upstreamNode->updateLevel(level_ + 1,
@@ -313,5 +334,14 @@ void bpm::core::Graph::assignMaxLevel()
       if (true == nodePtr->hasInputPort()) continue;
 
       nodePtr->updateLevel(maxLevel_);
+   }
+}
+
+
+void bpm::core::Graph::reLevel()
+{
+   for (auto nodePtr : nodesWithoughDownstream_)
+   {
+      nodePtr->reLevel();
    }
 }
