@@ -23,16 +23,7 @@ namespace bpm
             {
                BPM_SCOPED_TRACE_COUT("test");
 
-               reset();
-
-               auto createNode = [&](const std::string& name,
-                                     bool hasInputPort = false)
-                                 {
-                                    return bpm::core::Node(name,
-                                                           hasInputPort,
-                                                           maxLevel_,
-                                                           circularDependency_);
-                                 };
+               resetSharedVariables();
 
                auto node0 = createNode("node0");
                node0.addUpstreamNode(node0);
@@ -200,16 +191,7 @@ namespace bpm
             {
                BPM_SCOPED_TRACE_COUT("test");
 
-               reset();
-
-               auto createNode = [&](const std::string& name,
-                                     bool hasInputPort = false)
-                                 {
-                                    return bpm::core::Node(name,
-                                                           hasInputPort,
-                                                           maxLevel_,
-                                                           circularDependency_);
-                                 };
+               resetSharedVariables();
 
                auto node0 = createNode("node0");
                node0.addUpstreamNode(node0, false);
@@ -336,7 +318,7 @@ namespace bpm
                EXPECT_FALSE(circularDependency_);
 
                // Re-level from node3 which has no downstream
-               // Already re-leveld using node 2
+               // Already re-leveled using node 2
                EXPECT_FALSE(node3.hasDownstreamNodes());
                node3.reLevel();
                // node0
@@ -357,13 +339,14 @@ namespace bpm
                                node1.level_ = 0;
                                node2.level_ = 0;
                                node3.level_ = 0;
-                               reset();
+                               resetSharedVariables();
                             };
+
+               // Clear the data
+               clear();
 
                // Re-level from node3 which has no downstream
                // Without re-leveling using node 2
-               // Clear the data
-               clear();
                EXPECT_FALSE(node3.hasDownstreamNodes());
                // Distinguish node3 from node2 by level
                node3.level_ = 10;
@@ -380,14 +363,30 @@ namespace bpm
                EXPECT_EQ(maxLevel_, 12);
                EXPECT_FALSE(circularDependency_);
 
-               // //  --------------------------------
-               // //  |                              |
-               // //  --> node3 --                   |
-               // //             |                   |
-               // //      node2 ---> node0 -> node1 --
-               // node3.addDownstreamNode(node1, false);
-               // // Creating circular dependency without updating levels
-               // // does not change the other nodes
+               // Clear the data
+               clear();
+
+               //  --------------------------------
+               //  |                              |
+               //  --> node3 --                   |
+               //             |                   |
+               //      node2 ---> node0 -> node1 --
+               node3.addDownstreamNode(node1, false);
+               // node0
+               EXPECT_EQ(node0.level(), 0);
+               // node1
+               EXPECT_EQ(node1.level(), 0);
+               // node2
+               EXPECT_EQ(node2.level(), 0);
+               // node3
+               EXPECT_EQ(node3.level(), 0);
+               // overall
+               EXPECT_EQ(maxLevel_, 0);
+               EXPECT_FALSE(circularDependency_);
+
+               // // Re-level from node2 which has no downstream
+               // EXPECT_FALSE(node2.hasDownstreamNodes());
+               // node2.reLevel();
                // // node0
                // EXPECT_EQ(node0.level(), 1);
                // // node1
@@ -398,7 +397,45 @@ namespace bpm
                // EXPECT_EQ(node3.level(), 0);
                // // overall
                // EXPECT_EQ(maxLevel_, 2);
+               // EXPECT_TRUE(circularDependency_);
+
+               // // Re-level from node3 which is now has a circular dependency
+               // // Already re-leveled using node 2
+               // node3.reLevel();
+               // // node0
+               // EXPECT_EQ(node0.level(), 1);
+               // // node1
+               // EXPECT_EQ(node1.level(), 2);
+               // // node2
+               // EXPECT_EQ(node2.level(), 0);
+               // // node3
+               // EXPECT_EQ(node3.level(), 0);
+               // // overall
+               // EXPECT_EQ(maxLevel_, 2);
+               // EXPECT_TRUE(circularDependency_);
+
+               // // Clear the data
+               // clear();
+
+               // // Re-level from node3 which has no downstream
+               // // Without re-leveling using node 2
+               // // Distinguish node3 from node2 by level
+               // node3.level_ = 10;
+               // node3.reLevel();
+               // // node0
+               // EXPECT_EQ(node0.level(), 11);
+               // // node1
+               // EXPECT_EQ(node1.level(), 12);
+               // // node2
+               // EXPECT_EQ(node2.level(), 0);
+               // // node3
+               // EXPECT_EQ(node3.level(), 10);
+               // // overall
+               // EXPECT_EQ(maxLevel_, 12);
                // EXPECT_FALSE(circularDependency_);
+
+               // // Clear the data
+               // clear();
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");
@@ -411,7 +448,16 @@ namespace bpm
 
          private:
 
-            void reset()
+            bpm::core::Node createNode(const std::string& name,
+                                       bool hasInputPort = false)
+            {
+               return bpm::core::Node(name,
+                                      hasInputPort,
+                                      maxLevel_,
+                                      circularDependency_);
+            };
+
+            void resetSharedVariables()
             {
                maxLevel_ = 0;
                circularDependency_ = false;
