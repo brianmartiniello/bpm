@@ -340,8 +340,12 @@ void bpm::core::Graph::assignMaxLevel()
 
 void bpm::core::Graph::reLevel()
 {
+   // Process all nodes without downstream nodes
    for (auto nodePtr : nodesWithoughDownstream_)
    {
       nodePtr->reLevel();
    }
+
+   // Process all nodes without upstream nodes
+   assignMaxLevel();
 }

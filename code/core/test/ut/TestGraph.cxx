@@ -320,23 +320,55 @@ namespace bpm
                EXPECT_EQ(maxLevel_, 0);
                EXPECT_FALSE(circularDependency_);
 
-               // //  --------------------------------
-               // //  |                              |
-               // //  --> node3 --                   |
-               // //             |                   |
-               // //      node2 ---> node0 -> node1 --
-               // node3.addDownstreamNode(node1, false);
-               // // node0
-               // EXPECT_EQ(node0.level(), 0);
-               // // node1
-               // EXPECT_EQ(node1.level(), 0);
-               // // node2
-               // EXPECT_EQ(node2.level(), 0);
-               // // node3
-               // EXPECT_EQ(node3.level(), 0);
-               // // overall
-               // EXPECT_EQ(maxLevel_, 0);
-               // EXPECT_TRUE(circularDependency_);
+               // Re-level from node2 which has no downstream
+               EXPECT_FALSE(node2.hasDownstreamNodes());
+               node2.reLevel();
+               // node0
+               EXPECT_EQ(node0.level(), 1);
+               // node1
+               EXPECT_EQ(node1.level(), 2);
+               // node2
+               EXPECT_EQ(node2.level(), 0);
+               // node3
+               EXPECT_EQ(node3.level(), 0);
+               // overall
+               EXPECT_EQ(maxLevel_, 2);
+               EXPECT_FALSE(circularDependency_);
+
+               // Re-level from node3 which has no downstream
+               EXPECT_FALSE(node3.hasDownstreamNodes());
+               node3.reLevel();
+               // node0
+               EXPECT_EQ(node0.level(), 1);
+               // node1
+               EXPECT_EQ(node1.level(), 2);
+               // node2
+               EXPECT_EQ(node2.level(), 0);
+               // node3
+               EXPECT_EQ(node3.level(), 0);
+               // overall
+               EXPECT_EQ(maxLevel_, 2);
+               EXPECT_FALSE(circularDependency_);
+
+               //  --------------------------------
+               //  |                              |
+               //  --> node3 --                   |
+               //             |                   |
+               //      node2 ---> node0 -> node1 --
+               node3.addDownstreamNode(node1, false);
+               // Creating circular dependency without updating levels
+               // does not change the other nodes
+               // node0
+               EXPECT_EQ(node0.level(), 1);
+               // node1
+               EXPECT_EQ(node1.level(), 2);
+               // node2
+               EXPECT_EQ(node2.level(), 0);
+               // node3
+               EXPECT_EQ(node3.level(), 0);
+               // overall
+               EXPECT_EQ(maxLevel_, 2);
+               EXPECT_FALSE(circularDependency_);
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");
