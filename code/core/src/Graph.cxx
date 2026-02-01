@@ -6,11 +6,13 @@
 
 bpm::core::Node::Node(const std::string& name,
                       bool hasInputPort,
+                      std::size_t& globalLevelPhase,
                       std::size_t& maxLevel,
                       bool& circularDependency)
    : name_(name)
    , level_(0)
-   , updateLevelPhase_(0)
+   , levelPhase_(0)
+   , globalLevelPhase_(globalLevelPhase)
    , upstreamNodes_()
    , downstreamNodes_()
    , maxLevel_(maxLevel)
@@ -20,8 +22,7 @@ bpm::core::Node::Node(const std::string& name,
 }
 
 
-void bpm::core::Node::addUpstreamNode(Node& node,
-                                      bool updateLevels)
+void bpm::core::Node::addUpstreamNode(Node& node)
 {
    // Exit if already connected
    if (this == &node)
@@ -41,31 +42,11 @@ void bpm::core::Node::addUpstreamNode(Node& node,
    }
 
    // Add this node as downstream to the upstream node
-   node.addDownstreamNode(*this,
-                          false);
-
-   // // Exit if not updating level
-   // if (false == updateLevels) return;
-
-   // // Exit if there is a circular dependency, cannot update level
-   // if (true == circularDependency_) return;
-
-   // // Make sure the upstream node has a higher level than this node
-   // ++updateLevelPhase_;
-   // node.updateLevel(level_ + 1,
-   //                  updateLevelPhase_,
-   //                  name_);
-
-   // if (true == circularDependency_)
-   // {
-   //    BPM_TRACE_COUT("Circular dependency detected when connecting node (" + name_ +
-   //                   ") to upstream node (" + node.name() + ")");
-   // }
+   node.addDownstreamNode(*this);
 }
 
 
-void bpm::core::Node::addDownstreamNode(Node& node,
-                                        bool updateLevels)
+void bpm::core::Node::addDownstreamNode(Node& node)
 {
    // Exit if already connected
    if (this == &node)
@@ -85,69 +66,45 @@ void bpm::core::Node::addDownstreamNode(Node& node,
    }
 
    // Add this node as upstream to the downstream node
-   node.addUpstreamNode(*this,
-                        false);
-
-   // // Exit if not updating level
-   // if (false == updateLevels) return;
-
-   // // Exit if there is a circular dependency, cannot update level
-   // if (true == circularDependency_) return;
-
-   // // Make sure this node has a higher level than the downstream node
-   // ++updateLevelPhase_;
-   // updateLevel(node.level() + 1,
-   //             updateLevelPhase_,
-   //             node.name());
-
-   // if (true == circularDependency_)
-   // {
-   //    BPM_TRACE_COUT("Circular dependency detected when connecting node (" + name_ +
-   //                   ") to downstream node (" + node.name() + ")");
-   // }
+   node.addUpstreamNode(*this);
 }
 
 
 void bpm::core::Node::updateLevel(std::size_t newLevel,
-                                  std::size_t updateLevelPhase,
                                   const std::string& previousNodeName)
 {
    BPM_TRACE_COUT("Prev node (" + previousNodeName +
                   "), new level (" + std::to_string(newLevel) +
-                  "), prev phase (" + std::to_string(updateLevelPhase) + 
+                  "), global phase (" + std::to_string(globalLevelPhase_) + 
                   "), node (" + name_ +
                   "), level (" + std::to_string(level_) +
-                  "), phase (" + std::to_string(updateLevelPhase_) +")");
+                  "), phase (" + std::to_string(levelPhase_) +")");
 
    // Exit if no change
    if (false == setLevel(newLevel)) return;
 
    // Exit if match with phase, circular dependency detected
-   if (updateLevelPhase == updateLevelPhase_)
+   if (levelPhase_ == globalLevelPhase_)
    {
       BPM_TRACE_COUT("Prev node (" + previousNodeName +
                      "), new level (" + std::to_string(newLevel) +
-                     "), prev phase (" + std::to_string(updateLevelPhase) + 
+                     "), prev phase (" + std::to_string(globalLevelPhase_) + 
                      "), node (" + name_ +
                      "), level (" + std::to_string(level_) +
-                     "), phase (" + std::to_string(updateLevelPhase_) +
+                     "), phase (" + std::to_string(levelPhase_) +
                      ") - Circular dependency detected");
 
       circularDependency_ = true;
       return;
    }
 
-   // Match the phase if it is greater
-   if (updateLevelPhase > updateLevelPhase_)
-   {
-      updateLevelPhase_ = updateLevelPhase;
-   }
+   // Match the phase
+   levelPhase_ = globalLevelPhase_;
 
    // The upsteam nodes now need to be re-leveled
    for (auto& upstreamNode : upstreamNodes_)
    {
       upstreamNode->updateLevel(level_ + 1,
-                                updateLevelPhase_,
                                 name_);
    }
 }
@@ -159,13 +116,12 @@ void bpm::core::Node::updateLevel(std::size_t newLevel)
    if (false == setLevel(newLevel)) return;
 
    // Indicate a new phase
-   ++updateLevelPhase_;
+   ++globalLevelPhase_;
 
    // The upsteam nodes now need to be re-leveled
    for (auto& upstreamNode : upstreamNodes_)
    {
       upstreamNode->updateLevel(level_ + 1,
-                                updateLevelPhase_,
                                 name_);
    }
 }
@@ -174,13 +130,12 @@ void bpm::core::Node::updateLevel(std::size_t newLevel)
 void bpm::core::Node::reLevel()
 {
    // Indicate a new phase
-   ++updateLevelPhase_;
+   ++globalLevelPhase_;
 
    // Check if the upsteam nodes need to be re-leveled
    for (auto& upstreamNode : upstreamNodes_)
    {
       upstreamNode->updateLevel(level_ + 1,
-                                updateLevelPhase_,
                                 name_);
    }
 }
@@ -254,6 +209,7 @@ bool bpm::core::Graph::addNode(const std::string& name,
    auto pair = graph_.emplace(name,
                               Node(name,
                                    hasInputPort,
+                                   globalLevelPhase_,
                                    maxLevel_,
                                    circularDependency_));
    if (false == pair.second)

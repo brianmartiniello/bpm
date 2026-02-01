@@ -194,8 +194,8 @@ namespace bpm
                resetSharedVariables();
 
                auto node0 = createNode("node0");
-               node0.addUpstreamNode(node0, false);
-               node0.addDownstreamNode(node0, false);
+               node0.addUpstreamNode(node0);
+               node0.addDownstreamNode(node0);
                EXPECT_EQ(node0.name(), "node0");
                EXPECT_EQ(node0.level(), 0);
                EXPECT_FALSE(node0.hasInputPort());
@@ -224,8 +224,8 @@ namespace bpm
                EXPECT_FALSE(circularDependency_);
 
                // node0 -> node1
-               node0.addUpstreamNode(node1, false);
-               node1.addDownstreamNode(node0, false);
+               node0.addUpstreamNode(node1);
+               node1.addDownstreamNode(node0);
                // node0
                EXPECT_EQ(node0.level(), 0);
                EXPECT_FALSE(node0.hasDownstreamNodes());
@@ -255,8 +255,8 @@ namespace bpm
                EXPECT_FALSE(circularDependency_);
 
                // node2 -> node0 -> node1
-               node0.addDownstreamNode(node2, false);
-               node2.addUpstreamNode(node0, false);
+               node0.addDownstreamNode(node2);
+               node2.addUpstreamNode(node0);
                // node0
                EXPECT_EQ(node0.level(), 0);
                EXPECT_TRUE(node0.hasDownstreamNodes());
@@ -289,7 +289,7 @@ namespace bpm
                //        |
                // node2 ---> node0 -> node1
                auto node3 = createNode("node3");
-               node3.addUpstreamNode(node0, false);
+               node3.addUpstreamNode(node0);
                // node0
                EXPECT_EQ(node0.level(), 0);
                // node1
@@ -337,9 +337,13 @@ namespace bpm
                auto clear = [&]()
                             {
                                node0.level_ = 0;
+                               node0.levelPhase_ = 0;
                                node1.level_ = 0;
+                               node1.levelPhase_ = 0;
                                node2.level_ = 0;
+                               node2.levelPhase_ = 0;
                                node3.level_ = 0;
+                               node3.levelPhase_ = 0;
                                resetSharedVariables();
                             };
 
@@ -470,16 +474,19 @@ namespace bpm
             {
                return bpm::core::Node(name,
                                       hasInputPort,
+                                      globalLevelPhase_,
                                       maxLevel_,
                                       circularDependency_);
             };
 
             void resetSharedVariables()
             {
+               globalLevelPhase_ = 0;
                maxLevel_ = 0;
                circularDependency_ = false;
             }
 
+            std::size_t globalLevelPhase_;
             std::size_t maxLevel_;
             bool circularDependency_;
 

@@ -20,6 +20,7 @@ namespace bpm
 
             Node(const std::string& name,
                  bool hasInputPort,
+                 std::size_t& globalLevelPhase,
                  std::size_t& maxLevel,
                  bool& circularDependency);
             
@@ -43,8 +44,7 @@ namespace bpm
                return upstreamNodes_.find(&node) != upstreamNodes_.end();
             }
 
-            void addUpstreamNode(Node& node,
-                                 bool updateLevels = true);
+            void addUpstreamNode(Node& node);
 
             bool hasDownstreamNodes() const
             {
@@ -56,8 +56,7 @@ namespace bpm
                return downstreamNodes_.find(&node) != downstreamNodes_.end();
             }
 
-            void addDownstreamNode(Node& node,
-                                   bool updateLevels = true);
+            void addDownstreamNode(Node& node);
 
             std::string toString(const std::string& leadingText = "") const;
 
@@ -75,12 +74,12 @@ namespace bpm
             bool setLevel(std::size_t newLevel);
 
             void updateLevel(std::size_t newLevel,
-                             std::size_t updateLevelPhase,
                              const std::string& previousNodeName);
 
             const std::string name_;
             std::size_t level_;
-            std::size_t updateLevelPhase_;
+            std::size_t levelPhase_;
+            std::size_t& globalLevelPhase_;
             PtrUSet upstreamNodes_;
             PtrUSet downstreamNodes_;
             std::size_t& maxLevel_;
@@ -125,6 +124,7 @@ namespace bpm
             std::unordered_map<std::string, Node> graph_;
             Node::PtrUSet nodesWithoughUpstream_;
             Node::PtrUSet nodesWithoughDownstream_;
+            std::size_t globalLevelPhase_;
             std::size_t maxLevel_;
             Node::PtrVector nodesByLevel_;
             bool circularDependency_;
