@@ -182,7 +182,10 @@ std::string bpm::core::Node::toString(const std::string& leadingText) const
 
 std::string bpm::core::Graph::toString(const std::string& leadingText) const
 {
-   auto out = leadingText + "graph_.size() (" + std::to_string(graph_.size()) + ")";
+   auto out = leadingText + "globalLevelPhase_ (" + std::to_string(globalLevelPhase_) + ")\n" +
+              leadingText + "maxLevel_ (" + std::to_string(maxLevel_) + ")\n" +
+              leadingText + "circularDependency_ (" + std::to_string(circularDependency_) + ")\n" +
+              leadingText + "graph_.size() (" + std::to_string(graph_.size()) + ")";
    auto index = -1U;
    for (const auto& pair : graph_)
    {
