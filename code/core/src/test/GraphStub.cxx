@@ -6,10 +6,13 @@
 
 bpm::core::Node::Node(const std::string& name,
                       bool hasInputPort,
+                      std::size_t& globalLevelPhase,
                       std::size_t& maxLevel,
                       bool& circularDependency)
    : name_(name)
    , level_()
+   , levelPhase_(0)
+   , globalLevelPhase_(globalLevelPhase)
    , upstreamNodes_()
    , downstreamNodes_()
    , maxLevel_(maxLevel)
@@ -19,20 +22,23 @@ bpm::core::Node::Node(const std::string& name,
 }
 
 
-void bpm::core::Node::addUpstreamNode(Node& /* node */,
-                                      bool /* updateLevels */)
+void bpm::core::Node::addUpstreamNode(Node& /* node */)
 {
 }
 
 
-void bpm::core::Node::addDownstreamNode(Node& /* node */,
-                                        bool /* updateLevels */)
+void bpm::core::Node::addDownstreamNode(Node& /* node */)
 {
 }
 
 
 void bpm::core::Node::updateLevel(std::size_t /* newLevel */,
-                                  const std::string& /* originatingNodeName */)
+                                  const std::string& /* previousNodeName */)
+{
+}
+
+
+void bpm::core::Node::updateLevel(std::size_t /* newLevel */)
 {
 }
 
