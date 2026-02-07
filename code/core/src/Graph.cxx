@@ -238,7 +238,9 @@ bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
    const auto upstreamIter = graph_.find(upstreamName);
    if (graph_.end() == upstreamIter)
    {
-      BPM_TRACE_COUT("Upstream name (" + upstreamName + ") not found");
+      BPM_TRACE_COUT("Upstream name (" + upstreamName +
+                     "), downstream name (" + downstreamName +
+                     "): Upsteam name not found");
 
       return false;
    }
@@ -248,7 +250,9 @@ bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
    const auto downstreamIter = graph_.find(downstreamName);
    if (graph_.end() == downstreamIter)
    {
-      BPM_TRACE_COUT("Downstream name (" + downstreamName + ") not found");
+      BPM_TRACE_COUT("Upstream name (" + upstreamName +
+                     "), downstream name (" + downstreamName +
+                     "): Downstream name not found");
 
       return false;
    }

@@ -524,6 +524,10 @@ namespace bpm
                resetSharedVariables();
 
                graph_.addNode("node0");
+               EXPECT_EQ(graph_.maxLevel_, 0);
+               EXPECT_FALSE(graph_.circularDependency_);
+               EXPECT_FALSE(graph_.globalLevelPhase_);
+               // node0
                auto node0Iter = graph_.graph_.find("node0");
                ASSERT_TRUE(node0Iter != graph_.graph_.end());
                auto& node0 = node0Iter->second;
@@ -531,12 +535,13 @@ namespace bpm
                            graph_.nodesWithoughUpstream_.end());
                EXPECT_TRUE(graph_.nodesWithoughDownstream_.find(&node0) !=
                            graph_.nodesWithoughDownstream_.end());
-               EXPECT_EQ(graph_.maxLevel_, 0);
-               EXPECT_FALSE(graph_.circularDependency_);
-               EXPECT_FALSE(graph_.globalLevelPhase_);
 
                graph_.addNode("node1",
                               true);
+               EXPECT_EQ(graph_.maxLevel_, 0);
+               EXPECT_FALSE(graph_.circularDependency_);
+               EXPECT_FALSE(graph_.globalLevelPhase_);
+               // node1
                auto node1Iter = graph_.graph_.find("node1");
                ASSERT_TRUE(node1Iter != graph_.graph_.end());
                auto& node1 = node1Iter->second;
@@ -544,11 +549,12 @@ namespace bpm
                            graph_.nodesWithoughUpstream_.end());
                EXPECT_TRUE(graph_.nodesWithoughDownstream_.find(&node1) !=
                            graph_.nodesWithoughDownstream_.end());
+
+               graph_.addNode("node2");
                EXPECT_EQ(graph_.maxLevel_, 0);
                EXPECT_FALSE(graph_.circularDependency_);
                EXPECT_FALSE(graph_.globalLevelPhase_);
-
-               graph_.addNode("node2");
+               // node2
                auto node2Iter = graph_.graph_.find("node2");
                ASSERT_TRUE(node2Iter != graph_.graph_.end());
                auto& node2 = node2Iter->second;
@@ -556,42 +562,34 @@ namespace bpm
                            graph_.nodesWithoughUpstream_.end());
                EXPECT_TRUE(graph_.nodesWithoughDownstream_.find(&node2) !=
                            graph_.nodesWithoughDownstream_.end());
+
+               // node0 -> undefined
+               EXPECT_FALSE(graph_.connectNodes("node0", "undefined"));
+               // undefined -> node1
+               EXPECT_FALSE(graph_.connectNodes("undefined", "node1"));
+
+               // node0 -> node1
+               EXPECT_TRUE(graph_.connectNodes("node0", "node1"));
                EXPECT_EQ(graph_.maxLevel_, 0);
                EXPECT_FALSE(graph_.circularDependency_);
                EXPECT_FALSE(graph_.globalLevelPhase_);
+               // node0
+               EXPECT_TRUE(graph_.nodesWithoughUpstream_.find(&node0) !=
+                           graph_.nodesWithoughUpstream_.end());
+               EXPECT_FALSE(graph_.nodesWithoughDownstream_.find(&node0) !=
+                            graph_.nodesWithoughDownstream_.end());
+               // node1
+               EXPECT_FALSE(graph_.nodesWithoughUpstream_.find(&node1) !=
+                            graph_.nodesWithoughUpstream_.end());
+               EXPECT_TRUE(graph_.nodesWithoughDownstream_.find(&node1) !=
+                           graph_.nodesWithoughDownstream_.end());
+               // node2
+               EXPECT_TRUE(graph_.nodesWithoughUpstream_.find(&node2) !=
+                           graph_.nodesWithoughUpstream_.end());
+               EXPECT_TRUE(graph_.nodesWithoughDownstream_.find(&node2) !=
+                           graph_.nodesWithoughDownstream_.end());
 
 #if 0
-               // node0 -> node1
-               node0.addUpstreamNode(node1);
-               node1.addDownstreamNode(node0);
-               // node0
-               EXPECT_EQ(node0.level(), 0);
-               EXPECT_FALSE(node0.hasDownstreamNodes());
-               EXPECT_FALSE(node0.hasDownstreamNode(node1));
-               EXPECT_FALSE(node0.hasDownstreamNode(node2));
-               EXPECT_TRUE(node0.hasUpstreamNodes());
-               EXPECT_TRUE(node0.hasUpstreamNode(node1));
-               EXPECT_FALSE(node0.hasUpstreamNode(node2));
-               // node1
-               EXPECT_EQ(node1.level(), 0);
-               EXPECT_TRUE(node1.hasDownstreamNodes());
-               EXPECT_TRUE(node1.hasDownstreamNode(node0));
-               EXPECT_FALSE(node1.hasDownstreamNode(node2));
-               EXPECT_FALSE(node1.hasUpstreamNodes());
-               EXPECT_FALSE(node1.hasUpstreamNode(node0));
-               EXPECT_FALSE(node1.hasUpstreamNode(node2));
-               // node2
-               EXPECT_EQ(node2.level(), 0);
-               EXPECT_FALSE(node2.hasDownstreamNodes());
-               EXPECT_FALSE(node2.hasDownstreamNode(node0));
-               EXPECT_FALSE(node2.hasDownstreamNode(node1));
-               EXPECT_FALSE(node2.hasUpstreamNodes());
-               EXPECT_FALSE(node2.hasUpstreamNode(node0));
-               EXPECT_FALSE(node2.hasUpstreamNode(node1));
-               // overall
-               EXPECT_EQ(maxLevel_, 0);
-               EXPECT_FALSE(circularDependency_);
-
                // node2 -> node0 -> node1
                node0.addDownstreamNode(node2);
                node2.addUpstreamNode(node0);
@@ -792,15 +790,14 @@ namespace bpm
                // overall
                EXPECT_EQ(maxLevel_, 14);
                EXPECT_TRUE(circularDependency_);
+#endif
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");
-                  BPM_TRACE_COUT("\n" + node0.toString("   "));
-                  BPM_TRACE_COUT("\n" + node1.toString("   "));
-                  BPM_TRACE_COUT("\n" + node2.toString("   "));
-                  BPM_TRACE_COUT("\n" + node3.toString("   "));
+                  BPM_TRACE_COUT("\n" + graph_.toString("   "));
                }
 
+#if 0
                // Clear the data
                clear();
 #endif
