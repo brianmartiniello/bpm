@@ -831,6 +831,53 @@ namespace bpm
                }
             }
 
+            void testNodeChains()
+            {
+               BPM_SCOPED_TRACE_COUT("testNodeChains");
+
+               resetSharedVariables();
+
+               graph_.addNode("node0");
+               graph_.addNode("node1");
+               graph_.addNode("node2");
+               graph_.addNode("node3");
+               graph_.addNode("node4");
+               graph_.addNode("node5");
+               graph_.addNode("node6");
+               graph_.addNode("node7");
+               graph_.addNode("node8");
+
+               // node0 --> node1 --            --> node5 --> node6
+               //                   |           |
+               // node2 --> node3 ----> node4 ----> node7 --> node8
+               EXPECT_TRUE(graph_.connectNodes("node0",
+                                               "node1"));
+               EXPECT_TRUE(graph_.connectNodes("node2",
+                                               "node3"));
+               EXPECT_TRUE(graph_.connectNodes("node1",
+                                               "node4"));
+               EXPECT_TRUE(graph_.connectNodes("node3",
+                                               "node4"));
+               EXPECT_TRUE(graph_.connectNodes("node4",
+                                               "node5"));
+               EXPECT_TRUE(graph_.connectNodes("node4",
+                                               "node7"));
+               EXPECT_TRUE(graph_.connectNodes("node5",
+                                               "node6"));
+               EXPECT_TRUE(graph_.connectNodes("node7",
+                                               "node8"));
+
+               graph_.reLevel();
+
+               {
+                  BPM_SCOPED_TRACE_COUT("toString");
+                  BPM_TRACE_COUT("\n" + graph_.toString("   "));
+                  graph_.sortNodesByLevel();
+                  auto set = graph_.getNodesByLevel();
+                  BPM_TRACE_COUT("\n" + toString(set, "   "));
+               }
+            }
+
          private:
 
             void resetSharedVariables()
@@ -854,6 +901,12 @@ namespace bpm
       TEST_F(TestGraph, testAssignMaxLevel)
       {
          testAssignMaxLevel();
+      }
+
+
+      TEST_F(TestGraph, testNodeChains)
+      {
+         testNodeChains();
       }
    }
 }
