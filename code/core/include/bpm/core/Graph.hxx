@@ -2,6 +2,7 @@
 #ifndef BPM_CORE_GRAPH_HXX
 #define BPM_CORE_GRAPH_HXX
 
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -89,6 +90,21 @@ namespace bpm
             friend class TestNode;
             friend class TestGraph;
       };
+      
+
+      struct NodeLevelCompare
+      {
+         bool operator()(const Node& a,
+                         const Node& b) const
+         {
+            // Descending order
+            return a.level() > b.level();
+         }
+      };
+
+
+      using NodeLevelSet = std::set<Node*, NodeLevelCompare>;
+
 
       class Graph
       {
