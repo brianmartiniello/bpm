@@ -610,24 +610,44 @@ namespace bpm
                EXPECT_FALSE(graph_.nodesWithoughDownstream_.find(&node2) !=
                             graph_.nodesWithoughDownstream_.end());
 
-#if 0
+               graph_.addNode("node3");
+               auto node3Iter = graph_.graph_.find("node3");
+               ASSERT_TRUE(node3Iter != graph_.graph_.end());
+               auto& node3 = node3Iter->second;
+               EXPECT_TRUE(graph_.nodesWithoughUpstream_.find(&node3) !=
+                           graph_.nodesWithoughUpstream_.end());
+               EXPECT_TRUE(graph_.nodesWithoughDownstream_.find(&node3) !=
+                           graph_.nodesWithoughDownstream_.end());
+
                // node3 --
                //        |
                // node2 ---> node0 -> node1
-               auto node3 = createNode("node3");
-               node3.addUpstreamNode(node0);
+               EXPECT_TRUE(graph_.connectNodes("node3", "node0"));
+               EXPECT_EQ(graph_.maxLevel_, 0);
+               EXPECT_FALSE(graph_.circularDependency_);
+               EXPECT_FALSE(graph_.globalLevelPhase_);
                // node0
-               EXPECT_EQ(node0.level(), 0);
+               EXPECT_FALSE(graph_.nodesWithoughUpstream_.find(&node0) !=
+                            graph_.nodesWithoughUpstream_.end());
+               EXPECT_FALSE(graph_.nodesWithoughDownstream_.find(&node0) !=
+                            graph_.nodesWithoughDownstream_.end());
                // node1
-               EXPECT_EQ(node1.level(), 0);
+               EXPECT_FALSE(graph_.nodesWithoughUpstream_.find(&node1) !=
+                            graph_.nodesWithoughUpstream_.end());
+               EXPECT_TRUE(graph_.nodesWithoughDownstream_.find(&node1) !=
+                           graph_.nodesWithoughDownstream_.end());
                // node2
-               EXPECT_EQ(node2.level(), 0);
+               EXPECT_TRUE(graph_.nodesWithoughUpstream_.find(&node2) !=
+                           graph_.nodesWithoughUpstream_.end());
+               EXPECT_FALSE(graph_.nodesWithoughDownstream_.find(&node2) !=
+                            graph_.nodesWithoughDownstream_.end());
                // node3
-               EXPECT_EQ(node3.level(), 0);
-               // overall
-               EXPECT_EQ(maxLevel_, 0);
-               EXPECT_FALSE(circularDependency_);
+               EXPECT_TRUE(graph_.nodesWithoughUpstream_.find(&node3) !=
+                           graph_.nodesWithoughUpstream_.end());
+               EXPECT_FALSE(graph_.nodesWithoughDownstream_.find(&node3) !=
+                            graph_.nodesWithoughDownstream_.end());
 
+#if 0
                // Re-level from node2 which has no downstream
                // Without re-leveling using node 3
                EXPECT_FALSE(node2.hasDownstreamNodes());
