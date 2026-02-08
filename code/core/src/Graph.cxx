@@ -1,5 +1,7 @@
 
 
+#include <algorithm>
+
 #include <bpm/core/Graph.hxx>
 #include <bpm/core/Logger.hxx>
 
@@ -199,7 +201,7 @@ bool bpm::core::NodeChain::addNode(Node& node)
 }
 
 
-void bpm::core::NodeChain::sortNodesByLevel()
+bool bpm::core::NodeChain::sortNodesByLevel()
 {
    // Sort in descending order
    std::sort(nodes_.begin(),
@@ -209,8 +211,25 @@ void bpm::core::NodeChain::sortNodesByLevel()
                 return a->level() > b->level();
              });
 
+   //The level of this chain is the highest node level
    level_ = (nodes_.size() > 0) ?
             nodes_.front()->level() : 0;
+
+   // Look for duplicate levels
+   const auto iter = std::adjacent_find(nodes_.begin(),
+                                        nodes_.end(),
+                                        [](const auto a, auto b)
+                                        {
+                                           return a->level() == b->level();
+                                        });
+   if (iter != nodes_.end())
+   {
+      BPM_ERROR_COUT("Duplicate level value found in chain");
+
+      return false;
+   }
+
+   return true;
 }
 
 

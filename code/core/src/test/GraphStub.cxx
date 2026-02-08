@@ -1,5 +1,7 @@
 
 
+#include <algorithm>
+
 #include <bpm/core/Graph.hxx>
 #include <bpm/core/Logger.hxx>
 
@@ -85,8 +87,9 @@ bool bpm::core::NodeChain::addNode(Node& node)
 }
 
 
-void bpm::core::NodeChain::sortNodesByLevel()
+bool bpm::core::NodeChain::sortNodesByLevel()
 {
+   return false;
 }
 
 

@@ -152,7 +152,7 @@ namespace bpm
                return nodes_;
             }
 
-            void sortNodesByLevel();
+            bool sortNodesByLevel();
             
             std::size_t level() const
             {
