@@ -184,6 +184,21 @@ std::string bpm::core::Node::toString(const std::string& leadingText) const
 
 bool bpm::core::NodeChain::addNode(Node& node)
 {
+   // If no current nodes, add and retrurn
+   if (0 == nodes_.size())
+   {
+      // First node of the chain
+      nodes_.emplace_back(&node);
+
+      // If this node has multiple upstream
+      // and downstream nodes, this is a single
+      // node chain
+      singleNodeChain_ = ((node.numUpstreamNodes() > 1) &&
+                          (node.numDownstreamNodes() > 1));
+
+      return true;
+   }
+
    // Check for duplicate node
    const auto iter = std::find(nodes_.begin(),
                                nodes_.end(),
@@ -194,7 +209,52 @@ bool bpm::core::NodeChain::addNode(Node& node)
 
       return false;
    }
-   
+
+   // Check if the node has multiple upstream and downstream nodes
+   if (true == singleNodeChain_)
+   {
+      BPM_ERROR_COUT("Chain with node (" + nodes_.front()->name() +
+                     ") is a single node chain, cannot add node (" +
+                     node.name() + ")");
+
+      return false;
+   }
+
+   if (1 == node.numUpstreamNodes())
+   {
+      // Check that the upstream node is in this chain
+      const auto iter = std::find(nodes_.begin(),
+                                  nodes_.end(),
+                                  node.upstreamNode());
+      if (iter != nodes_.end())
+      {
+         BPM_ERROR_COUT("Node (" + node.name() +
+                        ") has an upstream node (" +
+                        node.upstreamNode()->name() +
+                        ") that is not in this chain");
+
+         return false;
+      }
+   }
+
+   if (1 == node.numDownstreamNodes())
+   {
+      // Check that the downstream node is in this chain
+      const auto iter = std::find(nodes_.begin(),
+                                  nodes_.end(),
+                                  node.downstreamNode());
+      if (iter != nodes_.end())
+      {
+         BPM_ERROR_COUT("Node (" + node.name() +
+                        ") has an upstream node (" +
+                        node.downstreamNode()->name() +
+                        ") that is not in this chain");
+
+         return false;
+      }
+   }
+
+   // The node is valid for this chain
    nodes_.emplace_back(&node);
 
    return true;

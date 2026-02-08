@@ -45,7 +45,20 @@ namespace bpm
                return upstreamNodes_.find(&node) != upstreamNodes_.end();
             }
 
+            std::size_t numUpstreamNodes() const
+            {
+               return upstreamNodes_.size();
+            }
+
             void addUpstreamNode(Node& node);
+
+            Node* upstreamNode(std::size_t index = 0) const
+            {
+               if (index > upstreamNodes_.size()) return nullptr;
+               auto iter = upstreamNodes_.begin();
+               std::advance(iter, index);
+               return *iter;
+            }
 
             bool hasDownstreamNodes() const
             {
@@ -57,7 +70,20 @@ namespace bpm
                return downstreamNodes_.find(&node) != downstreamNodes_.end();
             }
 
+            std::size_t numDownstreamNodes() const
+            {
+               return downstreamNodes_.size();
+            }
+
             void addDownstreamNode(Node& node);
+
+            Node* downstreamNode(std::size_t index = 0) const
+            {
+               if (index > downstreamNodes_.size()) return nullptr;
+               auto iter = downstreamNodes_.begin();
+               std::advance(iter, index);
+               return *iter;
+            }
 
             std::string toString(const std::string& leadingText = "") const;
 
@@ -88,6 +114,7 @@ namespace bpm
             const bool hasInputPort_;
 
             friend class TestNode;
+            friend class TestNodeChain;
             friend class TestGraph;
       };
 
@@ -159,12 +186,18 @@ namespace bpm
                return level_;
             }
 
+            bool singleNodeChain() const
+            {
+               return singleNodeChain_;
+            }
+
             std::string toString(const std::string& leadingText = "") const;
 
          private:
 
             std::size_t level_;
             Node::PtrVector nodes_;
+            bool singleNodeChain_;
 
             friend class TestNodeChain;
             friend class TestGraph;
