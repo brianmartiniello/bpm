@@ -155,6 +155,7 @@ namespace bpm
          private:
 
             std::size_t level_;
+            Node::PtrVector nodes_;
 
             friend class TestGraph;
       };
