@@ -228,12 +228,11 @@ bool bpm::core::NodeChain::addNode(Node& node)
                                   node.upstreamNode());
       if (iter != nodes_.end())
       {
-         BPM_ERROR_COUT("Node (" + node.name() +
-                        ") has an upstream node (" +
-                        node.upstreamNode()->name() +
-                        ") that is not in this chain");
-
-         return false;
+         // Only warning, may not be adding to chain in order
+         BPM_WARN_COUT("Node (" + node.name() +
+                       ") has an upstream node (" +
+                       node.upstreamNode()->name() +
+                       ") that is not in this chain");
       }
    }
 
@@ -245,12 +244,11 @@ bool bpm::core::NodeChain::addNode(Node& node)
                                   node.downstreamNode());
       if (iter != nodes_.end())
       {
-         BPM_ERROR_COUT("Node (" + node.name() +
-                        ") has an upstream node (" +
-                        node.downstreamNode()->name() +
-                        ") that is not in this chain");
-
-         return false;
+         // Only warning, may not be adding to chain in order
+         BPM_WARN_COUT("Node (" + node.name() +
+                       ") has an upstream node (" +
+                       node.downstreamNode()->name() +
+                       ") that is not in this chain");
       }
    }
 
@@ -275,18 +273,54 @@ bool bpm::core::NodeChain::sortNodesByLevel()
    level_ = (nodes_.size() > 0) ?
             nodes_.front()->level() : 0;
 
-   // Look for duplicate levels
-   const auto iter = std::adjacent_find(nodes_.begin(),
-                                        nodes_.end(),
-                                        [](const auto a, auto b)
-                                        {
-                                           return a->level() == b->level();
-                                        });
-   if (iter != nodes_.end())
    {
-      BPM_ERROR_COUT("Duplicate level value found in chain");
+      // Look for duplicate levels
+      const auto iter = std::adjacent_find(nodes_.begin(),
+                                           nodes_.end(),
+                                           [](const auto a, auto b)
+                                           {
+                                              return a->level() == b->level();
+                                           });
+      if (iter != nodes_.end())
+      {
+         BPM_ERROR_COUT("Duplicate level value found in chain");
 
-      return false;
+         return false;
+      }
+   }
+
+   {
+      // Count nodes
+      auto nodeCount = 0;
+
+      // Start at the top of the chain
+      auto iter = nodes_.front();
+
+      do
+      {
+         // Count this node
+         ++nodeCount;
+
+         // If this node has no downstream node or 
+         // more than one downstream nodes, it is
+         // the end of the chain
+         if (1 != iter->numDownstreamNodes()) break;
+
+         // Move to the next downstream node
+         iter = iter->downstreamNode();
+      }
+      while (true);
+
+      // The chain is continuos if we counted all the nodes
+      if (nodeCount != nodes_.size())
+      {
+         BPM_ERROR_COUT(std::string("Detected an invalid chain, ") +
+                        "node count after traversal is (" +
+                        std::to_string(nodeCount) +
+                        ") while total number of nodes is (" +
+                        std::to_string(nodes_.size()) + ")");
+         return false;
+      }
    }
 
    return true;
