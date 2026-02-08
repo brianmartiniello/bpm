@@ -92,18 +92,33 @@ namespace bpm
       };
       
 
-      struct NodeLevelCompare
+      struct NodePtrLevelCompare
       {
-         bool operator()(const Node& a,
-                         const Node& b) const
+         bool operator()(const Node* a,
+                         const Node* b) const
          {
             // Descending order
-            return a.level() > b.level();
+            return a->level() > b->level();
          }
       };
 
 
-      using NodeLevelSet = std::set<Node*, NodeLevelCompare>;
+      using NodePtrLevelSet = std::multiset<Node*, NodePtrLevelCompare>;
+
+
+      static std::string toString(const NodePtrLevelSet& set,
+                                  const std::string& leadingText)
+      {
+         auto out = leadingText + "set.size() (" + std::to_string(set.size()) + ")";
+         auto index = -1U;
+         for (const auto nodePtr : set)
+         {
+            ++index;
+            const auto prefix = leadingText + "set[" + std::to_string(index) + "].";
+            out += "\n" + nodePtr->toString(prefix);
+         }
+         return out;
+      }
 
 
       class Graph
@@ -125,12 +140,12 @@ namespace bpm
             bool connectNodes(const std::string& downstreamName,
                               const std::string& upstreamName);
 
-            const Node::PtrVector& getNodesByLevel()
+            const NodePtrLevelSet& getNodesByLevel()
             {
                return nodesByLevel_;
             }
 
-            void listNodesByLevel();
+            void sortNodesByLevel();
 
             void reLevel();
 
@@ -143,7 +158,7 @@ namespace bpm
             Node::PtrUSet nodesWithoughDownstream_;
             std::size_t globalLevelPhase_;
             std::size_t maxLevel_;
-            Node::PtrVector nodesByLevel_;
+            NodePtrLevelSet nodesByLevel_;
             bool circularDependency_;
 
             friend class TestGraph;

@@ -283,31 +283,19 @@ bool bpm::core::Graph::connectNodes(const std::string& downstreamName,
 }
 
 
-void bpm::core::Graph::listNodesByLevel()
+void bpm::core::Graph::sortNodesByLevel()
 {
    assignMaxLevel();
 
    // Clear current list
    nodesByLevel_.clear();
 
-   // Reserve space for all nodes of graph
-   nodesByLevel_.reserve(graph_.size());
-
-   // Walk down through levels from max
-   for (auto i = maxLevel_ + 1; i > 0; --i)
+   // Walk through graph
+   for (auto& pair : graph_)
    {
-      const auto level = i - 1;
+      auto& node = pair.second;
 
-      // Walk through graph
-      for (auto& pair : graph_)
-      {
-         auto& node = pair.second;
-
-         // Skip mimatched levels
-         if (node.level() != level) continue;
-
-         nodesByLevel_.emplace_back(&node);
-      }
+      nodesByLevel_.emplace(&node);
    }
 }
 

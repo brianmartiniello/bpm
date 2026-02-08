@@ -720,6 +720,9 @@ namespace bpm
                {
                   BPM_SCOPED_TRACE_COUT("toString");
                   BPM_TRACE_COUT("\n" + graph_.toString("   "));
+                  graph_.sortNodesByLevel();
+                  auto set = graph_.getNodesByLevel();
+                  BPM_TRACE_COUT("\n" + toString(set, "   "));
                }
 
                // Clear the data
@@ -822,6 +825,9 @@ namespace bpm
                {
                   BPM_SCOPED_TRACE_COUT("toString");
                   BPM_TRACE_COUT("\n" + graph_.toString("   "));
+                  graph_.sortNodesByLevel();
+                  auto set = graph_.getNodesByLevel();
+                  BPM_TRACE_COUT("\n" + toString(set, "   "));
                }
             }
 

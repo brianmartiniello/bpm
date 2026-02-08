@@ -107,7 +107,7 @@ bool bpm::core::Graph::connectNodes(const std::string& /* upstreamName */,
 }
 
 
-void bpm::core::Graph::listNodesByLevel()
+void bpm::core::Graph::sortNodesByLevel()
 {
 }
 
