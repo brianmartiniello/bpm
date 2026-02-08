@@ -144,6 +144,15 @@ namespace bpm
             using PtrUSet = std::unordered_set<NodeChain*>;
 
             NodeChain() = default;
+
+            bool addNode(Node& node);
+
+            const Node::PtrVector& getNodes()
+            {
+               return nodes_;
+            }
+
+            void sortNodesByLevel();
             
             std::size_t level() const
             {
@@ -157,6 +166,7 @@ namespace bpm
             std::size_t level_;
             Node::PtrVector nodes_;
 
+            friend class TestNodeChain;
             friend class TestGraph;
       };
 

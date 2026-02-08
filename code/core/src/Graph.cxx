@@ -27,8 +27,8 @@ void bpm::core::Node::addUpstreamNode(Node& node)
    // Exit if already connected
    if (this == &node)
    {
-      BPM_TRACE_COUT("Attempting to connected node (" + name_ +
-                     ") to itself");
+      BPM_WARN_COUT("Attempting to connected node (" + name_ +
+                    ") to itself");
       return;
    }
 
@@ -36,8 +36,8 @@ void bpm::core::Node::addUpstreamNode(Node& node)
    auto insterPair = upstreamNodes_.emplace(&node);
    if (false == insterPair.second)
    {
-      BPM_TRACE_COUT("Already connected node (" + name_ +
-                     ") to upstream node (" + node.name() + ")");
+      BPM_WARN_COUT("Already connected node (" + name_ +
+                    ") to upstream node (" + node.name() + ")");
       return;
    }
 
@@ -51,8 +51,8 @@ void bpm::core::Node::addDownstreamNode(Node& node)
    // Exit if already connected
    if (this == &node)
    {
-      BPM_TRACE_COUT("Attempting to connected node (" + name_ +
-                     ") to itself");
+      BPM_WARN_COUT("Attempting to connected node (" + name_ +
+                    ") to itself");
       return;
    }
 
@@ -60,8 +60,8 @@ void bpm::core::Node::addDownstreamNode(Node& node)
    auto insterPair = downstreamNodes_.emplace(&node);
    if (false == insterPair.second)
    {
-      BPM_TRACE_COUT("Already connected node (" + name_ +
-                     ") to downstream node (" + node.name() + ")");
+      BPM_WARN_COUT("Already connected node (" + name_ +
+                    ") to downstream node (" + node.name() + ")");
       return;
    }
 
@@ -180,6 +180,40 @@ std::string bpm::core::Node::toString(const std::string& leadingText) const
 }
 
 
+bool bpm::core::NodeChain::addNode(Node& node)
+{
+   // Check for duplicate node
+   const auto iter = std::find(nodes_.begin(),
+                               nodes_.end(),
+                               &node);
+   if (iter != nodes_.end())
+   {
+      BPM_ERROR_COUT("Node (" + node.name() + ") already added");
+
+      return false;
+   }
+   
+   nodes_.emplace_back(&node);
+
+   return true;
+}
+
+
+void bpm::core::NodeChain::sortNodesByLevel()
+{
+   // Sort in descending order
+   std::sort(nodes_.begin(),
+             nodes_.end(),
+             [](const auto a, auto b)
+             {
+                return a->level() > b->level();
+             });
+
+   level_ = (nodes_.size() > 0) ?
+            nodes_.front()->level() : 0;
+}
+
+
 std::string bpm::core::NodeChain::toString(const std::string& leadingText) const
 {
    auto out = leadingText + "level_ (" + std::to_string(level_) + ")\n" +
@@ -219,7 +253,7 @@ bool bpm::core::Graph::addNode(const std::string& name,
 
    if (true == name.empty())
    {
-      BPM_TRACE_COUT("Name is empty");
+      BPM_ERROR_COUT("Name is empty");
 
       return false;
    }
@@ -232,7 +266,7 @@ bool bpm::core::Graph::addNode(const std::string& name,
                                    circularDependency_));
    if (false == pair.second)
    {
-      BPM_TRACE_COUT("Name (" + name + "): Already found in map");
+      BPM_ERROR_COUT("Name (" + name + "): Already found in map");
 
       return false;
    }
@@ -253,7 +287,7 @@ bool bpm::core::Graph::connectNodes(const std::string& downstreamName,
    const auto downstreamIter = graph_.find(downstreamName);
    if (graph_.end() == downstreamIter)
    {
-      BPM_TRACE_COUT("Downstream name (" + upstreamName +
+      BPM_ERROR_COUT("Downstream name (" + upstreamName +
                      "), upstream name (" + downstreamName +
                      "): Downstream name not found");
 
@@ -265,7 +299,7 @@ bool bpm::core::Graph::connectNodes(const std::string& downstreamName,
    const auto upstreamIter = graph_.find(upstreamName);
    if (graph_.end() == upstreamIter)
    {
-      BPM_TRACE_COUT("Downstream name (" + upstreamName +
+      BPM_ERROR_COUT("Downstream name (" + upstreamName +
                      "), upstream name (" + downstreamName +
                      "): Upsteam name not found");
 

@@ -79,6 +79,17 @@ std::string bpm::core::Node::toString(const std::string& leadingText) const
 }
 
 
+bool bpm::core::NodeChain::addNode(Node& node)
+{
+   return false;
+}
+
+
+void bpm::core::NodeChain::sortNodesByLevel()
+{
+}
+
+
 std::string bpm::core::NodeChain::toString(const std::string& leadingText) const
 {
    auto out = leadingText + "level_ (" + std::to_string(level_) + ")\n" +
