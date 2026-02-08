@@ -310,8 +310,16 @@ void bpm::core::Graph::sortNodesByLevel()
    {
       auto& node = pair.second;
 
-      nodesByLevel_.emplace(&node);
+      nodesByLevel_.emplace_back(&node);
    }
+
+   // Sort in descending order
+   std::sort(nodesByLevel_.begin(),
+             nodesByLevel_.end(),
+             [](const auto a, auto b)
+             {
+                return a->level() > b->level();
+             });
 }
 
 

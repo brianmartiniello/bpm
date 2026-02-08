@@ -103,6 +103,21 @@ namespace bpm
       };
 
 
+      static std::string toString(const Node::PtrVector& vec,
+                                  const std::string& leadingText)
+      {
+         auto out = leadingText + "vec.size() (" + std::to_string(vec.size()) + ")";
+         auto index = -1U;
+         for (const auto nodePtr : vec)
+         {
+            ++index;
+            const auto prefix = leadingText + "vec[" + std::to_string(index) + "].";
+            out += "\n" + nodePtr->toString(prefix);
+         }
+         return out;
+      }
+
+
       using NodePtrLevelSet = std::multiset<Node*, NodePtrLevelCompare>;
 
 
@@ -124,6 +139,9 @@ namespace bpm
       struct NodeChain
       {
          public:
+
+            using PtrVector = std::vector<NodeChain*>;
+            using PtrUSet = std::unordered_set<NodeChain*>;
 
             NodeChain() = default;
             
@@ -190,7 +208,7 @@ namespace bpm
             bool connectNodes(const std::string& downstreamName,
                               const std::string& upstreamName);
 
-            const NodePtrLevelSet& getNodesByLevel()
+            const Node::PtrVector& getNodesByLevel()
             {
                return nodesByLevel_;
             }
@@ -208,7 +226,7 @@ namespace bpm
             Node::PtrUSet nodesWithoughDownstream_;
             std::size_t globalLevelPhase_;
             std::size_t maxLevel_;
-            NodePtrLevelSet nodesByLevel_;
+            Node::PtrVector nodesByLevel_;
             bool circularDependency_;
 
             friend class TestGraph;
