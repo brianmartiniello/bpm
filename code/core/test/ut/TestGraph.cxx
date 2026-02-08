@@ -526,6 +526,7 @@ namespace bpm
                graph_.addNode("node0");
                EXPECT_EQ(graph_.maxLevel_, 0);
                EXPECT_FALSE(graph_.circularDependency_);
+               EXPECT_FALSE(graph_.circularDependency());
                EXPECT_EQ(graph_.globalLevelPhase_, 0);
                // node0
                auto node0Iter = graph_.graph_.find("node0");
@@ -540,6 +541,7 @@ namespace bpm
                               true); // hasInputPort
                EXPECT_EQ(graph_.maxLevel_, 0);
                EXPECT_FALSE(graph_.circularDependency_);
+               EXPECT_FALSE(graph_.circularDependency());
                EXPECT_EQ(graph_.globalLevelPhase_, 0);
                // node1
                auto node1Iter = graph_.graph_.find("node1");
@@ -553,6 +555,7 @@ namespace bpm
                graph_.addNode("node2");
                EXPECT_EQ(graph_.maxLevel_, 0);
                EXPECT_FALSE(graph_.circularDependency_);
+               EXPECT_FALSE(graph_.circularDependency());
                EXPECT_EQ(graph_.globalLevelPhase_, 0);
                // node2
                auto node2Iter = graph_.graph_.find("node2");
@@ -575,6 +578,7 @@ namespace bpm
                                                "node1"));
                EXPECT_EQ(graph_.maxLevel_, 0);
                EXPECT_FALSE(graph_.circularDependency_);
+               EXPECT_FALSE(graph_.circularDependency());
                EXPECT_EQ(graph_.globalLevelPhase_, 0);
                // node0
                EXPECT_FALSE(graph_.nodesWithoughUpstream_.find(&node0) !=
@@ -597,6 +601,7 @@ namespace bpm
                                                "node0"));
                EXPECT_EQ(graph_.maxLevel_, 0);
                EXPECT_FALSE(graph_.circularDependency_);
+               EXPECT_FALSE(graph_.circularDependency());
                EXPECT_EQ(graph_.globalLevelPhase_, 0);
                // node0
                EXPECT_FALSE(graph_.nodesWithoughUpstream_.find(&node0) !=
@@ -630,6 +635,7 @@ namespace bpm
                                                "node0"));
                EXPECT_EQ(graph_.maxLevel_, 0);
                EXPECT_FALSE(graph_.circularDependency_);
+               EXPECT_FALSE(graph_.circularDependency());
                EXPECT_EQ(graph_.globalLevelPhase_, 0);
                // node0
                EXPECT_FALSE(graph_.nodesWithoughUpstream_.find(&node0) !=
@@ -663,6 +669,7 @@ namespace bpm
                graph_.reLevel();
                EXPECT_EQ(graph_.maxLevel_, 2);
                EXPECT_FALSE(graph_.circularDependency_);
+               EXPECT_FALSE(graph_.circularDependency());
                EXPECT_EQ(graph_.globalLevelPhase_, 2);
                EXPECT_EQ(node0.level(), 1);
                EXPECT_EQ(node1.level(), 2);
@@ -694,6 +701,7 @@ namespace bpm
                                                "node3"));
                EXPECT_EQ(graph_.maxLevel_, 0);
                EXPECT_FALSE(graph_.circularDependency_);
+               EXPECT_FALSE(graph_.circularDependency());
                EXPECT_EQ(graph_.globalLevelPhase_, 0);
 
 
@@ -703,6 +711,7 @@ namespace bpm
                graph_.reLevel();
                EXPECT_EQ(graph_.maxLevel_, 4);
                EXPECT_TRUE(graph_.circularDependency_);
+               EXPECT_TRUE(graph_.circularDependency());
                EXPECT_EQ(graph_.globalLevelPhase_, 1);
                EXPECT_EQ(node0.level(), 4);
                EXPECT_EQ(node1.level(), 2);
@@ -742,6 +751,7 @@ namespace bpm
 
                EXPECT_EQ(graph_.maxLevel_, 0);
                EXPECT_FALSE(graph_.circularDependency_);
+               EXPECT_FALSE(graph_.circularDependency());
                EXPECT_EQ(graph_.globalLevelPhase_, 0);
             }
 
