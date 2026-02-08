@@ -90,7 +90,7 @@ namespace bpm
             friend class TestNode;
             friend class TestGraph;
       };
-      
+
 
       struct NodePtrLevelCompare
       {
@@ -107,6 +107,56 @@ namespace bpm
 
 
       static std::string toString(const NodePtrLevelSet& set,
+                                  const std::string& leadingText)
+      {
+         auto out = leadingText + "set.size() (" + std::to_string(set.size()) + ")";
+         auto index = -1U;
+         for (const auto nodePtr : set)
+         {
+            ++index;
+            const auto prefix = leadingText + "set[" + std::to_string(index) + "].";
+            out += "\n" + nodePtr->toString(prefix);
+         }
+         return out;
+      }
+
+
+      struct NodeChain
+      {
+         public:
+
+            NodeChain() = default;
+            
+            std::size_t level() const
+            {
+               return level_;
+            }
+
+            std::string toString(const std::string& leadingText = "") const;
+
+         private:
+
+            std::size_t level_;
+
+            friend class TestGraph;
+      };
+
+
+      struct NodeChainPtrLevelCompare
+      {
+         bool operator()(const NodeChain* a,
+                         const NodeChain* b) const
+         {
+            // Descending order
+            return a->level() > b->level();
+         }
+      };
+
+
+      using NodeChainPtrLevelSet = std::multiset<NodeChain*, NodeChainPtrLevelCompare>;
+
+
+      static std::string toString(const NodeChainPtrLevelSet& set,
                                   const std::string& leadingText)
       {
          auto out = leadingText + "set.size() (" + std::to_string(set.size()) + ")";

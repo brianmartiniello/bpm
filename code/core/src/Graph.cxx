@@ -180,6 +180,21 @@ std::string bpm::core::Node::toString(const std::string& leadingText) const
 }
 
 
+std::string bpm::core::NodeChain::toString(const std::string& leadingText) const
+{
+   auto out = leadingText + "level_ (" + std::to_string(level_) + /*")\n" +
+              leadingText + "graph_.size() (" + std::to_string(graph_.size()) +*/ ")";
+   // auto index = -1U;
+   // for (const auto& pair : graph_)
+   // {
+   //    ++index;
+   //    const auto prefix = leadingText + "graph_[" + std::to_string(index) + "].";
+   //    out += "\n" + pair.second.toString(prefix);
+   // }
+   return out;
+}
+
+
 std::string bpm::core::Graph::toString(const std::string& leadingText) const
 {
    auto out = leadingText + "globalLevelPhase_ (" + std::to_string(globalLevelPhase_) + ")\n" +
