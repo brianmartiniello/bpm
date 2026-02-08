@@ -664,39 +664,6 @@ namespace bpm
                EXPECT_EQ(node2.level(), 0);
                EXPECT_EQ(node3.level(), 0);
 
-#if 0
-               // Re-level from node2 which has no downstream
-               // Without re-leveling using node 3
-               EXPECT_FALSE(node2.hasDownstreamNodes());
-               node2.reLevel();
-               // node0
-               EXPECT_EQ(node0.level(), 1);
-               // node1
-               EXPECT_EQ(node1.level(), 2);
-               // node2
-               EXPECT_EQ(node2.level(), 0);
-               // node3
-               EXPECT_EQ(node3.level(), 0);
-               // overall
-               EXPECT_EQ(maxLevel_, 2);
-               EXPECT_FALSE(circularDependency_);
-
-               // Re-level from node3 which has no downstream
-               // Already re-leveled using node 2
-               EXPECT_FALSE(node3.hasDownstreamNodes());
-               node3.reLevel();
-               // node0
-               EXPECT_EQ(node0.level(), 1);
-               // node1
-               EXPECT_EQ(node1.level(), 2);
-               // node2
-               EXPECT_EQ(node2.level(), 0);
-               // node3
-               EXPECT_EQ(node3.level(), 0);
-               // overall
-               EXPECT_EQ(maxLevel_, 2);
-               EXPECT_FALSE(circularDependency_);
-
                auto clear = [&]()
                             {
                                node0.level_ = 0;
@@ -713,43 +680,30 @@ namespace bpm
                // Clear the data
                clear();
 
-               // Re-level from node3 which has no downstream
-               // Without re-leveling using node 2
-               EXPECT_FALSE(node3.hasDownstreamNodes());
-               // Distinguish node3 from node2 by level
-               node3.level_ = 10;
-               node3.reLevel();
-               // node0
-               EXPECT_EQ(node0.level(), 11);
-               // node1
-               EXPECT_EQ(node1.level(), 12);
-               // node2
-               EXPECT_EQ(node2.level(), 0);
-               // node3
-               EXPECT_EQ(node3.level(), 10);
-               // overall
-               EXPECT_EQ(maxLevel_, 12);
-               EXPECT_FALSE(circularDependency_);
+               //  --------------------------------
+               //  |                              |
+               //  --> node3 --                   |
+               //             |                   |
+               //      node2 ---> node0 -> node1 --
+               EXPECT_TRUE(graph_.connectNodes("node1", "node3"));
+               EXPECT_EQ(graph_.maxLevel_, 0);
+               EXPECT_FALSE(graph_.circularDependency_);
+               EXPECT_EQ(graph_.globalLevelPhase_, 0);
+
 
                // Re-level from node2 which has no downstream
-               // Already re-leveled using node 3
                EXPECT_FALSE(node2.hasDownstreamNodes());
-               node2.reLevel();
-               // node0
-               EXPECT_EQ(node0.level(), 11);
-               // node1
-               EXPECT_EQ(node1.level(), 12);
-               // node2
+               EXPECT_TRUE(node3.hasDownstreamNodes());
+               graph_.reLevel();
+               EXPECT_EQ(graph_.maxLevel_, 4);
+               EXPECT_TRUE(graph_.circularDependency_);
+               EXPECT_EQ(graph_.globalLevelPhase_, 1);
+               EXPECT_EQ(node0.level(), 4);
+               EXPECT_EQ(node1.level(), 2);
                EXPECT_EQ(node2.level(), 0);
-               // node3
-               EXPECT_EQ(node3.level(), 10);
-               // overall
-               EXPECT_EQ(maxLevel_, 12);
-               EXPECT_FALSE(circularDependency_);
+               EXPECT_EQ(node3.level(), 3);
 
-               // Clear the data
-               clear();
-
+#if 0
                //  --------------------------------
                //  |                              |
                //  --> node3 --                   |

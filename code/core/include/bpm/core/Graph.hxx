@@ -87,6 +87,7 @@ namespace bpm
             const bool hasInputPort_;
 
             friend class TestNode;
+            friend class TestGraph;
       };
 
       class Graph
