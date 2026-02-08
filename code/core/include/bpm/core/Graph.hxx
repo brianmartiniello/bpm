@@ -105,8 +105,8 @@ namespace bpm
                return circularDependency_;
             }
 
-            bool connectNodes(const std::string& upstreamName,
-                              const std::string& downstreamName);
+            bool connectNodes(const std::string& downstreamName,
+                              const std::string& upstreamName);
 
             const Node::PtrVector& getNodesByLevel()
             {

@@ -229,34 +229,34 @@ bool bpm::core::Graph::addNode(const std::string& name,
 }
 
 
-bool bpm::core::Graph::connectNodes(const std::string& upstreamName,
-                                    const std::string& downstreamName)
+bool bpm::core::Graph::connectNodes(const std::string& downstreamName,
+                                    const std::string& upstreamName)
 {
    BPM_SCOPED_TRACE_COUT("");
-
-   // Find upstream node name
-   const auto upstreamIter = graph_.find(upstreamName);
-   if (graph_.end() == upstreamIter)
-   {
-      BPM_TRACE_COUT("Upstream name (" + upstreamName +
-                     "), downstream name (" + downstreamName +
-                     "): Upsteam name not found");
-
-      return false;
-   }
-   auto& upstreamNode = upstreamIter->second;
 
    // Find downstream node name
    const auto downstreamIter = graph_.find(downstreamName);
    if (graph_.end() == downstreamIter)
    {
-      BPM_TRACE_COUT("Upstream name (" + upstreamName +
-                     "), downstream name (" + downstreamName +
+      BPM_TRACE_COUT("Downstream name (" + upstreamName +
+                     "), upstream name (" + downstreamName +
                      "): Downstream name not found");
 
       return false;
    }
    auto& downstreamNode = downstreamIter->second;
+
+   // Find upstream node name
+   const auto upstreamIter = graph_.find(upstreamName);
+   if (graph_.end() == upstreamIter)
+   {
+      BPM_TRACE_COUT("Downstream name (" + upstreamName +
+                     "), upstream name (" + downstreamName +
+                     "): Upsteam name not found");
+
+      return false;
+   }
+   auto& upstreamNode = upstreamIter->second;
 
    // Add the downstream node to the upstream node
    upstreamNode.addDownstreamNode(downstreamNode);
@@ -327,13 +327,18 @@ void bpm::core::Graph::assignMaxLevel()
       break;
    }
 
+   auto nodeFound = false;
    for (const auto nodePtr : nodesWithoughUpstream_)
    {
       // Skip nodes with an input port
       if (true == nodePtr->hasInputPort()) continue;
 
+      nodeFound = true;
       nodePtr->updateLevel(maxLevel_);
    }
+
+   // If no nodes found, reset
+   maxLevel_ -= (false == nodeFound);
 }
 
 
