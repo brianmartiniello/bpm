@@ -184,17 +184,25 @@ std::string bpm::core::Node::toString(const std::string& leadingText) const
 
 bool bpm::core::NodeChain::addNode(Node& node)
 {
+   // Check for multiple inputs and multiple outputs
+   const auto multiInOutNodeIn = ((node.numUpstreamNodes() > 1) &&
+                                  (node.numDownstreamNodes() > 1));
+   
+   // Check for no inputs and no outputs
+   const auto noInOutNodeIn = ((node.numUpstreamNodes() == 0) &&
+                               (node.numDownstreamNodes() == 0));
+
+   // Detect a single node chain
+   const auto singleNodeChainIn = multiInOutNodeIn | noInOutNodeIn;
+
    // If no current nodes, add and retrurn
    if (0 == nodes_.size())
    {
       // First node of the chain
       nodes_.emplace_back(&node);
 
-      // If this node has multiple upstream
-      // and downstream nodes, this is a single
-      // node chain
-      singleNodeChain_ = ((node.numUpstreamNodes() > 1) &&
-                          (node.numDownstreamNodes() > 1));
+      // Store the single node chain flag
+      singleNodeChain_ = singleNodeChainIn;
 
       return true;
    }
@@ -205,51 +213,38 @@ bool bpm::core::NodeChain::addNode(Node& node)
                                &node);
    if (iter != nodes_.end())
    {
-      BPM_ERROR_COUT("Node (" + node.name() + ") already added");
+      BPM_ERROR_COUT("Node (" + node.name() +
+                     "), multiInOutNodeIn (" + BPM_LOG_BOOL(multiInOutNodeIn) +
+                     "), noInOutNodeIn (" + BPM_LOG_BOOL(noInOutNodeIn) +
+                     "), singleNodeChainIn (" + BPM_LOG_BOOL(singleNodeChainIn) +
+                     ") - Already added");
 
       return false;
    }
 
-   // Check if the node has multiple upstream and downstream nodes
+   // Check if the chain is already set for a single node
    if (true == singleNodeChain_)
    {
-      BPM_ERROR_COUT("Chain with node (" + nodes_.front()->name() +
-                     ") is a single node chain, cannot add node (" +
-                     node.name() + ")");
+      BPM_ERROR_COUT("Node (" + node.name() +
+                     "), multiInOutNodeIn (" + BPM_LOG_BOOL(multiInOutNodeIn) +
+                     "), noInOutNodeIn (" + BPM_LOG_BOOL(noInOutNodeIn) +
+                     "), singleNodeChainIn (" + BPM_LOG_BOOL(singleNodeChainIn) +
+                     ") - Chain with node (" + nodes_.front()->name() +
+                     ") is a single node chain, cannot add node");
 
       return false;
    }
 
-   if (1 == node.numUpstreamNodes())
+   // Check if the input node is for a single node chain
+   if (true == singleNodeChainIn)
    {
-      // Check that the upstream node is in this chain
-      const auto iter = std::find(nodes_.begin(),
-                                  nodes_.end(),
-                                  node.upstreamNode());
-      if (iter != nodes_.end())
-      {
-         // Only warning, may not be adding to chain in order
-         BPM_WARN_COUT("Node (" + node.name() +
-                       ") has an upstream node (" +
-                       node.upstreamNode()->name() +
-                       ") that is not in this chain");
-      }
-   }
+      BPM_ERROR_COUT("Node (" + node.name() +
+                     "), multiInOutNodeIn (" + BPM_LOG_BOOL(multiInOutNodeIn) +
+                     "), noInOutNodeIn (" + BPM_LOG_BOOL(noInOutNodeIn) +
+                     "), singleNodeChainIn (" + BPM_LOG_BOOL(singleNodeChainIn) +
+                     ") - Cannot add node since it would be for a single node chain");
 
-   if (1 == node.numDownstreamNodes())
-   {
-      // Check that the downstream node is in this chain
-      const auto iter = std::find(nodes_.begin(),
-                                  nodes_.end(),
-                                  node.downstreamNode());
-      if (iter != nodes_.end())
-      {
-         // Only warning, may not be adding to chain in order
-         BPM_WARN_COUT("Node (" + node.name() +
-                       ") has an upstream node (" +
-                       node.downstreamNode()->name() +
-                       ") that is not in this chain");
-      }
+      return false;
    }
 
    // The node is valid for this chain
@@ -273,54 +268,63 @@ bool bpm::core::NodeChain::sortNodesByLevel()
    level_ = (nodes_.size() > 0) ?
             nodes_.front()->level() : 0;
 
+   // Look for duplicate levels
+   const auto iter = std::adjacent_find(nodes_.begin(),
+                                        nodes_.end(),
+                                        [](const auto a, auto b)
+                                        {
+                                           return a->level() == b->level();
+                                        });
+   if (iter != nodes_.end())
    {
-      // Look for duplicate levels
-      const auto iter = std::adjacent_find(nodes_.begin(),
-                                           nodes_.end(),
-                                           [](const auto a, auto b)
-                                           {
-                                              return a->level() == b->level();
-                                           });
-      if (iter != nodes_.end())
-      {
-         BPM_ERROR_COUT("Duplicate level value found in chain");
+      BPM_ERROR_COUT("Duplicate level value found in chain");
 
-         return false;
-      }
+      return false;
    }
 
+   if (false == verifyContinuity())
    {
-      // Count nodes
-      auto nodeCount = 0;
+      BPM_ERROR_COUT("Failed to verify continuity");
 
-      // Start at the top of the chain
-      auto iter = nodes_.front();
+      return false;
+   }
 
-      do
-      {
-         // Count this node
-         ++nodeCount;
+   return true;
+}
 
-         // If this node has no downstream node or 
-         // more than one downstream nodes, it is
-         // the end of the chain
-         if (1 != iter->numDownstreamNodes()) break;
 
-         // Move to the next downstream node
-         iter = iter->downstreamNode();
-      }
-      while (true);
+bool bpm::core::NodeChain::verifyContinuity() const
+{
+   // Count nodes
+   auto nodeCount = 0;
 
-      // The chain is continuos if we counted all the nodes
-      if (nodeCount != nodes_.size())
-      {
-         BPM_ERROR_COUT(std::string("Detected an invalid chain, ") +
-                        "node count after traversal is (" +
-                        std::to_string(nodeCount) +
-                        ") while total number of nodes is (" +
-                        std::to_string(nodes_.size()) + ")");
-         return false;
-      }
+   // Start at the top of the chain
+   auto iter = nodes_.front();
+
+   do
+   {
+      // Count this node
+      ++nodeCount;
+
+      // If this node has no downstream node or 
+      // more than one downstream nodes, it is
+      // the end of the chain
+      if (1 != iter->numDownstreamNodes()) break;
+
+      // Move to the next downstream node
+      iter = iter->downstreamNode();
+   }
+   while (true);
+
+   // The chain is continuos if we counted all the nodes
+   if (nodeCount != nodes_.size())
+   {
+      BPM_ERROR_COUT(std::string("Detected an invalid chain, ") +
+                     "node count after traversal is (" +
+                     std::to_string(nodeCount) +
+                     ") while total number of nodes is (" +
+                     std::to_string(nodes_.size()) + ")");
+      return false;
    }
 
    return true;

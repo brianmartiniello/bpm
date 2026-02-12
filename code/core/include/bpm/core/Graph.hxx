@@ -195,6 +195,8 @@ namespace bpm
 
          private:
 
+            bool verifyContinuity() const;
+
             std::size_t level_;
             Node::PtrVector nodes_;
             bool singleNodeChain_;
