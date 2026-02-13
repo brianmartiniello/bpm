@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include <bpm/core/Graph.hxx>
+#include <bpm/core/leveling_graph/Graph.hxx>
 #include <bpm/core/Logger.hxx>
 
 

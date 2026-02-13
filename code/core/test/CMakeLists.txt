@@ -5,6 +5,7 @@ set(PATH_CORE_TEST_BW ${PATH_CORE_TEST}/bw CACHE INTERNAL "")
 set(PATH_CORE_TEST_CONCEPTS ${PATH_CORE_TEST}/concepts CACHE INTERNAL "")
 set(PATH_CORE_TEST_OMP ${PATH_CORE_TEST}/omp CACHE INTERNAL "")
 set(PATH_CORE_TEST_UT ${PATH_CORE_TEST}/ut CACHE INTERNAL "")
+set(PATH_CORE_TEST_UT_LEVELING_GRAPH ${PATH_CORE_TEST_UT}/leveling_graph CACHE INTERNAL "")
 set(PATH_CORE_TEST_WORK_PARAMS ${PATH_CORE_TEST}/work_params CACHE INTERNAL "")
 
 # Set ctest variables
@@ -75,9 +76,9 @@ set_tests_properties(${TestVersion_MAIN}
 set(TestGraph_MAIN TestGraph)
 
 add_executable(${TestGraph_MAIN}
-   ${PATH_CORE_SRC}/Graph.cxx
+   ${PATH_CORE_SRC_LEVELING_GRAPH}/Graph.cxx
    ${PATH_CORE_SRC}/Logger.cxx
-   ${PATH_CORE_TEST_UT}/TestGraph.cxx
+   ${PATH_CORE_TEST_UT_LEVELING_GRAPH}/TestGraph.cxx
 )
 
 # target_compile_options(${TestGraph_MAIN}

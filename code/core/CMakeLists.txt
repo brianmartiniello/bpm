@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 set(PATH_CORE_INCL ${PATH_CORE}/include CACHE INTERNAL "")
 set(PATH_CORE_TMPL ${PATH_CORE}/tmpl CACHE INTERNAL "")
 set(PATH_CORE_SRC ${PATH_CORE}/src CACHE INTERNAL "")
+set(PATH_CORE_SRC_LEVELING_GRAPH ${PATH_CORE_SRC}/leveling_graph CACHE INTERNAL "")
 set(PATH_CORE_CONFIG ${PATH_CORE}/config CACHE INTERNAL "")
 set(PATH_CORE_TEST ${PATH_CORE}/test CACHE INTERNAL "")
 
@@ -139,7 +140,7 @@ foreach(TARGET_LIB ${TARGET_LIBS_CORE})
    if("${TARGET_LIB}" STREQUAL "${TARGET_LIBS_CORE_PREFIX}proper")
       set(SRC_FILES
          ${PATH_CORE_SRC}/Empty.cxx
-         ${PATH_CORE_SRC}/Graph.cxx
+         ${PATH_CORE_SRC_LEVELING_GRAPH}/Graph.cxx
       )
       if(CUDAToolkit_FOUND)
          list(APPEND
@@ -162,7 +163,7 @@ foreach(TARGET_LIB ${TARGET_LIBS_CORE})
    elseif("${TARGET_LIB}" STREQUAL "${TARGET_LIBS_CORE_PREFIX}stub")
       set(SRC_FILES
          ${PATH_CORE_SRC}/test/EmptyStub.cxx
-         ${PATH_CORE_SRC}/test/GraphStub.cxx
+         ${PATH_CORE_SRC}/test/leveling_graph/GraphStub.cxx
       )
       if(CUDAToolkit_FOUND)
          list(APPEND
