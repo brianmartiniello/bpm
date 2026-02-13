@@ -73,10 +73,93 @@ set_tests_properties(${TestVersion_MAIN}
 ##############################################
 ##############################################
 
+set(TestNode_MAIN TestNode)
+
+add_executable(${TestNode_MAIN}
+   ${PATH_CORE_SRC_LEVELING_GRAPH}/Node.cxx
+   ${PATH_CORE_SRC}/Logger.cxx
+   ${PATH_CORE_TEST_UT_LEVELING_GRAPH}/TestNode.cxx
+)
+
+# target_compile_options(${TestNode_MAIN}
+#    PRIVATE
+#       ${PLATFORM_COMPILE_OPTIONS}
+# )
+
+target_include_directories(${TestNode_MAIN}
+   PRIVATE
+      ${INCLUDE_DIRS}
+)
+
+target_link_libraries(${TestNode_MAIN}
+   PRIVATE
+      ${LINK_LIBS}
+)
+
+target_compile_definitions(${TestNode_MAIN}
+   PRIVATE
+      ${COMPILER_DEFS}
+)
+
+ADD_GTEST(${TestNode_MAIN} XML)
+set_tests_properties(${TestNode_MAIN}
+   PROPERTIES
+      LABELS
+         ${CORE_TEST_LABEL}
+      ENVIRONMENT
+         "${CORE_TEST_ENV_VARS}"
+)
+
+##############################################
+##############################################
+
+set(TestNodeChain_MAIN TestNodeChain)
+
+add_executable(${TestNodeChain_MAIN}
+   ${PATH_CORE_SRC_LEVELING_GRAPH}/Node.cxx
+   # ${PATH_CORE_SRC_LEVELING_GRAPH}/NodeChain.cxx
+   ${PATH_CORE_SRC}/Logger.cxx
+   ${PATH_CORE_TEST_UT_LEVELING_GRAPH}/TestNodeChain.cxx
+)
+
+# target_compile_options(${TestNodeChain_MAIN}
+#    PRIVATE
+#       ${PLATFORM_COMPILE_OPTIONS}
+# )
+
+target_include_directories(${TestNodeChain_MAIN}
+   PRIVATE
+      ${INCLUDE_DIRS}
+)
+
+target_link_libraries(${TestNodeChain_MAIN}
+   PRIVATE
+      ${LINK_LIBS}
+)
+
+target_compile_definitions(${TestNodeChain_MAIN}
+   PRIVATE
+      ${COMPILER_DEFS}
+)
+
+ADD_GTEST(${TestNodeChain_MAIN} XML)
+set_tests_properties(${TestNodeChain_MAIN}
+   PROPERTIES
+      LABELS
+         ${CORE_TEST_LABEL}
+      ENVIRONMENT
+         "${CORE_TEST_ENV_VARS}"
+)
+
+##############################################
+##############################################
+
 set(TestGraph_MAIN TestGraph)
 
 add_executable(${TestGraph_MAIN}
    ${PATH_CORE_SRC_LEVELING_GRAPH}/Graph.cxx
+   ${PATH_CORE_SRC_LEVELING_GRAPH}/Node.cxx
+   # ${PATH_CORE_SRC_LEVELING_GRAPH}/NodeChain.cxx
    ${PATH_CORE_SRC}/Logger.cxx
    ${PATH_CORE_TEST_UT_LEVELING_GRAPH}/TestGraph.cxx
 )
