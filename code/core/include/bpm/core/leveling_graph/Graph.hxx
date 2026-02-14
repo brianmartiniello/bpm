@@ -8,84 +8,12 @@
 #include <unordered_set>
 #include <vector>
 
-#include <bpm/core/leveling_graph/Node.hxx>
+#include <bpm/core/leveling_graph/NodeChain.hxx>
 
 namespace bpm
 {
    namespace core
    {
-      struct NodeChain
-      {
-         public:
-
-            using PtrVector = std::vector<NodeChain*>;
-            using PtrUSet = std::unordered_set<NodeChain*>;
-
-            NodeChain() = default;
-
-            bool addNode(Node& node);
-
-            const Node::PtrVector& getNodes()
-            {
-               return nodes_;
-            }
-
-            bool sortNodesByLevel();
-            
-            std::size_t level() const
-            {
-               return level_;
-            }
-
-            bool singleNodeChain() const
-            {
-               return singleNodeChain_;
-            }
-
-            std::string toString(const std::string& leadingText = "") const;
-
-         private:
-
-            bool verifyContinuity() const;
-
-            std::size_t level_;
-            Node::PtrVector nodes_;
-            bool singleNodeChain_;
-
-            friend class TestNodeChain;
-            friend class TestGraph;
-      };
-
-
-      struct NodeChainPtrLevelCompare
-      {
-         bool operator()(const NodeChain* a,
-                         const NodeChain* b) const
-         {
-            // Descending order
-            return a->level() > b->level();
-         }
-      };
-
-
-      using NodeChainPtrLevelSet = std::multiset<NodeChain*, NodeChainPtrLevelCompare>;
-
-
-      static std::string toString(const NodeChainPtrLevelSet& set,
-                                  const std::string& leadingText)
-      {
-         auto out = leadingText + "set.size() (" + std::to_string(set.size()) + ")";
-         auto index = -1U;
-         for (const auto nodePtr : set)
-         {
-            ++index;
-            const auto prefix = leadingText + "set[" + std::to_string(index) + "].";
-            out += "\n" + nodePtr->toString(prefix);
-         }
-         return out;
-      }
-
-
       class Graph
       {
          public:

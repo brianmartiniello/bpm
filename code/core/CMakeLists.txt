@@ -142,6 +142,7 @@ foreach(TARGET_LIB ${TARGET_LIBS_CORE})
          ${PATH_CORE_SRC}/Empty.cxx
          ${PATH_CORE_SRC_LEVELING_GRAPH}/Graph.cxx
          ${PATH_CORE_SRC_LEVELING_GRAPH}/Node.cxx
+         ${PATH_CORE_SRC_LEVELING_GRAPH}/NodeChain.cxx
       )
       if(CUDAToolkit_FOUND)
          list(APPEND
@@ -165,6 +166,7 @@ foreach(TARGET_LIB ${TARGET_LIBS_CORE})
       set(SRC_FILES
          ${PATH_CORE_SRC}/test/EmptyStub.cxx
          ${PATH_CORE_SRC}/test/leveling_graph/GraphStub.cxx
+         ${PATH_CORE_SRC}/test/leveling_graph/NodeChainStub.cxx
          ${PATH_CORE_SRC}/test/leveling_graph/NodeStub.cxx
       )
       if(CUDAToolkit_FOUND)

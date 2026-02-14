@@ -117,7 +117,7 @@ set(TestNodeChain_MAIN TestNodeChain)
 
 add_executable(${TestNodeChain_MAIN}
    ${PATH_CORE_SRC_LEVELING_GRAPH}/Node.cxx
-   # ${PATH_CORE_SRC_LEVELING_GRAPH}/NodeChain.cxx
+   ${PATH_CORE_SRC_LEVELING_GRAPH}/NodeChain.cxx
    ${PATH_CORE_SRC}/Logger.cxx
    ${PATH_CORE_TEST_UT_LEVELING_GRAPH}/TestNodeChain.cxx
 )
@@ -159,7 +159,7 @@ set(TestGraph_MAIN TestGraph)
 add_executable(${TestGraph_MAIN}
    ${PATH_CORE_SRC_LEVELING_GRAPH}/Graph.cxx
    ${PATH_CORE_SRC_LEVELING_GRAPH}/Node.cxx
-   # ${PATH_CORE_SRC_LEVELING_GRAPH}/NodeChain.cxx
+   ${PATH_CORE_SRC_LEVELING_GRAPH}/NodeChain.cxx
    ${PATH_CORE_SRC}/Logger.cxx
    ${PATH_CORE_TEST_UT_LEVELING_GRAPH}/TestGraph.cxx
 )
