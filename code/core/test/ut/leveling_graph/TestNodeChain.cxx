@@ -122,8 +122,8 @@ namespace bpm
                auto node2 = createNode("node2");
                auto node3 = createNode("node3");
 
-               // node0 ---> node1 ---> node2
                // node3
+               // node0 ---> node1 ---> node2
                node0.addUpstreamNode(node1);
                node1.addUpstreamNode(node2);
 
@@ -134,7 +134,7 @@ namespace bpm
                EXPECT_TRUE(nodeChain.addNode(node2));
 
                // Sorting node chain with all same level resets level
-               nodeChain.level_ = 10;
+               nodeChain.level_ = 100;
                EXPECT_FALSE(nodeChain.sortNodesByLevel());
                EXPECT_EQ(nodeChain.level(), 0);
 
@@ -142,27 +142,52 @@ namespace bpm
                node0.level_ = 10;
                node1.level_ = node0.level_ + 1;
                node2.level_ = node1.level_ + 1;
+               node3.level_ = node2.level_ + 1;
                EXPECT_TRUE(nodeChain.sortNodesByLevel());
                EXPECT_EQ(nodeChain.level(), node2.level());
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");
-                  BPM_TRACE_COUT("\n" + nodeChain.toString("   continuity."));
+                  BPM_TRACE_COUT("\n" + nodeChain.toString("   "));
                }
 
-               bpm::core::NodeChain nodeChainNoContinuity;
+               // Node 3 would be a single node chain
+               EXPECT_FALSE(nodeChain.addNode(node3));
+               // node3 --
+               //        |
+               // node0 ---> node1 ---> node2
+               node3.addUpstreamNode(node1);
+               EXPECT_TRUE(nodeChain.addNode(node3));
+               nodeChain.level_ = 100;
+               EXPECT_FALSE(nodeChain.sortNodesByLevel());
+               EXPECT_EQ(nodeChain.level(), 0);
+            }
 
-               EXPECT_TRUE(nodeChainNoContinuity.addNode(node0));
-               EXPECT_TRUE(nodeChainNoContinuity.addNode(node2));
+            void testNodeChainNoContinuity()
+            {
+               BPM_SCOPED_TRACE_COUT("testNodeChainNoContinuity");
+
+               auto node0 = createNode("node0");
+               auto node1 = createNode("node1");
+               auto node2 = createNode("node2");
+
+               // node0 ---> node1 ---> node2
+               node0.addUpstreamNode(node1);
+               node1.addUpstreamNode(node2);
+
+               bpm::core::NodeChain nodeChain;
+
+               EXPECT_TRUE(nodeChain.addNode(node0));
+               EXPECT_TRUE(nodeChain.addNode(node2));
 
                // Sorting node chain with no continuity resets level
-               nodeChainNoContinuity.level_ = 10;
-               EXPECT_FALSE(nodeChainNoContinuity.sortNodesByLevel());
-               EXPECT_EQ(nodeChainNoContinuity.level(), 0);
+               nodeChain.level_ = 10;
+               EXPECT_FALSE(nodeChain.sortNodesByLevel());
+               EXPECT_EQ(nodeChain.level(), 0);
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");
-                  BPM_TRACE_COUT("\n" + nodeChainNoContinuity.toString("   noContinuity."));
+                  BPM_TRACE_COUT("\n" + nodeChain.toString("   "));
                }
             }
 
@@ -207,6 +232,12 @@ namespace bpm
       TEST_F(TestNodeChain, testNodeChain)
       {
          testNodeChain();
+      }
+
+
+      TEST_F(TestNodeChain, testNodeChainNoContinuity)
+      {
+         testNodeChainNoContinuity();
       }
    }
 }
