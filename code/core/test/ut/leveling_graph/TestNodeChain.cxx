@@ -113,6 +113,59 @@ namespace bpm
                }
             }
 
+            void testNodeChain()
+            {
+               BPM_SCOPED_TRACE_COUT("testNodeChain");
+
+               auto node0 = createNode("node0");
+               auto node1 = createNode("node1");
+               auto node2 = createNode("node2");
+               auto node3 = createNode("node3");
+
+               // node0 ---> node1 ---> node2
+               // node3
+               node0.addUpstreamNode(node1);
+               node1.addUpstreamNode(node2);
+
+               bpm::core::NodeChain nodeChain;
+
+               EXPECT_TRUE(nodeChain.addNode(node0));
+               EXPECT_TRUE(nodeChain.addNode(node1));
+               EXPECT_TRUE(nodeChain.addNode(node2));
+
+               // Sorting node chain with all same level resets level
+               nodeChain.level_ = 10;
+               EXPECT_FALSE(nodeChain.sortNodesByLevel());
+               EXPECT_EQ(nodeChain.level(), 0);
+
+               // Sorting sets level to the level of the node
+               node0.level_ = 10;
+               node1.level_ = node0.level_ + 1;
+               node2.level_ = node1.level_ + 1;
+               EXPECT_TRUE(nodeChain.sortNodesByLevel());
+               EXPECT_EQ(nodeChain.level(), node2.level());
+
+               {
+                  BPM_SCOPED_TRACE_COUT("toString");
+                  BPM_TRACE_COUT("\n" + nodeChain.toString("   continuity."));
+               }
+
+               bpm::core::NodeChain nodeChainNoContinuity;
+
+               EXPECT_TRUE(nodeChainNoContinuity.addNode(node0));
+               EXPECT_TRUE(nodeChainNoContinuity.addNode(node2));
+
+               // Sorting node chain with no continuity resets level
+               nodeChainNoContinuity.level_ = 10;
+               EXPECT_FALSE(nodeChainNoContinuity.sortNodesByLevel());
+               EXPECT_EQ(nodeChainNoContinuity.level(), 0);
+
+               {
+                  BPM_SCOPED_TRACE_COUT("toString");
+                  BPM_TRACE_COUT("\n" + nodeChainNoContinuity.toString("   noContinuity."));
+               }
+            }
+
          private:
 
             bpm::core::Node createNode(const std::string& name,
@@ -148,6 +201,12 @@ namespace bpm
       TEST_F(TestNodeChain, testSingleNodeChainMultiUpAndDown)
       {
          testSingleNodeChainMultiUpAndDown();
+      }
+
+
+      TEST_F(TestNodeChain, testNodeChain)
+      {
+         testNodeChain();
       }
    }
 }

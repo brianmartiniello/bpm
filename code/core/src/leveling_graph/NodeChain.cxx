@@ -88,10 +88,6 @@ bool bpm::core::NodeChain::sortNodesByLevel()
                 return a->level() > b->level();
              });
 
-   //The level of this chain is the highest node level
-   level_ = (nodes_.size() > 0) ?
-            nodes_.front()->level() : 0;
-
    // Look for duplicate levels
    const auto iter = std::adjacent_find(nodes_.begin(),
                                         nodes_.end(),
@@ -103,6 +99,8 @@ bool bpm::core::NodeChain::sortNodesByLevel()
    {
       BPM_ERROR_COUT("Duplicate level value found in chain");
 
+      level_ = 0;
+
       return false;
    }
 
@@ -110,8 +108,14 @@ bool bpm::core::NodeChain::sortNodesByLevel()
    {
       BPM_ERROR_COUT("Failed to verify continuity");
 
+      level_ = 0;
+
       return false;
    }
+
+   // The level of this chain is the highest node level
+   level_ = (nodes_.size() > 0) ?
+            nodes_.front()->level() : 0;
 
    return true;
 }
