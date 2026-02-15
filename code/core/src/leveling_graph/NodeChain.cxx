@@ -119,6 +119,11 @@ bool bpm::core::NodeChain::sortNodesByLevel()
 
 bool bpm::core::NodeChain::verifyContinuity() const
 {
+   if (0 == nodes_.size())
+   {
+      return true;
+   }
+
    // Count nodes
    auto nodeCount = 0;
 

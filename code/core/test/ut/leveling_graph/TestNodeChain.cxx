@@ -19,19 +19,135 @@ namespace bpm
 
             TestNodeChain() = default;
 
-            void test()
+            void testSingleNodeChainNoUpAndDown()
             {
-               BPM_SCOPED_TRACE_COUT("test");
+               BPM_SCOPED_TRACE_COUT("testSingleNodeChainNoUpAndDown");
+
+               auto node0 = createNode("node0");
+               auto node1 = createNode("node1");
+
+               bpm::core::NodeChain nodeChain;
+
+               // Verifying empty node chain
+               EXPECT_TRUE(nodeChain.verifyContinuity());
+
+               // Sorting empty node chain resets level
+               nodeChain.level_ = 10;
+               EXPECT_TRUE(nodeChain.sortNodesByLevel());
+               EXPECT_EQ(nodeChain.level(), 0);
+
+               // Single node chain, no upstream and downstream nodes
+               EXPECT_TRUE(nodeChain.addNode(node0));
+               EXPECT_TRUE(nodeChain.singleNodeChain());
+               EXPECT_TRUE(nodeChain.verifyContinuity());
+
+               // Duplicate
+               EXPECT_FALSE(nodeChain.addNode(node0));
+
+               // Cannot add to a single node chain
+               EXPECT_FALSE(nodeChain.addNode(node1));
+
+               // Sorting sets level to the level of the node
+               node0.level_ = 10;
+               node1.level_ = node0.level_ + 1;
+               EXPECT_TRUE(nodeChain.sortNodesByLevel());
+               EXPECT_EQ(nodeChain.level(), node0.level());
+
+               {
+                  BPM_SCOPED_TRACE_COUT("toString");
+                  BPM_TRACE_COUT("\n" + nodeChain.toString("   "));
+               }
+            }
+
+            void testSingleNodeChainMultiUpAndDown()
+            {
+               BPM_SCOPED_TRACE_COUT("testSingleNodeChainMultiUpAndDown");
+
+               auto node0 = createNode("node0");
+               auto node1 = createNode("node1");
+               auto node2 = createNode("node2");
+               auto node3 = createNode("node3");
+               auto node4 = createNode("node4");
+
+               // node0 --          --> node3
+               //        |          |
+               // node1 ---> node2 ---> node4
+               node0.addUpstreamNode(node2);
+               node1.addUpstreamNode(node2);
+               node2.addUpstreamNode(node3);
+               node2.addUpstreamNode(node4);
+
+               bpm::core::NodeChain nodeChain;
+
+               // Verifying empty node chain
+               EXPECT_TRUE(nodeChain.verifyContinuity());
+
+               // Sorting empty node chain resets level
+               nodeChain.level_ = 10;
+               EXPECT_TRUE(nodeChain.sortNodesByLevel());
+               EXPECT_EQ(nodeChain.level(), 0);
+
+               // Single node chain, multiple upstream and downstream nodes
+               EXPECT_TRUE(nodeChain.addNode(node2));
+               EXPECT_TRUE(nodeChain.singleNodeChain());
+               EXPECT_TRUE(nodeChain.verifyContinuity());
+
+               // Duplicate
+               EXPECT_FALSE(nodeChain.addNode(node2));
+
+               // Cannot add to a single node chain
+               EXPECT_FALSE(nodeChain.addNode(node3));
+
+               // Sorting sets level to the level of the node
+               node0.level_ = 10;
+               node1.level_ = node0.level_ + 1;
+               node2.level_ = node1.level_ + 1;
+               node3.level_ = node2.level_ + 1;
+               node4.level_ = node3.level_ + 1;
+               EXPECT_TRUE(nodeChain.sortNodesByLevel());
+               EXPECT_EQ(nodeChain.level(), node2.level());
+
+               {
+                  BPM_SCOPED_TRACE_COUT("toString");
+                  BPM_TRACE_COUT("\n" + nodeChain.toString("   "));
+               }
             }
 
          private:
 
+            bpm::core::Node createNode(const std::string& name,
+                                       bool hasInputPort = false)
+            {
+               return bpm::core::Node(name,
+                                      hasInputPort,
+                                      globalLevelPhase_,
+                                      maxLevel_,
+                                      circularDependency_);
+            };
+
+            void resetSharedVariables()
+            {
+               globalLevelPhase_ = 0;
+               maxLevel_ = 0;
+               circularDependency_ = false;
+            }
+
+            std::size_t globalLevelPhase_;
+            std::size_t maxLevel_;
+            bool circularDependency_;
+
       };
 
 
-      TEST_F(TestNodeChain, test)
+      TEST_F(TestNodeChain, testSingleNodeChainNoUpAndDown)
       {
-         test();
+         testSingleNodeChainNoUpAndDown();
+      }
+
+
+      TEST_F(TestNodeChain, testSingleNodeChainMultiUpAndDown)
+      {
+         testSingleNodeChainMultiUpAndDown();
       }
    }
 }
