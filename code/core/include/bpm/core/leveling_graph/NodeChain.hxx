@@ -18,6 +18,7 @@ namespace bpm
       {
          public:
 
+            using Vector = std::vector<NodeChain>;
             using PtrVector = std::vector<NodeChain*>;
             using PtrUSet = std::unordered_set<NodeChain*>;
 
@@ -66,6 +67,51 @@ namespace bpm
             return a->level() > b->level();
          }
       };
+
+
+      static std::string toString(const NodeChain::Vector& vec,
+                                  const std::string& leadingText)
+      {
+         auto out = leadingText + "vec.size() (" + std::to_string(vec.size()) + ")";
+         auto index = -1U;
+         for (const auto& node : vec)
+         {
+            ++index;
+            const auto prefix = leadingText + "vec[" + std::to_string(index) + "].";
+            out += "\n" + node.toString(prefix);
+         }
+         return out;
+      }
+
+
+      static std::string toString(const NodeChain::PtrVector& vec,
+                                  const std::string& leadingText)
+      {
+         auto out = leadingText + "vec.size() (" + std::to_string(vec.size()) + ")";
+         auto index = -1U;
+         for (const auto nodePtr : vec)
+         {
+            ++index;
+            const auto prefix = leadingText + "vec[" + std::to_string(index) + "].";
+            out += "\n" + nodePtr->toString(prefix);
+         }
+         return out;
+      }
+
+
+      static std::string toString(const NodeChain::PtrUSet& uset,
+                                  const std::string& leadingText)
+      {
+         auto out = leadingText + "uset.size() (" + std::to_string(uset.size()) + ")";
+         auto index = -1U;
+         for (const auto nodePtr : uset)
+         {
+            ++index;
+            const auto prefix = leadingText + "uset[" + std::to_string(index) + "].";
+            out += "\n" + nodePtr->toString(prefix);
+         }
+         return out;
+      }
 
 
       using NodeChainPtrLevelSet = std::multiset<NodeChain*, NodeChainPtrLevelCompare>;

@@ -96,6 +96,21 @@ namespace bpm
 
             void reLevel();
 
+            bool visited() const
+            {
+               return visited_;
+            }
+
+            void clearVisited()
+            {
+               visited_ = false;
+            }
+
+            void markVisited()
+            {
+               visited_ = true;
+            }
+
          private:
 
             bool setLevel(std::size_t newLevel);
@@ -112,6 +127,7 @@ namespace bpm
             std::size_t& maxLevel_;
             bool& circularDependency_;
             const bool hasInputPort_;
+            bool visited_;
 
             friend class TestNode;
             friend class TestNodeChain;
@@ -139,6 +155,21 @@ namespace bpm
          {
             ++index;
             const auto prefix = leadingText + "vec[" + std::to_string(index) + "].";
+            out += "\n" + nodePtr->toString(prefix);
+         }
+         return out;
+      }
+
+
+      static std::string toString(const Node::PtrUSet& uset,
+                                  const std::string& leadingText)
+      {
+         auto out = leadingText + "uset.size() (" + std::to_string(uset.size()) + ")";
+         auto index = -1U;
+         for (const auto nodePtr : uset)
+         {
+            ++index;
+            const auto prefix = leadingText + "uset[" + std::to_string(index) + "].";
             out += "\n" + nodePtr->toString(prefix);
          }
          return out;

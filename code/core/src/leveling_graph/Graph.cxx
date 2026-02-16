@@ -127,7 +127,7 @@ void bpm::core::Graph::sortNodesByLevel()
    // Sort in descending order
    std::sort(nodesByLevel_.begin(),
              nodesByLevel_.end(),
-             [](const auto a, auto b)
+             [](const auto a, const auto b)
              {
                 return a->level() > b->level();
              });
@@ -187,4 +187,81 @@ void bpm::core::Graph::reLevel()
 
    // Process all nodes without upstream nodes
    assignMaxLevel();
+}
+
+
+bool bpm::core::Graph::constructNodeChains()
+{
+   // Clear the visited flag
+   std::for_each(nodesByLevel_.begin(),
+                 nodesByLevel_.end(),
+                 [](auto nodePtr)
+                 {
+                    nodePtr->clearVisited();
+                 });
+
+   // Clear the current data
+   nodeChainsByLevel_.clear();
+
+   // Initialize the variable tracking the current chain
+   NodeChain* nodeChainPtr = nullptr;
+
+   // Loop over all nodes
+   for (auto nodePtr : nodesByLevel_)
+   {
+      // Skip nodes already visited
+      if (true == nodePtr->visited()) continue;
+
+      // Loop while there is a node
+      while (nullptr != nodePtr)
+      {
+         // End chain when detecting a node already visited
+         if (true == nodePtr->visited()) break;
+
+         // If not currently processing a chain, create one
+         if (nullptr == nodeChainPtr)
+         {
+            nodeChainsByLevel_.emplace_back(NodeChain());
+         }
+         nodeChainPtr = &nodeChainsByLevel_.back();
+
+         // Add this node to the node chain
+         if (false == nodeChainPtr->addNode(*nodePtr))
+         {
+            BPM_ERROR_COUT("Failed to add node (" + nodePtr->name() + ") to chain");
+
+            return false;
+         }
+
+         // Mark the node as visited
+         nodePtr->markVisited();
+
+         // Move to the next node
+         nodePtr = nodePtr->downstreamNode();
+      }
+
+      // Continue if not processing a node chain
+      if (nullptr == nodeChainPtr) continue;
+
+      // Sort this node chain
+      if (false == nodeChainPtr->sortNodesByLevel())
+      {
+         BPM_ERROR_COUT("Failed to sort node chain levels");
+
+         return false;
+      }
+
+      // Clear chain for next
+      nodeChainPtr = nullptr;
+   }
+
+   // Sort in descending order
+   std::sort(nodeChainsByLevel_.begin(),
+             nodeChainsByLevel_.end(),
+             [](const auto& a, const auto& b)
+             {
+                return a.level() > b.level();
+             });
+
+   return true;
 }

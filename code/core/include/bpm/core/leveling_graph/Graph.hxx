@@ -33,7 +33,7 @@ namespace bpm
             bool connectNodes(const std::string& downstreamName,
                               const std::string& upstreamName);
 
-            const Node::PtrVector& getNodesByLevel()
+            const Node::PtrVector& getNodesByLevel() const
             {
                return nodesByLevel_;
             }
@@ -44,6 +44,13 @@ namespace bpm
 
             std::string toString(const std::string& leadingText = "") const;
 
+            bool constructNodeChains();
+
+            const NodeChain::Vector& getNodeChainsByLevel() const
+            {
+               return nodeChainsByLevel_;
+            }
+
          private:
 
             std::unordered_map<std::string, Node> graph_;
@@ -51,8 +58,10 @@ namespace bpm
             Node::PtrUSet nodesWithoughDownstream_;
             std::size_t globalLevelPhase_;
             std::size_t maxLevel_;
-            Node::PtrVector nodesByLevel_;
+            Node::PtrVector nodesByLevel_; // Use a vector instead of a set to keep pointers near in memory
             bool circularDependency_;
+            std::vector<bool> nodeVisted_;
+            NodeChain::Vector nodeChainsByLevel_;
 
             friend class TestGraph;
       };

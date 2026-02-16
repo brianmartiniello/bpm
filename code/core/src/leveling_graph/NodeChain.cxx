@@ -83,7 +83,7 @@ bool bpm::core::NodeChain::sortNodesByLevel()
    // Sort in descending order
    std::sort(nodes_.begin(),
              nodes_.end(),
-             [](const auto a, auto b)
+             [](const auto a, const auto b)
              {
                 return a->level() > b->level();
              });
