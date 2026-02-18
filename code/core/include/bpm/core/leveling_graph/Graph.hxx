@@ -53,6 +53,8 @@ namespace bpm
 
          private:
 
+            NodeChain* createNodeChain(Node& node);
+
             std::unordered_map<std::string, Node> graph_;
             Node::PtrUSet nodesWithoughUpstream_;
             Node::PtrUSet nodesWithoughDownstream_;

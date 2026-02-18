@@ -74,3 +74,15 @@ void bpm::core::Graph::assignMaxLevel()
 void bpm::core::Graph::reLevel()
 {
 }
+
+
+bool bpm::core::Graph::constructNodeChains()
+{
+   return false;
+}
+
+
+bpm::core::NodeChain* bpm::core::Graph::createNodeChain(Node& /* node */)
+{
+   return nullptr;
+}

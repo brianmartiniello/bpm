@@ -203,26 +203,6 @@ bool bpm::core::Graph::constructNodeChains()
    // Clear the current data
    nodeChainsByLevel_.clear();
 
-   auto createNodeChain = [&](Node& node) -> NodeChain*
-   {
-      // Create the node chain
-      nodeChainsByLevel_.emplace_back(NodeChain());
-      auto nodeChainPtr = &nodeChainsByLevel_.back();
-
-      // Add this node to the node chain
-      if (false == nodeChainPtr->addNode(node))
-      {
-         BPM_ERROR_COUT("Failed to add node (" + node.name() + ") to chain");
-
-         return nullptr;
-      }
-
-      // Mark the node as visited
-      node.markVisited();
-
-      return nodeChainPtr;
-   };
-
    // Loop over all nodes
    for (auto nodePtr : nodesByLevel_)
    {
@@ -302,3 +282,24 @@ bool bpm::core::Graph::constructNodeChains()
 
    return true;
 }
+
+
+bpm::core::NodeChain* bpm::core::Graph::createNodeChain(Node& node)
+{
+   // Create the node chain
+   nodeChainsByLevel_.emplace_back(NodeChain());
+   auto nodeChainPtr = &nodeChainsByLevel_.back();
+
+   // Add this node to the node chain
+   if (false == nodeChainPtr->addNode(node))
+   {
+      BPM_ERROR_COUT("Failed to add node (" + node.name() + ") to chain");
+
+      return nullptr;
+   }
+
+   // Mark the node as visited
+   node.markVisited();
+
+   return nodeChainPtr;
+};
