@@ -19,6 +19,60 @@ namespace bpm
 
             TestNodeChain() = default;
 
+            void testSingleNodeChain()
+            {
+               BPM_SCOPED_TRACE_COUT("testSingleNodeChain");
+
+               // CASE - Num Upstream - Num Downstream - Expected
+               // 0      0              0                true
+               // 1      0              1                false
+               // 2      0              2                true
+               // 3      1              0                false
+               // 4      1              1                false
+               // 5      1              2                false
+               // 6      2              0                true
+               // 7      2              1                false
+               // 8      2              2                true
+
+               {
+                  auto node0 = createNode("node0");
+                  BPM_TRACE_COUT("CASE 0");
+                  EXPECT_TRUE(NodeChain::singeNodeChain(node0));
+               }
+
+               {
+                  auto node0 = createNode("node0");
+                  auto node1 = createNode("node1");
+                  auto node2 = createNode("node2");
+
+                  // node0 ---> node1 ---> node2
+                  node0.addUpstreamNode(node1);
+                  node1.addUpstreamNode(node2);
+
+                  BPM_TRACE_COUT("CASE 1");
+                  EXPECT_FALSE(NodeChain::singeNodeChain(node0));
+                  BPM_TRACE_COUT("CASE 4");
+                  EXPECT_FALSE(NodeChain::singeNodeChain(node1));
+                  BPM_TRACE_COUT("CASE 3");
+                  EXPECT_FALSE(NodeChain::singeNodeChain(node2));
+               }
+
+               {
+                  auto node0 = createNode("node0");
+                  auto node1 = createNode("node1");
+                  auto node2 = createNode("node2");
+
+                  // node0 --
+                  //        |
+                  // node1 ---> node2
+                  node0.addUpstreamNode(node2);
+                  node1.addUpstreamNode(node2);
+
+                  BPM_TRACE_COUT("CASE 2");
+                  EXPECT_TRUE(NodeChain::singeNodeChain(node2));
+               }
+            }
+
             void testSingleNodeChainNoUpAndDown()
             {
                BPM_SCOPED_TRACE_COUT("testSingleNodeChainNoUpAndDown");
@@ -215,6 +269,12 @@ namespace bpm
             bool circularDependency_;
 
       };
+
+
+      TEST_F(TestNodeChain, testSingleNodeChain)
+      {
+         testSingleNodeChain();
+      }
 
 
       TEST_F(TestNodeChain, testSingleNodeChainNoUpAndDown)

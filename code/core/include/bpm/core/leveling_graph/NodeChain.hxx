@@ -24,6 +24,8 @@ namespace bpm
 
             NodeChain() = default;
 
+            static bool singeNodeChain(Node& node);
+
             bool addNode(Node& node);
 
             const Node::PtrVector& getNodes()

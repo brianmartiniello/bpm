@@ -6,18 +6,35 @@
 #include <bpm/core/Logger.hxx>
 
 
-bool bpm::core::NodeChain::addNode(Node& node)
+/* static */ bool bpm::core::NodeChain::singeNodeChain(Node& node)
 {
    // Check for multiple inputs and multiple outputs
-   const auto multiInOutNodeIn = ((node.numUpstreamNodes() > 1) &&
+   const auto multiInMultiOutNode = ((node.numUpstreamNodes() > 1) &&
+                                     (node.numDownstreamNodes() > 1));
+
+   // Check for multiple inputs and no outputs
+   const auto multiInNoOutNode = ((node.numUpstreamNodes() > 1) &&
+                                  (node.numDownstreamNodes() == 0));
+
+   // Check for no inputs and multiple outputs
+   const auto noInMultiOutNode = ((node.numUpstreamNodes() == 0) &&
                                   (node.numDownstreamNodes() > 1));
    
    // Check for no inputs and no outputs
-   const auto noInOutNodeIn = ((node.numUpstreamNodes() == 0) &&
+   const auto noInNoOutNode = ((node.numUpstreamNodes() == 0) &&
                                (node.numDownstreamNodes() == 0));
 
+   return multiInMultiOutNode |
+          multiInNoOutNode |
+          noInMultiOutNode |
+          noInNoOutNode;
+}
+
+
+bool bpm::core::NodeChain::addNode(Node& node)
+{
    // Detect a single node chain
-   const auto singleNodeChainIn = multiInOutNodeIn | noInOutNodeIn;
+   const auto singleNodeChainIn = singeNodeChain(node);
 
    // If no current nodes, add and retrurn
    if (0 == nodes_.size())
@@ -38,8 +55,6 @@ bool bpm::core::NodeChain::addNode(Node& node)
    if (iter != nodes_.end())
    {
       BPM_ERROR_COUT("Node (" + node.name() +
-                     "), multiInOutNodeIn (" + BPM_LOG_BOOL(multiInOutNodeIn) +
-                     "), noInOutNodeIn (" + BPM_LOG_BOOL(noInOutNodeIn) +
                      "), singleNodeChainIn (" + BPM_LOG_BOOL(singleNodeChainIn) +
                      ") - Already added");
 
@@ -50,8 +65,6 @@ bool bpm::core::NodeChain::addNode(Node& node)
    if (true == singleNodeChain_)
    {
       BPM_ERROR_COUT("Node (" + node.name() +
-                     "), multiInOutNodeIn (" + BPM_LOG_BOOL(multiInOutNodeIn) +
-                     "), noInOutNodeIn (" + BPM_LOG_BOOL(noInOutNodeIn) +
                      "), singleNodeChainIn (" + BPM_LOG_BOOL(singleNodeChainIn) +
                      ") - Chain with node (" + nodes_.front()->name() +
                      ") is a single node chain, cannot add node");
@@ -63,8 +76,6 @@ bool bpm::core::NodeChain::addNode(Node& node)
    if (true == singleNodeChainIn)
    {
       BPM_ERROR_COUT("Node (" + node.name() +
-                     "), multiInOutNodeIn (" + BPM_LOG_BOOL(multiInOutNodeIn) +
-                     "), noInOutNodeIn (" + BPM_LOG_BOOL(noInOutNodeIn) +
                      "), singleNodeChainIn (" + BPM_LOG_BOOL(singleNodeChainIn) +
                      ") - Cannot add node since it would be for a single node chain");
 
