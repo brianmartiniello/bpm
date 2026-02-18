@@ -203,8 +203,25 @@ bool bpm::core::Graph::constructNodeChains()
    // Clear the current data
    nodeChainsByLevel_.clear();
 
-   // Initialize the variable tracking the current chain
-   NodeChain* nodeChainPtr = nullptr;
+   auto createNodeChain = [&](Node& node) -> NodeChain*
+   {
+      // Create the node chain
+      nodeChainsByLevel_.emplace_back(NodeChain());
+      auto nodeChainPtr = &nodeChainsByLevel_.back();
+
+      // Add this node to the node chain
+      if (false == nodeChainPtr->addNode(node))
+      {
+         BPM_ERROR_COUT("Failed to add node (" + node.name() + ") to chain");
+
+         return nullptr;
+      }
+
+      // Mark the node as visited
+      node.markVisited();
+
+      return nodeChainPtr;
+   };
 
    // Loop over all nodes
    for (auto nodePtr : nodesByLevel_)
@@ -212,18 +229,43 @@ bool bpm::core::Graph::constructNodeChains()
       // Skip nodes already visited
       if (true == nodePtr->visited()) continue;
 
-      // Loop while there is a node
-      while (nullptr != nodePtr)
+      // If single node chain
+      if (true == NodeChain::singeNodeChain(*nodePtr))
       {
-         // End chain when detecting a node already visited
-         if (true == nodePtr->visited()) break;
-
-         // If not currently processing a chain, create one
-         if (nullptr == nodeChainPtr)
+         // Create a node chain
+         if (nullptr == createNodeChain(*nodePtr))
          {
-            nodeChainsByLevel_.emplace_back(NodeChain());
+            BPM_ERROR_COUT("Failed to create single node chain");
+
+            // Exit if error
+            return false;
          }
-         nodeChainPtr = &nodeChainsByLevel_.back();
+
+         // Move to next node on success
+         continue;
+      }
+
+      // Continue if this node has more than one downstream node.
+      // This is not the start of a chain.
+      if (nodePtr->numDownstreamNodes() != 1) continue;
+
+      // Create a node chain
+      auto* nodeChainPtr = createNodeChain(*nodePtr);
+      if (nullptr == nodeChainPtr)
+      {
+         BPM_ERROR_COUT("Failed to create node chain for a starting node");
+
+         // Exit if error
+         return false;
+      }
+
+      while (true)
+      {
+         // Move to the next node
+         nodePtr = nodePtr->downstreamNode();
+
+         // Exit if chain has ended
+         if (nullptr == nodePtr) break;
 
          // Add this node to the node chain
          if (false == nodeChainPtr->addNode(*nodePtr))
@@ -236,26 +278,21 @@ bool bpm::core::Graph::constructNodeChains()
          // Mark the node as visited
          nodePtr->markVisited();
 
-         // Move to the next node
-         nodePtr = nodePtr->downstreamNode();
+         // Exit if this node has more than one downstream node.
+         // This node is a fanout node.
+         if (nodePtr->numDownstreamNodes() != 1) break;
       }
-
-      // Continue if not processing a node chain
-      if (nullptr == nodeChainPtr) continue;
-
-      // Sort this node chain
-      if (false == nodeChainPtr->sortNodesByLevel())
-      {
-         BPM_ERROR_COUT("Failed to sort node chain levels");
-
-         return false;
-      }
-
-      // Clear chain for next
-      nodeChainPtr = nullptr;
    }
 
-   // Sort in descending order
+   // Sort the nodes within a chain
+   std::for_each(nodeChainsByLevel_.begin(),
+                 nodeChainsByLevel_.end(),
+                 [](auto& nodeChain)
+                 {
+                    nodeChain.sortNodesByLevel();
+                 });
+
+   // Sort the chains in descending order
    std::sort(nodeChainsByLevel_.begin(),
              nodeChainsByLevel_.end(),
              [](const auto& a, const auto& b)
