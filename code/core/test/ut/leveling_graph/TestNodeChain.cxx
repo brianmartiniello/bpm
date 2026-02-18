@@ -61,6 +61,7 @@ namespace bpm
                   auto node0 = createNode("node0");
                   auto node1 = createNode("node1");
                   auto node2 = createNode("node2");
+                  auto node3 = createNode("node3");
 
                   // node0 --
                   //        |
@@ -70,6 +71,47 @@ namespace bpm
 
                   BPM_TRACE_COUT("CASE 2");
                   EXPECT_TRUE(NodeChain::singeNodeChain(node2));
+
+                  // node0 --
+                  //        |
+                  // node1 ---> node2 ---> node3
+                  node2.addUpstreamNode(node3);
+
+                  BPM_TRACE_COUT("CASE 5");
+                  EXPECT_FALSE(NodeChain::singeNodeChain(node2));
+               }
+
+               {
+                  auto node0 = createNode("node0");
+                  auto node1 = createNode("node1");
+                  auto node2 = createNode("node2");
+                  auto node3 = createNode("node3");
+                  auto node4 = createNode("node4");
+
+                  //        --> node1
+                  //        |
+                  // node0 ---> node2
+                  node0.addUpstreamNode(node1);
+                  node0.addUpstreamNode(node2);
+
+                  BPM_TRACE_COUT("CASE 6");
+                  EXPECT_TRUE(NodeChain::singeNodeChain(node0));
+
+                  //                   --> node1
+                  //                   |
+                  // node3 ---> node0 ---> node2
+                  node3.addUpstreamNode(node0);
+
+                  BPM_TRACE_COUT("CASE 7");
+                  EXPECT_FALSE(NodeChain::singeNodeChain(node0));
+
+                  // node4 --          --> node1
+                  //        |          |
+                  // node3 ---> node0 ---> node2
+                  node4.addUpstreamNode(node0);
+
+                  BPM_TRACE_COUT("CASE 8");
+                  EXPECT_TRUE(NodeChain::singeNodeChain(node0));
                }
             }
 
