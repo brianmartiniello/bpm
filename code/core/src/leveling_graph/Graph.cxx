@@ -229,7 +229,8 @@ bool bpm::core::Graph::constructNodeChains()
       // This is not the start of a chain.
       if (nodePtr->numDownstreamNodes() != 1) continue;
 
-      // Create a node chain
+      // This node is the start of a chain.
+      // Create a node chain.
       auto* nodeChainPtr = createNodeChain(*nodePtr);
       if (nullptr == nodeChainPtr)
       {
@@ -241,17 +242,25 @@ bool bpm::core::Graph::constructNodeChains()
 
       while (true)
       {
-         // Move to the next node
+         // This node has one downstream node due to either
+         // the check above prior to entering the loop,
+         // or the check at the end of the loop.
+         // Move to the next downstream node.
          nodePtr = nodePtr->downstreamNode();
 
-         // Exit if chain has ended
+         // Exit if this node does not exist.
+         // The previous node was the end of the chain.
          if (nullptr == nodePtr) break;
+
+         // The move to the next downstream node guarantees
+         // that this node does not have zero upstream nodes.
 
          // Exit if this node has more than one upstream node.
          // This node is a fan-in node.
          if (nodePtr->numUpstreamNodes() != 1) break;
 
-         // Add this node to the node chain
+         // This node exists and has one upstream node.
+         // Add this node to the node chain.
          if (false == nodeChainPtr->addNode(*nodePtr))
          {
             BPM_ERROR_COUT("Failed to add node (" + nodePtr->name() + ") to chain");
