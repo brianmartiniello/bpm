@@ -136,7 +136,7 @@ void bpm::core::Graph::sortNodesByLevel()
 
 void bpm::core::Graph::assignMaxLevel()
 {
-   auto nodeFound = false;
+   auto nodeFoundWithInputPort = false;
 
    for (const auto nodePtr : nodesWithoughUpstream_)
    {
@@ -149,16 +149,14 @@ void bpm::core::Graph::assignMaxLevel()
 
       // This node WITHOUT an upstream node, WITH an input port, 
       // is at the max level
-      nodeFound = true;
+      nodeFoundWithInputPort = true;
 
       // Max level is one greater
       maxLevel_ = nodePtr->level() + 1;
       break;
    }
 
-   // Return if node not found, otherwise reset
-   if (false == nodeFound) return;
-   else nodeFound = false;
+   auto nodeFoundWithoutInputPort = false;
 
    for (const auto nodePtr : nodesWithoughUpstream_)
    {
@@ -166,14 +164,20 @@ void bpm::core::Graph::assignMaxLevel()
       if (true == nodePtr->hasInputPort()) continue;
 
       // This node WITHOUT an upstream node and WITHOUT an input port
-      nodeFound = true;
+      nodeFoundWithoutInputPort = true;
 
-      // Update its level so that it is higher than those WITH input ports
+      // Update its level so that it is at the max.
+      // If the level was updated in the previous loop,
+      // this node will have a higher level than those
+      // WITH input ports.
       nodePtr->updateLevel(maxLevel_);
    }
 
-   // If no nodes were releveled, reset the max level to its original value
-   maxLevel_ -= (false == nodeFound);
+   // If the max level was adjusted (nodeFoundWithInputPort) but
+   // not used (nodeFoundWithoutInputPort), reset the max level
+   // to its original value
+   maxLevel_ -= ((true == nodeFoundWithInputPort) &&
+                 (false == nodeFoundWithoutInputPort));
 }
 
 
