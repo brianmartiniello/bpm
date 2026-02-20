@@ -137,27 +137,24 @@ void bpm::core::Graph::sortNodesByLevel()
 void bpm::core::Graph::assignMaxLevel()
 {
    auto nodeFoundWithInputPort = false;
-
    for (const auto nodePtr : nodesWithoughUpstream_)
    {
       // Skip nodes WITHOUT an upstream node and WITHOUT an input port
       if (false == nodePtr->hasInputPort()) continue;
 
-      // Skip nodes WITHOUT an upstream node and WITH an input port if
-      // its level is less than the max
-      if (nodePtr->level() < maxLevel_) continue;
-
-      // This node WITHOUT an upstream node, WITH an input port, 
-      // is at the max level
+      // This node WITHOUT an upstream node and WITH an input port
       nodeFoundWithInputPort = true;
 
-      // Max level is one greater
-      maxLevel_ = nodePtr->level() + 1;
-      break;
+      // Update its level so that it is at the max
+      nodePtr->updateLevel(maxLevel_);
    }
 
-   auto nodeFoundWithoutInputPort = false;
+   // Bump the max level if a node WITHOUT an upstream node
+   // and WITH an input port was found so that nodes WITHOUT
+   // an input port have a higher level
+   maxLevel_ = (true == nodeFoundWithInputPort);
 
+   auto nodeFoundWithoutInputPort = false;
    for (const auto nodePtr : nodesWithoughUpstream_)
    {
       // Skip nodes WITHOUT an upstream node and WITH an input port
