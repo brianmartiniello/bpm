@@ -6,6 +6,7 @@
 #include <bpm/core/Logger.hxx>
 
 
+#if 0
 /* static */ bool bpm::core::NodeChain::singeNodeChain(Node& node)
 {
    // Check for multiple inputs and multiple outputs
@@ -28,6 +29,147 @@
           multiInNoOutNode |
           noInMultiOutNode |
           noInNoOutNode;
+}
+#endif
+
+
+/* static */ bool bpm::core::NodeChain::singeNodeChain(Node& node)
+{
+   // Check for multiple inputs
+   if (node.numUpstreamNodes() > 1)
+   {
+      // Check for multiple outputs
+      if (node.numDownstreamNodes() > 1)
+      {
+         // Fan-in and fan-out
+         // nodeA --          --> nodeE
+         //        |          |
+         // nodeB ---> nodeC ---> nodeD
+         //            *****
+         return true;
+      }
+      // Check for single output
+      else if (node.numDownstreamNodes() == 1)
+      {
+         // Start of chain from fan-in
+         // nodeA --
+         //        |
+         // nodeB ---> nodeC ---> nodeD
+         //            *****
+         return false;
+      }
+      // No ouputs
+      else // (node.numDownstreamNodes() == 1)
+      {
+         // nodeA --
+         //        |
+         // nodeB ---> nodeC
+         //            *****
+         return true;
+      }
+   }
+   // Check for single input
+   else if (node.numUpstreamNodes() == 1)
+   {
+      // Check output of input node
+      const auto inHasMultiOut = node.upstreamNode()->numDownstreamNodes() > 1;
+
+      // Check for multiple outputs
+      if (node.numDownstreamNodes() > 1)
+      {
+         if (true == inHasMultiOut)
+         {
+            // Upstream is a fan-out and this is a fan-out
+            //        --> nodeE   --> nodeD
+            //        |           |
+            // nodeA ---> nodeB ----> nodeC
+            //            *****
+            return true;
+         }
+
+         // End of chain at a fan-out
+         //                   --> nodeD
+         //                   |
+         // nodeA ---> nodeB ---> nodeC
+         //            *****
+         return false;
+      }
+      // Check for single output
+      else if (node.numDownstreamNodes() == 1)
+      {
+         // Upstream is a fan-out, start of chain
+         //        --> nodeE
+         //        |
+         // nodeA ---> nodeB ----> nodeC
+         //            *****
+         //
+         // Upstream is not a fan-out, middle of chain
+         // nodeA ---> nodeB ---> nodeC
+         //            *****
+         return false;
+      }
+      // No outputs
+      else // (node.numUpstreamNodes() == 0)
+      {
+         if (true == inHasMultiOut)
+         {
+            // No output and upstream is a fan-out
+            //        --> nodeE
+            //        |
+            // nodeA ---> nodeB
+            //            *****
+            return true;
+         }
+
+         // No output and upstream is not a fan-out, end of chain
+         // nodeA ---> nodeB
+         //            *****
+         return false;
+      }
+   }
+   // No inputs
+   else // (node.numUpstreamNodes() == 0)
+   {
+      // Check for multiple outputs
+      if (node.numDownstreamNodes() > 1)
+      {
+         // Fan-out
+         //        --> nodeC
+         //        |
+         // nodeA ---> nodeB
+         // *****
+         return true;
+      }
+      // Check for single output
+      else if (node.numDownstreamNodes() == 1)
+      {
+         // Check input of output node
+         const auto outHasMultiIn = node.downstreamNode()->numUpstreamNodes() > 1;
+
+         if (true == outHasMultiIn)
+         {
+            // Downstream is a fan-in
+            // nodeC --
+            //        |
+            // nodeA ---> nodeB
+            // *****
+            return true;
+         }
+
+         // Downstream is a not fan-in, start of chain
+         // nodeA ---> nodeB
+         // *****
+         return false;
+      }
+      // No outputs
+      else // (node.numDownstreamNodes() == 0)
+      {
+         // Standalone
+         // nodeA
+         // *****
+         return true;
+      }
+   }
 }
 
 
