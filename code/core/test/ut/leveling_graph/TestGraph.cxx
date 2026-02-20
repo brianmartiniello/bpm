@@ -241,14 +241,14 @@ namespace bpm
                resetSharedVariables();
 
                EXPECT_TRUE(graph_.addNode("node0"));
-               auto node0Iter = graph_.graph_.find("node0");
+               const auto node0Iter = graph_.graph_.find("node0");
                ASSERT_TRUE(node0Iter != graph_.graph_.end());
-               auto& node0 = node0Iter->second;
+               const auto& node0 = node0Iter->second;
 
                EXPECT_TRUE(graph_.addNode("node1"));
-               auto node1Iter = graph_.graph_.find("node1");
+               const auto node1Iter = graph_.graph_.find("node1");
                ASSERT_TRUE(node1Iter != graph_.graph_.end());
-               auto& node1 = node1Iter->second;
+               const auto& node1 = node1Iter->second;
 
                // node0 -> node1
                EXPECT_TRUE(graph_.connectNodes("node0",
@@ -269,9 +269,9 @@ namespace bpm
                EXPECT_EQ(node1.level(), 1);
 
                EXPECT_TRUE(graph_.addNode("node2"));
-               auto node2Iter = graph_.graph_.find("node2");
+               const auto node2Iter = graph_.graph_.find("node2");
                ASSERT_TRUE(node2Iter != graph_.graph_.end());
-               auto& node2 = node2Iter->second;
+               const auto& node2 = node2Iter->second;
 
                //        --> node2
                //        |
@@ -297,9 +297,9 @@ namespace bpm
 
                EXPECT_TRUE(graph_.addNode("node3",
                                           true)); // hasInputPort
-               auto node3Iter = graph_.graph_.find("node3");
+               const auto node3Iter = graph_.graph_.find("node3");
                ASSERT_TRUE(node3Iter != graph_.graph_.end());
-               auto& node3 = node3Iter->second;
+               const auto& node3 = node3Iter->second;
 
                //        --> node3 (w/ input)
                //        |
@@ -331,8 +331,8 @@ namespace bpm
                   BPM_SCOPED_TRACE_COUT("toString");
                   BPM_TRACE_COUT("\n" + graph_.toString("   "));
                   graph_.sortNodesByLevel();
-                  auto set = graph_.getNodesByLevel();
-                  BPM_TRACE_COUT("\n" + toString(set, "   "));
+                  const auto vec = graph_.getNodesByLevel();
+                  BPM_TRACE_COUT("\n" + toString(vec, "   "));
                }
             }
 
@@ -442,6 +442,64 @@ namespace bpm
                BPM_SCOPED_TRACE_COUT("testConstructNodeChains");
 
                resetSharedVariables();
+
+               for (auto i = 0U; i < 23; ++i)
+               {
+                  ASSERT_TRUE(graph_.addNode("node" + std::to_string(i)));
+               }
+
+               EXPECT_TRUE(graph_.connectNodes("node2",
+                                               "node1"));
+               EXPECT_TRUE(graph_.connectNodes("node6",
+                                               "node2"));
+               EXPECT_TRUE(graph_.connectNodes("node4",
+                                               "node3"));
+               EXPECT_TRUE(graph_.connectNodes("node5",
+                                               "node4"));
+               EXPECT_TRUE(graph_.connectNodes("node6",
+                                               "node5"));
+               EXPECT_TRUE(graph_.connectNodes("node7",
+                                               "node6"));
+               EXPECT_TRUE(graph_.connectNodes("node8",
+                                               "node7"));
+               EXPECT_TRUE(graph_.connectNodes("node9",
+                                               "node8"));
+               EXPECT_TRUE(graph_.connectNodes("node10",
+                                               "node9"));
+               EXPECT_TRUE(graph_.connectNodes("node11",
+                                               "node7"));
+               EXPECT_TRUE(graph_.connectNodes("node11",
+                                               "node12"));
+               EXPECT_TRUE(graph_.connectNodes("node13",
+                                               "node12"));
+               EXPECT_TRUE(graph_.connectNodes("node14",
+                                               "node13"));
+               EXPECT_TRUE(graph_.connectNodes("node15",
+                                               "node14"));
+               EXPECT_TRUE(graph_.connectNodes("node13",
+                                               "node16"));
+               EXPECT_TRUE(graph_.connectNodes("node18",
+                                               "node17"));
+               EXPECT_TRUE(graph_.connectNodes("node18",
+                                               "node13"));
+               EXPECT_TRUE(graph_.connectNodes("node19",
+                                               "node18"));
+               EXPECT_TRUE(graph_.connectNodes("node20",
+                                               "node19"));
+               EXPECT_TRUE(graph_.connectNodes("node21",
+                                               "node20"));
+               EXPECT_TRUE(graph_.connectNodes("node22",
+                                               "node20"));
+
+               graph_.reLevel();
+
+               {
+                  BPM_SCOPED_TRACE_COUT("toString");
+                  BPM_TRACE_COUT("\n" + graph_.toString("   "));
+                  graph_.sortNodesByLevel();
+                  const auto vec = graph_.getNodesByLevel();
+                  BPM_TRACE_COUT("\n" + toString(vec, "   "));
+               }
             }
 
          private:
