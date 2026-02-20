@@ -25,7 +25,10 @@ namespace bpm
 
                resetSharedVariables();
 
-               graph_.addNode("node0");
+               EXPECT_FALSE(graph_.addNode(""));
+
+               EXPECT_TRUE(graph_.addNode("node0"));
+               EXPECT_FALSE(graph_.addNode("node0"));
                EXPECT_EQ(graph_.maxLevel_, 0);
                EXPECT_FALSE(graph_.circularDependency_);
                EXPECT_FALSE(graph_.circularDependency());
@@ -39,7 +42,7 @@ namespace bpm
                EXPECT_TRUE(graph_.nodesWithoughDownstream_.find(&node0) !=
                            graph_.nodesWithoughDownstream_.end());
 
-               graph_.addNode("node1");
+               EXPECT_TRUE(graph_.addNode("node1"));
                EXPECT_EQ(graph_.maxLevel_, 0);
                EXPECT_FALSE(graph_.circularDependency_);
                EXPECT_FALSE(graph_.circularDependency());
@@ -53,7 +56,7 @@ namespace bpm
                EXPECT_TRUE(graph_.nodesWithoughDownstream_.find(&node1) !=
                            graph_.nodesWithoughDownstream_.end());
 
-               graph_.addNode("node2");
+               EXPECT_TRUE(graph_.addNode("node2"));
                EXPECT_EQ(graph_.maxLevel_, 0);
                EXPECT_FALSE(graph_.circularDependency_);
                EXPECT_FALSE(graph_.circularDependency());
@@ -120,7 +123,7 @@ namespace bpm
                EXPECT_TRUE(graph_.nodesWithoughDownstream_.find(&node2) !=
                            graph_.nodesWithoughDownstream_.end());
 
-               graph_.addNode("node3");
+               EXPECT_TRUE(graph_.addNode("node3"));
                auto node3Iter = graph_.graph_.find("node3");
                ASSERT_TRUE(node3Iter != graph_.graph_.end());
                auto& node3 = node3Iter->second;
@@ -237,12 +240,12 @@ namespace bpm
 
                resetSharedVariables();
 
-               graph_.addNode("node0");
+               EXPECT_TRUE(graph_.addNode("node0"));
                auto node0Iter = graph_.graph_.find("node0");
                ASSERT_TRUE(node0Iter != graph_.graph_.end());
                auto& node0 = node0Iter->second;
 
-               graph_.addNode("node1");
+               EXPECT_TRUE(graph_.addNode("node1"));
                auto node1Iter = graph_.graph_.find("node1");
                ASSERT_TRUE(node1Iter != graph_.graph_.end());
                auto& node1 = node1Iter->second;
@@ -265,7 +268,7 @@ namespace bpm
                EXPECT_EQ(node0.level(), 0);
                EXPECT_EQ(node1.level(), 1);
 
-               graph_.addNode("node2");
+               EXPECT_TRUE(graph_.addNode("node2"));
                auto node2Iter = graph_.graph_.find("node2");
                ASSERT_TRUE(node2Iter != graph_.graph_.end());
                auto& node2 = node2Iter->second;
@@ -292,8 +295,8 @@ namespace bpm
                EXPECT_EQ(node1.level(), 1);
                EXPECT_EQ(node2.level(), 1);
 
-               graph_.addNode("node3",
-                              true); // hasInputPort
+               EXPECT_TRUE(graph_.addNode("node3",
+                                          true)); // hasInputPort
                auto node3Iter = graph_.graph_.find("node3");
                ASSERT_TRUE(node3Iter != graph_.graph_.end());
                auto& node3 = node3Iter->second;
@@ -339,15 +342,15 @@ namespace bpm
 
                resetSharedVariables();
 
-               graph_.addNode("node0");
-               graph_.addNode("node1");
-               graph_.addNode("node2");
-               graph_.addNode("node3");
-               graph_.addNode("node4");
-               graph_.addNode("node5");
-               graph_.addNode("node6");
-               graph_.addNode("node7");
-               graph_.addNode("node8");
+               EXPECT_TRUE(graph_.addNode("node0"));
+               EXPECT_TRUE(graph_.addNode("node1"));
+               EXPECT_TRUE(graph_.addNode("node2"));
+               EXPECT_TRUE(graph_.addNode("node3"));
+               EXPECT_TRUE(graph_.addNode("node4"));
+               EXPECT_TRUE(graph_.addNode("node5"));
+               EXPECT_TRUE(graph_.addNode("node6"));
+               EXPECT_TRUE(graph_.addNode("node7"));
+               EXPECT_TRUE(graph_.addNode("node8"));
 
                // node0 --> node1 --            --> node5 --> node6
                //                   |           |
@@ -434,6 +437,13 @@ namespace bpm
             //       **********    **********    ***************
             // N00A
 
+            void testConstructNodeChains()
+            {
+               BPM_SCOPED_TRACE_COUT("testConstructNodeChains");
+
+               resetSharedVariables();
+            }
+
          private:
 
             void resetSharedVariables()
@@ -463,6 +473,12 @@ namespace bpm
       TEST_F(TestGraph, testGetNodesByLevel)
       {
          testGetNodesByLevel();
+      }
+
+
+      TEST_F(TestGraph, testConstructNodeChains)
+      {
+         testConstructNodeChains();
       }
    }
 }
