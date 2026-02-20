@@ -492,13 +492,20 @@ namespace bpm
                                                "node20"));
 
                graph_.reLevel();
+               graph_.sortNodesByLevel();
+               EXPECT_TRUE(graph_.constructNodeChains());
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");
                   BPM_TRACE_COUT("\n" + graph_.toString("   "));
-                  graph_.sortNodesByLevel();
-                  const auto vec = graph_.getNodesByLevel();
-                  BPM_TRACE_COUT("\n" + toString(vec, "   "));
+                  {
+                     const auto vec = graph_.getNodesByLevel();
+                     BPM_TRACE_COUT("\n" + toString(vec, "   "));
+                  }
+                  {
+                     const auto vec = graph_.getNodeChainsByLevel();
+                     BPM_TRACE_COUT("\n" + toString(vec, "   "));
+                  }
                }
             }
 

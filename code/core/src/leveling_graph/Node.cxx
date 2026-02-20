@@ -77,10 +77,12 @@ void bpm::core::Node::updateLevel(std::size_t newLevel,
 {
    BPM_TRACE_COUT("Prev node (" + previousNodeName +
                   "), new level (" + std::to_string(newLevel) +
+                  "), max level (" + std::to_string(maxLevel_) + 
                   "), global phase (" + std::to_string(globalLevelPhase_) + 
                   "), node (" + name_ +
                   "), level (" + std::to_string(level_) +
-                  "), phase (" + std::to_string(levelPhase_) +")");
+                  "), phase (" + std::to_string(levelPhase_) +
+                  ") - Start");
 
    // Exit if no change
    if (false == setLevel(newLevel)) return;
@@ -109,6 +111,15 @@ void bpm::core::Node::updateLevel(std::size_t newLevel,
       upstreamNode->updateLevel(level_ + 1,
                                 name_);
    }
+
+   BPM_TRACE_COUT("Prev node (" + previousNodeName +
+                  "), new level (" + std::to_string(newLevel) +
+                  "), max level (" + std::to_string(maxLevel_) + 
+                  "), global phase (" + std::to_string(globalLevelPhase_) + 
+                  "), node (" + name_ +
+                  "), level (" + std::to_string(level_) +
+                  "), phase (" + std::to_string(levelPhase_) +
+                  ") - End");
 }
 
 
@@ -131,6 +142,13 @@ void bpm::core::Node::updateLevel(std::size_t newLevel)
 
 void bpm::core::Node::reLevel()
 {
+   BPM_TRACE_COUT("Node (" + name_ +
+                  "), level (" + std::to_string(level_) +
+                  "), maxLevel_ (" + std::to_string(maxLevel_) +
+                  "), phase (" + std::to_string(levelPhase_) +
+                  "), globalLevelPhase_ (" + std::to_string(globalLevelPhase_) +
+                  ") - Start");
+
    // Indicate a new phase
    ++globalLevelPhase_;
 
@@ -140,11 +158,26 @@ void bpm::core::Node::reLevel()
       upstreamNode->updateLevel(level_ + 1,
                                 name_);
    }
+
+   BPM_TRACE_COUT("Node (" + name_ +
+                  "), level (" + std::to_string(level_) +
+                  "), maxLevel_ (" + std::to_string(maxLevel_) +
+                  "), phase (" + std::to_string(levelPhase_) +
+                  "), globalLevelPhase_ (" + std::to_string(globalLevelPhase_) +
+                  ") - End");
 }
 
 
 bool bpm::core::Node::setLevel(std::size_t newLevel)
 {
+   BPM_TRACE_COUT("Node (" + name_ +
+                  "), level (" + std::to_string(level_) +
+                  "), maxLevel_ (" + std::to_string(maxLevel_) +
+                  "), phase (" + std::to_string(levelPhase_) +
+                  "), globalLevelPhase_ (" + std::to_string(globalLevelPhase_) +
+                  "), newLevel (" + std::to_string(newLevel) +
+                  ") - Start");
+
    // Exit if lower level or no change
    if (newLevel <= level_) return false;
 
@@ -152,6 +185,14 @@ bool bpm::core::Node::setLevel(std::size_t newLevel)
    level_ = newLevel;
    maxLevel_ = std::max(maxLevel_,
                         level_);
+
+   BPM_TRACE_COUT("Node (" + name_ +
+                  "), level (" + std::to_string(level_) +
+                  "), maxLevel_ (" + std::to_string(maxLevel_) +
+                  "), phase (" + std::to_string(levelPhase_) +
+                  "), globalLevelPhase_ (" + std::to_string(globalLevelPhase_) +
+                  "), newLevel (" + std::to_string(newLevel) +
+                  ") - End");
 
    return true;
 }

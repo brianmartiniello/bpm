@@ -136,6 +136,9 @@ void bpm::core::Graph::sortNodesByLevel()
 
 void bpm::core::Graph::assignMaxLevel()
 {
+   BPM_TRACE_COUT("maxLevel_ (" + std::to_string(maxLevel_) +
+                  ") - Start");
+
    auto nodeFoundWithInputPort = false;
    for (const auto nodePtr : nodesWithoughUpstream_)
    {
@@ -152,7 +155,7 @@ void bpm::core::Graph::assignMaxLevel()
    // Bump the max level if a node WITHOUT an upstream node
    // and WITH an input port was found so that nodes WITHOUT
    // an input port have a higher level
-   maxLevel_ = (true == nodeFoundWithInputPort);
+   maxLevel_ += (true == nodeFoundWithInputPort);
 
    auto nodeFoundWithoutInputPort = false;
    for (const auto nodePtr : nodesWithoughUpstream_)
@@ -175,11 +178,17 @@ void bpm::core::Graph::assignMaxLevel()
    // to its original value
    maxLevel_ -= ((true == nodeFoundWithInputPort) &&
                  (false == nodeFoundWithoutInputPort));
+
+   BPM_TRACE_COUT("maxLevel_ (" + std::to_string(maxLevel_) +
+                  ") - End");
 }
 
 
 void bpm::core::Graph::reLevel()
 {
+   BPM_TRACE_COUT("maxLevel_ (" + std::to_string(maxLevel_) +
+                  ") - Start");
+
    // Process all nodes without downstream nodes
    for (auto nodePtr : nodesWithoughDownstream_)
    {
@@ -188,6 +197,9 @@ void bpm::core::Graph::reLevel()
 
    // Process all nodes without upstream nodes
    assignMaxLevel();
+
+   BPM_TRACE_COUT("maxLevel_ (" + std::to_string(maxLevel_) +
+                  ") - End");
 }
 
 
