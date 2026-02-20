@@ -231,9 +231,9 @@ namespace bpm
                clear();
             }
 
-            void testAssignMaxLevel()
+            void testReLevel()
             {
-               BPM_SCOPED_TRACE_COUT("testAssignMaxLevel");
+               BPM_SCOPED_TRACE_COUT("testReLevel");
 
                resetSharedVariables();
 
@@ -333,9 +333,9 @@ namespace bpm
                }
             }
 
-            void testNodeChains()
+            void testGetNodesByLevel()
             {
-               BPM_SCOPED_TRACE_COUT("testNodeChains");
+               BPM_SCOPED_TRACE_COUT("testGetNodesByLevel");
 
                resetSharedVariables();
 
@@ -371,14 +371,68 @@ namespace bpm
 
                graph_.reLevel();
 
+               auto vec = graph_.getNodesByLevel();
+               EXPECT_TRUE(vec.empty());
+
                {
                   BPM_SCOPED_TRACE_COUT("toString");
                   BPM_TRACE_COUT("\n" + graph_.toString("   "));
                   graph_.sortNodesByLevel();
-                  auto set = graph_.getNodesByLevel();
-                  BPM_TRACE_COUT("\n" + toString(set, "   "));
+                  vec = graph_.getNodesByLevel();
+                  BPM_TRACE_COUT("\n" + toString(vec, "   "));
                }
+
+               ASSERT_EQ(vec.size(), 9);
+               EXPECT_EQ(vec[0]->level(), 4);
+               EXPECT_TRUE((vec[0]->name() == "node8") ||
+                           (vec[0]->name() == "node6"));
+               EXPECT_EQ(vec[1]->level(), 4);
+               EXPECT_TRUE((vec[1]->name() == "node8") ||
+                           (vec[1]->name() == "node6"));
+               EXPECT_EQ(vec[2]->level(), 3);
+               EXPECT_TRUE((vec[2]->name() == "node7") ||
+                           (vec[2]->name() == "node5"));
+               EXPECT_EQ(vec[3]->level(), 3);
+               EXPECT_TRUE((vec[3]->name() == "node7") ||
+                           (vec[3]->name() == "node5"));
+               EXPECT_EQ(vec[4]->level(), 2);
+               EXPECT_EQ(vec[4]->name(), "node4");
+               EXPECT_EQ(vec[5]->level(), 1);
+               EXPECT_TRUE((vec[5]->name() == "node3") ||
+                           (vec[5]->name() == "node1"));
+               EXPECT_EQ(vec[6]->level(), 1);
+               EXPECT_TRUE((vec[6]->name() == "node3") ||
+                           (vec[6]->name() == "node1"));
+               EXPECT_EQ(vec[7]->level(), 0);
+               EXPECT_TRUE((vec[7]->name() == "node2") ||
+                           (vec[7]->name() == "node0"));
+               EXPECT_EQ(vec[8]->level(), 0);
+               EXPECT_TRUE((vec[8]->name() == "node2") ||
+                           (vec[8]->name() == "node0"));
             }
+
+            // TAG  UP  DOWN
+            // A    0   0
+            // B    0   1
+            // C    0   2
+            // D    1   0
+            // E    1   1
+            // F    1   2
+            // G    2   0
+            // H    2   1
+            // I    2   2
+
+            //                               N17B---                     -->N22D
+            //                                     |    **************** |
+            //                          N16B---    ---->N18H->N19E->N20F--->N21D
+            //                                |      |
+            //                        N12C----->N13I--->N14E->N15D
+            // ****************             |           **********
+            // N03B->N04E->N05E--           ---->N11G
+            //                  |             |
+            //       N01B->N02E--->N06H->N07F--->N08E->09E->N10D
+            //       **********    **********    ***************
+            // N00A
 
          private:
 
@@ -400,15 +454,15 @@ namespace bpm
       }
 
 
-      TEST_F(TestGraph, testAssignMaxLevel)
+      TEST_F(TestGraph, testReLevel)
       {
-         testAssignMaxLevel();
+         testReLevel();
       }
 
 
-      TEST_F(TestGraph, testNodeChains)
+      TEST_F(TestGraph, testGetNodesByLevel)
       {
-         testNodeChains();
+         testGetNodesByLevel();
       }
    }
 }
