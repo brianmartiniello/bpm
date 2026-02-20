@@ -219,6 +219,10 @@ bool bpm::core::Graph::constructNodeChains()
    // Loop over all nodes
    for (auto nodePtr : nodesByLevel_)
    {
+      BPM_TRACE_COUT("Node (" + nodePtr->name() +
+                     "), visited (" + BPM_LOG_BOOL(nodePtr->visited()) +
+                     ") - Start");
+
       // Skip nodes already visited
       if (true == nodePtr->visited()) continue;
 
@@ -228,11 +232,15 @@ bool bpm::core::Graph::constructNodeChains()
          // Create a node chain
          if (nullptr == createNodeChain(*nodePtr))
          {
-            BPM_ERROR_COUT("Failed to create single node chain");
+            BPM_ERROR_COUT("Node (" + nodePtr->name() +
+                           ") - Failed to create single node chain");
 
             // Exit if error
             return false;
          }
+
+         BPM_TRACE_COUT("Node (" + nodePtr->name() +
+                        ") - Successfully created single node chain");
 
          // Move to next node on success
          continue;
@@ -247,11 +255,15 @@ bool bpm::core::Graph::constructNodeChains()
       auto* nodeChainPtr = createNodeChain(*nodePtr);
       if (nullptr == nodeChainPtr)
       {
-         BPM_ERROR_COUT("Failed to create node chain for a starting node");
+         BPM_ERROR_COUT("Node (" + nodePtr->name() +
+                       ") - Failed to create node chain for starting node");
 
          // Exit if error
          return false;
       }
+
+      BPM_TRACE_COUT("Node (" + nodePtr->name() +
+                     ") - Successfully created node chain for starting node");
 
       auto chainNodePtr = nodePtr;
       while (true)
@@ -282,6 +294,10 @@ bool bpm::core::Graph::constructNodeChains()
             return false;
          }
 
+         BPM_TRACE_COUT("Start node (" + nodePtr->name() +
+                        "), add node (" + chainNodePtr->name() +
+                        ") - Successfully added node to chain");
+
          // Mark the node as visited
          chainNodePtr->markVisited();
 
@@ -289,6 +305,10 @@ bool bpm::core::Graph::constructNodeChains()
          // This node is a fan-out node.
          if (chainNodePtr->numDownstreamNodes() != 1) break;
       }
+
+      BPM_TRACE_COUT("Node (" + nodePtr->name() +
+                     "), visited (" + BPM_LOG_BOOL(nodePtr->visited()) +
+                     ") - End");
    }
 
    // Sort the nodes within a chain

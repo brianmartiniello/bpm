@@ -91,6 +91,13 @@ bool bpm::core::NodeChain::addNode(Node& node)
 
 bool bpm::core::NodeChain::sortNodesByLevel()
 {
+   level_ = 0;
+
+   if (0 == nodes_.size())
+   {
+      return true;
+   }
+
    // Sort in descending order
    std::sort(nodes_.begin(),
              nodes_.end(),
@@ -108,25 +115,22 @@ bool bpm::core::NodeChain::sortNodesByLevel()
                                         });
    if (iter != nodes_.end())
    {
-      BPM_ERROR_COUT("Duplicate level value found in chain");
-
-      level_ = 0;
+      BPM_ERROR_COUT("Front node (" + nodes_.front()->name() +
+                     ") - Duplicate level value found in chain");
 
       return false;
    }
 
    if (false == verifyContinuity())
    {
-      BPM_ERROR_COUT("Failed to verify continuity");
-
-      level_ = 0;
+      BPM_ERROR_COUT("Front node (" + nodes_.front()->name() +
+                     ") - Failed to verify continuity");
 
       return false;
    }
 
    // The level of this chain is the highest node level
-   level_ = (nodes_.size() > 0) ?
-            nodes_.front()->level() : 0;
+   level_ = nodes_.front()->level();
 
    return true;
 }
@@ -163,7 +167,8 @@ bool bpm::core::NodeChain::verifyContinuity() const
    // The chain is continuos if we counted all the nodes
    if (nodeCount != nodes_.size())
    {
-      BPM_ERROR_COUT(std::string("Detected an invalid chain, ") +
+      BPM_ERROR_COUT("Front node (" + nodes_.front()->name() +
+                     ") - Detected an invalid chain, " +
                      "node count after traversal is (" +
                      std::to_string(nodeCount) +
                      ") while total number of nodes is (" +
