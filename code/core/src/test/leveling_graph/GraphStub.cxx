@@ -86,3 +86,9 @@ bpm::core::NodeChain* bpm::core::Graph::createNodeChain(Node& /* node */)
 {
    return nullptr;
 }
+
+
+bool bpm::core::Graph::allNodesVisited() const
+{
+   return false;
+}

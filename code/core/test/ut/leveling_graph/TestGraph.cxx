@@ -494,6 +494,7 @@ namespace bpm
                graph_.reLevel();
                graph_.sortNodesByLevel();
                EXPECT_TRUE(graph_.constructNodeChains());
+               EXPECT_TRUE(graph_.allNodesVisited());
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");

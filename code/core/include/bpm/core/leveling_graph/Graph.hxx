@@ -51,6 +51,8 @@ namespace bpm
                return nodeChainsByLevel_;
             }
 
+            bool allNodesVisited() const;
+
          private:
 
             NodeChain* createNodeChain(Node& node);

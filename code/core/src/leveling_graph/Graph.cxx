@@ -253,50 +253,58 @@ bool bpm::core::Graph::constructNodeChains()
          return false;
       }
 
+      auto chainNodePtr = nodePtr;
       while (true)
       {
          // This node has one downstream node due to either
          // the check above prior to entering the loop,
          // or the check at the end of the loop.
          // Move to the next downstream node.
-         nodePtr = nodePtr->downstreamNode();
+         chainNodePtr = chainNodePtr->downstreamNode();
 
          // Exit if this node does not exist.
          // The previous node was the end of the chain.
-         if (nullptr == nodePtr) break;
+         if (nullptr == chainNodePtr) break;
 
          // The move to the next downstream node guarantees
          // that this node does not have zero upstream nodes.
 
          // Exit if this node has more than one upstream node.
          // This node is a fan-in node.
-         if (nodePtr->numUpstreamNodes() != 1) break;
+         if (chainNodePtr->numUpstreamNodes() != 1) break;
 
          // This node exists and has one upstream node.
          // Add this node to the node chain.
-         if (false == nodeChainPtr->addNode(*nodePtr))
+         if (false == nodeChainPtr->addNode(*chainNodePtr))
          {
-            BPM_ERROR_COUT("Failed to add node (" + nodePtr->name() + ") to chain");
+            BPM_ERROR_COUT("Failed to add node (" + chainNodePtr->name() + ") to chain");
 
             return false;
          }
 
          // Mark the node as visited
-         nodePtr->markVisited();
+         chainNodePtr->markVisited();
 
          // Exit if this node has more than one downstream node.
          // This node is a fan-out node.
-         if (nodePtr->numDownstreamNodes() != 1) break;
+         if (chainNodePtr->numDownstreamNodes() != 1) break;
       }
    }
 
    // Sort the nodes within a chain
+   auto sortNodesByLevelSuccess = true;
    std::for_each(nodeChainsByLevel_.begin(),
                  nodeChainsByLevel_.end(),
-                 [](auto& nodeChain)
+                 [&sortNodesByLevelSuccess](auto& nodeChain)
                  {
-                    nodeChain.sortNodesByLevel();
+                    sortNodesByLevelSuccess &= nodeChain.sortNodesByLevel();
                  });
+   if (false == sortNodesByLevelSuccess)
+   {
+      BPM_ERROR_COUT("Failed to sort nodes in chain by level");
+
+      return false;
+   }
 
    // Sort the chains in descending order
    std::sort(nodeChainsByLevel_.begin(),
@@ -328,4 +336,22 @@ bpm::core::NodeChain* bpm::core::Graph::createNodeChain(Node& node)
    node.markVisited();
 
    return nodeChainPtr;
-};
+}
+
+
+bool bpm::core::Graph::allNodesVisited() const
+{
+   // Loop over all nodes
+   auto visited = true;
+   for (const auto nodePtr : nodesByLevel_)
+   {
+      if (false == nodePtr->visited())
+      {
+         BPM_ERROR_COUT("Node (" + nodePtr->name() + ") has not been visited");
+
+         visited = false;
+      }
+   }
+
+   return visited;
+}
