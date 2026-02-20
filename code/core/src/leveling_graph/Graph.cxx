@@ -247,6 +247,10 @@ bool bpm::core::Graph::constructNodeChains()
          // Exit if chain has ended
          if (nullptr == nodePtr) break;
 
+         // Exit if this node has more than one upstream node.
+         // This node is a fan-in node.
+         if (nodePtr->numUpstreamNodes() != 1) break;
+
          // Add this node to the node chain
          if (false == nodeChainPtr->addNode(*nodePtr))
          {
@@ -259,7 +263,7 @@ bool bpm::core::Graph::constructNodeChains()
          nodePtr->markVisited();
 
          // Exit if this node has more than one downstream node.
-         // This node is a fanout node.
+         // This node is a fan-out node.
          if (nodePtr->numDownstreamNodes() != 1) break;
       }
    }
