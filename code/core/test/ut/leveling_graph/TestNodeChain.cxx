@@ -64,9 +64,10 @@ namespace bpm
                   EXPECT_EQ(node1.numUpstreamNodes(), 1);
                   EXPECT_FALSE(NodeChain::singeNodeChain(node2));
 
-                  BPM_TRACE_COUT("CASE 4B");
+                  BPM_TRACE_COUT("CASE 4D");
                   EXPECT_EQ(node1.numUpstreamNodes(), 1);
                   EXPECT_EQ(node1.numDownstreamNodes(), 1);
+                  EXPECT_EQ(node2.numDownstreamNodes(), 1);
                   EXPECT_EQ(node0.numUpstreamNodes(), 1);
                   EXPECT_FALSE(NodeChain::singeNodeChain(node1));
 
@@ -76,12 +77,28 @@ namespace bpm
                   // node2 ---> node1 ---> node0
                   node0.addUpstreamNode(node3);
 
+                  BPM_TRACE_COUT("CASE 4C");
+                  EXPECT_EQ(node1.numUpstreamNodes(), 1);
+                  EXPECT_EQ(node1.numDownstreamNodes(), 1);
+                  EXPECT_EQ(node2.numDownstreamNodes(), 1);
+                  EXPECT_EQ(node0.numUpstreamNodes(), 2);
+                  EXPECT_FALSE(NodeChain::singeNodeChain(node1));
+
+                  //        --> node3 --
+                  //        |          |
+                  // node2 ---> node1 ---> node0
+                  node3.addUpstreamNode(node2);
+
                   BPM_TRACE_COUT("CASE 4A");
                   EXPECT_EQ(node1.numUpstreamNodes(), 1);
                   EXPECT_EQ(node1.numDownstreamNodes(), 1);
+                  EXPECT_EQ(node2.numDownstreamNodes(), 2);
                   EXPECT_EQ(node0.numUpstreamNodes(), 2);
                   EXPECT_TRUE(NodeChain::singeNodeChain(node1));
 
+                  //        --> node3
+                  //        |
+                  // node2 ---> node1 ---> node0
                   {
                      // Remove node0 from node3 downstream
                      const auto iter = node3.downstreamNodes_.find(&node0);
@@ -93,6 +110,27 @@ namespace bpm
                      const auto iter = node0.upstreamNodes_.find(&node3);
                      ASSERT_TRUE(iter != node0.upstreamNodes_.end());
                      node0.upstreamNodes_.erase(iter);
+                  }
+
+                  BPM_TRACE_COUT("CASE 4B");
+                  EXPECT_EQ(node1.numUpstreamNodes(), 1);
+                  EXPECT_EQ(node1.numDownstreamNodes(), 1);
+                  EXPECT_EQ(node2.numDownstreamNodes(), 2);
+                  EXPECT_EQ(node0.numUpstreamNodes(), 1);
+                  EXPECT_FALSE(NodeChain::singeNodeChain(node1));
+
+                  // node2 ---> node1 ---> node0
+                  {
+                     // Remove node3 from node2 downstream
+                     const auto iter = node2.downstreamNodes_.find(&node3);
+                     ASSERT_TRUE(iter != node2.downstreamNodes_.end());
+                     node2.downstreamNodes_.erase(iter);
+                  }
+                  {
+                     // Remove node2 from node3 upstream
+                     const auto iter = node3.upstreamNodes_.find(&node2);
+                     ASSERT_TRUE(iter != node3.upstreamNodes_.end());
+                     node3.upstreamNodes_.erase(iter);
                   }
 
                   BPM_TRACE_COUT("CASE 3B");
