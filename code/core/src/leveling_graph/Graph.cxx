@@ -59,7 +59,7 @@ bool bpm::core::Graph::connectNodes(const std::string& downstreamName,
                                     const std::string& upstreamName)
 {
    BPM_TRACE_COUT("Upstream name (" + upstreamName +
-                  ") -> downstream name (" + upstreamName +
+                  ") -> downstream name (" + downstreamName +
                   "): Start");
 
    // Find downstream node name
@@ -67,7 +67,7 @@ bool bpm::core::Graph::connectNodes(const std::string& downstreamName,
    if (graph_.end() == downstreamIter)
    {
       BPM_ERROR_COUT("Upstream name (" + upstreamName +
-                     ") -> downstream name (" + upstreamName +
+                     ") -> downstream name (" + downstreamName +
                      "): Downstream name not found");
 
       return false;
@@ -79,7 +79,7 @@ bool bpm::core::Graph::connectNodes(const std::string& downstreamName,
    if (graph_.end() == upstreamIter)
    {
       BPM_ERROR_COUT("Upstream name (" + upstreamName +
-                     ") -> downstream name (" + upstreamName +
+                     ") -> downstream name (" + downstreamName +
                      "): Upsteam name not found");
 
       return false;
@@ -108,7 +108,7 @@ bool bpm::core::Graph::connectNodes(const std::string& downstreamName,
    }
 
    BPM_TRACE_COUT("Upstream name (" + upstreamName +
-                  ") -> downstream name (" + upstreamName +
+                  ") -> downstream name (" + downstreamName +
                   "): End");
 
    return true;
@@ -196,9 +196,20 @@ void bpm::core::Graph::reLevel()
                   ") - Start");
 
    // Process all nodes without downstream nodes
-   for (auto nodePtr : nodesWithoughDownstream_)
+   if (false == nodesWithoughDownstream_.empty())
    {
-      nodePtr->reLevel();
+      for (auto nodePtr : nodesWithoughDownstream_)
+      {
+         nodePtr->reLevel();
+      }
+   }
+   else
+   {
+      for (auto& pair : graph_)
+      {
+         auto& node = pair.second;
+         node.reLevel();
+      }
    }
 
    // Process all nodes without upstream nodes
