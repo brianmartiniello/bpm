@@ -45,6 +45,11 @@ namespace bpm
                return singleNodeChain_;
             }
 
+            std::size_t numNodes() const
+            {
+               return nodes_.size();
+            }
+
             std::string toString(const std::string& leadingText = "") const;
 
          private:
