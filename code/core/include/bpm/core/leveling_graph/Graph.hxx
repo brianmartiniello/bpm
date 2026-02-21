@@ -57,6 +57,10 @@ namespace bpm
 
             NodeChain* createNodeChain(Node& node);
 
+            bool constructNodeChainsCircular();
+
+            bool constructNodeChainsNonCircular();
+
             std::unordered_map<std::string, Node> graph_;
             Node::PtrUSet nodesWithoughUpstream_;
             Node::PtrUSet nodesWithoughDownstream_;

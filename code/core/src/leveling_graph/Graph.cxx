@@ -220,19 +220,35 @@ void bpm::core::Graph::reLevel()
 }
 
 
-bool bpm::core::Graph::constructNodeChains()
+bool bpm::core::Graph::constructNodeChainsCircular()
 {
-   // Clear the visited flag
-   std::for_each(nodesByLevel_.begin(),
-                 nodesByLevel_.end(),
-                 [](auto nodePtr)
-                 {
-                    nodePtr->clearVisited();
-                 });
+   // Loop over all nodes
+   for (auto nodePtr : nodesByLevel_)
+   {
+      BPM_TRACE_COUT("Node (" + nodePtr->name() +
+                     "), visited (" + BPM_LOG_BOOL(nodePtr->visited()) +
+                     ") - Start");
 
-   // Clear the current data
-   nodeChainsByLevel_.clear();
+      // Create a node chain
+      if (nullptr == createNodeChain(*nodePtr))
+      {
+         BPM_ERROR_COUT("Node (" + nodePtr->name() +
+                        ") - Failed to create single node chain");
 
+         // Exit if error
+         return false;
+      }
+
+      BPM_TRACE_COUT("Node (" + nodePtr->name() +
+                     ") - Successfully created single node chain");
+   }
+
+   return true;
+}
+
+
+bool bpm::core::Graph::constructNodeChainsNonCircular()
+{
    // Loop over all nodes
    for (auto nodePtr : nodesByLevel_)
    {
@@ -352,6 +368,29 @@ bool bpm::core::Graph::constructNodeChains()
              });
 
    return true;
+}
+
+
+bool bpm::core::Graph::constructNodeChains()
+{
+   // Clear the visited flag
+   std::for_each(nodesByLevel_.begin(),
+                 nodesByLevel_.end(),
+                 [](auto nodePtr)
+                 {
+                    nodePtr->clearVisited();
+                 });
+
+   // Clear the current data
+   nodeChainsByLevel_.clear();
+
+   // Handle a circular graph
+   if (true == circularDependency_)
+   {
+      return constructNodeChainsCircular();
+   }
+
+   return constructNodeChainsNonCircular();
 }
 
 

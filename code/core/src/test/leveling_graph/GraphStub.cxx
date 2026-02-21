@@ -76,6 +76,18 @@ void bpm::core::Graph::reLevel()
 }
 
 
+bool bpm::core::Graph::constructNodeChainsCircular()
+{
+   return false;
+}
+
+
+bool bpm::core::Graph::constructNodeChainsNonCircular()
+{
+   return false;
+}
+
+
 bool bpm::core::Graph::constructNodeChains()
 {
    return false;
