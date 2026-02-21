@@ -192,10 +192,10 @@ namespace bpm
                // node0 --          --> node3
                //        |          |
                // node1 ---> node2 ---> node4
-               node0.addUpstreamNode(node2);
-               node1.addUpstreamNode(node2);
-               node2.addUpstreamNode(node3);
-               node2.addUpstreamNode(node4);
+               node2.addUpstreamNode(node0);
+               node2.addUpstreamNode(node1);
+               node3.addUpstreamNode(node2);
+               node4.addUpstreamNode(node2);
 
                bpm::core::NodeChain nodeChain;
 
@@ -241,11 +241,13 @@ namespace bpm
                auto node1 = createNode("node1");
                auto node2 = createNode("node2");
                auto node3 = createNode("node3");
+               auto node4 = createNode("node4");
 
+               // node4
                // node3
                // node0 ---> node1 ---> node2
-               node0.addUpstreamNode(node1);
-               node1.addUpstreamNode(node2);
+               node1.addUpstreamNode(node0);
+               node2.addUpstreamNode(node1);
 
                bpm::core::NodeChain nodeChain;
 
@@ -259,12 +261,13 @@ namespace bpm
                EXPECT_EQ(nodeChain.level(), 0);
 
                // Sorting sets level to the level of the node
-               node0.level_ = 10;
-               node1.level_ = node0.level_ + 1;
-               node2.level_ = node1.level_ + 1;
-               node3.level_ = node2.level_ + 1;
+               node2.level_ = 10;
+               node1.level_ = node2.level_ + 1;
+               node0.level_ = node1.level_ + 1;
+               node3.level_ = node0.level_ + 1;
+               node4.level_ = node3.level_ + 1;
                EXPECT_TRUE(nodeChain.sortNodesByLevel());
-               EXPECT_EQ(nodeChain.level(), node2.level());
+               EXPECT_EQ(nodeChain.level(), node0.level());
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");
@@ -273,10 +276,11 @@ namespace bpm
 
                // Node 3 would be a single node chain
                EXPECT_FALSE(nodeChain.addNode(node3));
-               // node3 --
-               //        |
+               // node3 ---> node4
                // node0 ---> node1 ---> node2
-               node3.addUpstreamNode(node1);
+               node4.addUpstreamNode(node3);
+               // Node 3 is added but it is a part of another chain
+               // so the sorting fails
                EXPECT_TRUE(nodeChain.addNode(node3));
                nodeChain.level_ = 100;
                EXPECT_FALSE(nodeChain.sortNodesByLevel());
