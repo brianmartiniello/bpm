@@ -167,7 +167,7 @@ namespace bpm
                   auto node0 = createNode("node0");
                   auto node1 = createNode("node1");
                   auto node2 = createNode("node2");
-                  // node1 -- 
+                  // node1 --
                   //        |
                   // node0 ---> node2
                   node2.addUpstreamNode(node0);
@@ -179,7 +179,7 @@ namespace bpm
                   EXPECT_TRUE(NodeChain::singeNodeChain(node2));
 
                   auto node3 = createNode("node3");
-                  // node1 -- 
+                  // node1 --
                   //        |
                   // node0 ---> node2 --> node3
                   node3.addUpstreamNode(node2);
@@ -214,7 +214,7 @@ namespace bpm
                      node4.upstreamNodes_.erase(iter);
                   }
 
-                  // node1 --   node4 -- 
+                  // node1 --   node4 --
                   //        |          |
                   // node0 ---> node2 ---> node3
                   node3.addUpstreamNode(node4);

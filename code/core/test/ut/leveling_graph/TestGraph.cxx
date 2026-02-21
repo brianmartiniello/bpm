@@ -414,27 +414,41 @@ namespace bpm
                            (vec[8]->name() == "node0"));
             }
 
-            // TAG  UP  DOWN
-            // A    0   0
-            // B    0   1
-            // C    0   2
-            // D    1   0
-            // E    1   1
-            // F    1   2
-            // G    2   0
-            // H    2   1
-            // I    2   2
+            //   TAG  UP  DOWN
+            // X A    0   0
+            // X B1   0   1 * outHasMultiIn = true
+            // X B2   0   1 * outHasMultiIn = false
+            // X C    0   2
+            // X D1   1   0 * inHasMultiOut = true
+            // X D2   1   0 * inHasMultiOut = false
+            // X E1   1   1 * outHasMultiIn = true
+            // X E2   1   1 * outHasMultiIn = false
+            // X F1   1   2 * inHasMultiOut = true
+            // X F2   1   2 * inHasMultiOut = false
+            // X G    2   0
+            // X H1   2   1 * outHasMultiIn = true
+            // X H2   2   1 * outHasMultiIn = false
+            // X I    2   2
 
-            //                               N17B---                     -->N22D
-            //                                     |    **************** |
-            //                          N16B---    ---->N18H->N19E->N20F--->N21D
-            //                                |      |
-            //                        N12C----->N13I--->N14E->N15D
-            // ****************             |           **********
-            // N03B->N04E->N05E--           ---->N11G
-            //                  |             |
-            //       N01B->N02E--->N06H->N07F--->N08E->09E->N10D
-            //       **********    **********    ***************
+            //                                          node25B1--
+            //                                                   |
+            //                                                   ---->node26H1--
+            //                                                     |           |
+            //                                                     |           --->N27G
+            //                                                     |            |
+            //                                         -->node23F1--->node24E1---
+            //                                         |
+            //                                  N17B1---                        -->N22D1
+            //                                         |    ******************  |
+            //                             N16B1---    ---->N18H2->N19E->N20F2---->N21D1
+            //                                    |      |
+            //                            N12C----->N13I--->N14E2->N15D2
+            // *****************                |           ************
+            // N03B2->N04E->N05E1--             ---->N11G
+            //                    |               |
+            //       N01B2->N02E1--->N06H2->N07F2--->N08E->09E2->N10D2
+            //       ************    ************    *****************
+            //
             // N00A
 
             void testConstructNodeChains()
@@ -443,7 +457,8 @@ namespace bpm
 
                resetSharedVariables();
 
-               for (auto i = 0U; i < 23; ++i)
+               const auto NUM_NODES = 28;
+               for (auto i = 0U; i < NUM_NODES; ++i)
                {
                   ASSERT_TRUE(graph_.addNode("node" + std::to_string(i)));
                }
@@ -490,6 +505,18 @@ namespace bpm
                                                "node20"));
                EXPECT_TRUE(graph_.connectNodes("node22",
                                                "node20"));
+               EXPECT_TRUE(graph_.connectNodes("node23",
+                                               "node17"));
+               EXPECT_TRUE(graph_.connectNodes("node24",
+                                               "node23"));
+               EXPECT_TRUE(graph_.connectNodes("node26",
+                                               "node23"));
+               EXPECT_TRUE(graph_.connectNodes("node26",
+                                               "node25"));
+               EXPECT_TRUE(graph_.connectNodes("node27",
+                                               "node24"));
+               EXPECT_TRUE(graph_.connectNodes("node27",
+                                               "node26"));
 
                graph_.reLevel();
                graph_.sortNodesByLevel();
@@ -498,11 +525,11 @@ namespace bpm
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");
-                  // BPM_TRACE_COUT("\n" + graph_.toString("   "));
-                  // {
-                  //    const auto vec = graph_.getNodesByLevel();
-                  //    BPM_TRACE_COUT("\n" + toString(vec, "   "));
-                  // }
+                  BPM_TRACE_COUT("\n" + graph_.toString("   "));
+                  {
+                     const auto vec = graph_.getNodesByLevel();
+                     BPM_TRACE_COUT("\n" + toString(vec, "   "));
+                  }
                   {
                      const auto vec = graph_.getNodeChainsByLevel();
                      BPM_TRACE_COUT("\n" + toString(vec, "   "));
