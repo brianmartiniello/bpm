@@ -498,11 +498,11 @@ namespace bpm
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");
-                  BPM_TRACE_COUT("\n" + graph_.toString("   "));
-                  {
-                     const auto vec = graph_.getNodesByLevel();
-                     BPM_TRACE_COUT("\n" + toString(vec, "   "));
-                  }
+                  // BPM_TRACE_COUT("\n" + graph_.toString("   "));
+                  // {
+                  //    const auto vec = graph_.getNodesByLevel();
+                  //    BPM_TRACE_COUT("\n" + toString(vec, "   "));
+                  // }
                   {
                      const auto vec = graph_.getNodeChainsByLevel();
                      BPM_TRACE_COUT("\n" + toString(vec, "   "));

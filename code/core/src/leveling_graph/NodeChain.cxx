@@ -73,7 +73,7 @@
              //            *****
             return true;
          }
-         else
+         else // (false == outHasMultiIn)
          {
              // Start of chain from fan-in
              // nodeA --
@@ -129,16 +129,36 @@
       // Check for single output
       else if (node.numDownstreamNodes() == 1)
       {
-         // Upstream is a fan-out, start of chain
-         //        --> nodeE
-         //        |
-         // nodeA ---> nodeB ----> nodeC
-         //            *****
-         //
-         // Upstream is not a fan-out, middle of chain
-         // nodeA ---> nodeB ---> nodeC
-         //            *****
-         return false;
+         // Check input of output node
+         const auto outHasMultiIn = node.downstreamNode()->numUpstreamNodes() > 1;
+
+         BPM_TRACE_COUT("Node (" + node.name() +
+                        "), downstream node (" + node.downstreamNode()->name() +
+                        "), outHasMultiIn (" + BPM_LOG_BOOL(outHasMultiIn) +
+                        ")");
+
+         if (true == outHasMultiIn)
+         {
+            // Downstream is a fan-in
+            //            nodeD --
+            //                   |
+            // nodeA ---> nodeB ---> nodeC
+            //            *****
+            return true;
+         }
+         else // (false == outHasMultiIn)
+         {
+            // Upstream is a fan-out, start of chain
+            //        --> nodeE
+            //        |
+            // nodeA ---> nodeB ----> nodeC
+            //            *****
+            //
+            // Upstream is not a fan-out, middle of chain
+            // nodeA ---> nodeB ---> nodeC
+            //            *****
+            return false;
+         }
       }
       // No outputs
       else // (node.numUpstreamNodes() == 0)

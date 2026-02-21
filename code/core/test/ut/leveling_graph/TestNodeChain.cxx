@@ -30,7 +30,8 @@ namespace bpm
                // X 2      0              2                true
                // X 3A     1              0                true * inHasMultiOut = true
                // X 3B     1              0                false * inHasMultiOut = false
-               // X 4      1              1                false
+               // X 4A     1              1                true * outHasMultiIn = true
+               // X 4B     1              1                false * outHasMultiIn = false
                // X 5A     1              2                true * inHasMultiOut = true
                // X 5B     1              2                false * inHasMultiOut = false
                // X 6      2              0                true
@@ -61,7 +62,7 @@ namespace bpm
                   EXPECT_EQ(node1.numUpstreamNodes(), 1);
                   EXPECT_FALSE(NodeChain::singeNodeChain(node2));
 
-                  BPM_TRACE_COUT("CASE 4");
+                  BPM_TRACE_COUT("CASE 4B");
                   EXPECT_EQ(node1.numUpstreamNodes(), 1);
                   EXPECT_EQ(node1.numDownstreamNodes(), 1);
                   EXPECT_FALSE(NodeChain::singeNodeChain(node1));
