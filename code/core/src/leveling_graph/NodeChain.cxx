@@ -317,13 +317,20 @@ bool bpm::core::NodeChain::verifyContinuity() const
       // Count this node
       ++nodeCount;
 
-      // If this node has no downstream node or 
-      // more than one downstream nodes, it is
-      // the end of the chain
+      // If this node has no downstream node, it is
+      // the end of the chain. If it has more than
+      // one downstream node, it is the end of the
+      // chain due to fan-out.
       if (1 != iter->numDownstreamNodes()) break;
 
       // Move to the next downstream node
       iter = iter->downstreamNode();
+
+      // This node has at least one upstream node
+      // due to the node previous. However, it *may*
+      // have more than one upstream due to fan-in.
+      // If so, this node is not part of the chain.
+      if (1 != iter->numUpstreamNodes()) break;
    }
    while (true);
 

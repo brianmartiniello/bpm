@@ -294,18 +294,26 @@ namespace bpm
                auto node0 = createNode("node0");
                auto node1 = createNode("node1");
                auto node2 = createNode("node2");
+               auto node3 = createNode("node3");
 
                // node0 ---> node1 ---> node2
-               node0.addUpstreamNode(node1);
-               node1.addUpstreamNode(node2);
+               node1.addUpstreamNode(node0);
+               node2.addUpstreamNode(node1);
+
+               node3.level_ = 10;
+               node2.level_ = node3.level_ + 1;
+               node1.level_ = node2.level_ + 1;
+               node0.level_ = node1.level_ + 1;
 
                bpm::core::NodeChain nodeChain;
 
+               // Add each end of the chain. The lack
+               // of middle makes it non-continuous.
                EXPECT_TRUE(nodeChain.addNode(node0));
                EXPECT_TRUE(nodeChain.addNode(node2));
 
                // Sorting node chain with no continuity resets level
-               nodeChain.level_ = 10;
+               nodeChain.level_ = 100;
                EXPECT_FALSE(nodeChain.sortNodesByLevel());
                EXPECT_EQ(nodeChain.level(), 0);
 
@@ -313,6 +321,30 @@ namespace bpm
                   BPM_SCOPED_TRACE_COUT("toString");
                   BPM_TRACE_COUT("\n" + nodeChain.toString("   "));
                }
+
+               // Add the middle to complete the chain
+               EXPECT_TRUE(nodeChain.addNode(node1));
+
+               // Sorting node chain with continuity sets level
+               EXPECT_TRUE(nodeChain.sortNodesByLevel());
+               EXPECT_EQ(nodeChain.level(), node0.level());
+
+               {
+                  BPM_SCOPED_TRACE_COUT("toString");
+                  BPM_TRACE_COUT("\n" + nodeChain.toString("   "));
+               }
+
+               //            node3 --
+               //                   |
+               // node0 ---> node1 ---> node2
+               node2.addUpstreamNode(node3);
+
+               // Adding an upstream node to node2 makes it
+               // a fan-in so it should not be considered part
+               // of the chain. Sorting node chain with continuity
+               // but incorrect number of nodes resets level.
+               EXPECT_FALSE(nodeChain.sortNodesByLevel());
+               EXPECT_EQ(nodeChain.level(), 0);
             }
 
          private:
