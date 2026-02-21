@@ -373,6 +373,7 @@ namespace bpm
                                                "node8"));
 
                graph_.reLevel();
+               EXPECT_FALSE(graph_.circularDependency());
 
                auto vec = graph_.getNodesByLevel();
                EXPECT_TRUE(vec.empty());
@@ -519,6 +520,7 @@ namespace bpm
                                                "node26"));
 
                graph_.reLevel();
+               EXPECT_FALSE(graph_.circularDependency());
                graph_.sortNodesByLevel();
                EXPECT_TRUE(graph_.constructNodeChains());
                EXPECT_TRUE(graph_.allNodesVisited());
@@ -536,6 +538,50 @@ namespace bpm
                   }
                }
             }
+
+            void testConstructNodeChainsCircular()
+            {
+               BPM_SCOPED_TRACE_COUT("testConstructNodeChainsCircular");
+
+               resetSharedVariables();
+
+               const auto NUM_NODES = 4;
+               for (auto i = 0U; i < NUM_NODES; ++i)
+               {
+                  ASSERT_TRUE(graph_.addNode("node" + std::to_string(i)));
+               }
+
+               // --- node3 <-- node2 <--
+               // |                     |
+               // --> node0 --> node1 ---
+               EXPECT_TRUE(graph_.connectNodes("node1",
+                                               "node0"));
+               EXPECT_TRUE(graph_.connectNodes("node2",
+                                               "node1"));
+               EXPECT_TRUE(graph_.connectNodes("node3",
+                                               "node2"));
+               EXPECT_TRUE(graph_.connectNodes("node0",
+                                               "node3"));
+
+               graph_.reLevel();
+               EXPECT_TRUE(graph_.circularDependency());
+               graph_.sortNodesByLevel();
+               EXPECT_TRUE(graph_.constructNodeChains());
+               EXPECT_TRUE(graph_.allNodesVisited());
+
+               {
+                  BPM_SCOPED_TRACE_COUT("toString");
+                  BPM_TRACE_COUT("\n" + graph_.toString("   "));
+                  {
+                     const auto vec = graph_.getNodesByLevel();
+                     BPM_TRACE_COUT("\n" + toString(vec, "   "));
+                  }
+                  {
+                     const auto vec = graph_.getNodeChainsByLevel();
+                     BPM_TRACE_COUT("\n" + toString(vec, "   "));
+                  }
+               }
+           }
 
          private:
 
@@ -572,6 +618,12 @@ namespace bpm
       TEST_F(TestGraph, testConstructNodeChains)
       {
          testConstructNodeChains();
+      }
+
+
+      TEST_F(TestGraph, testConstructNodeChainsCircular)
+      {
+         testConstructNodeChainsCircular();
       }
    }
 }
