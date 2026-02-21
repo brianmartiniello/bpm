@@ -25,17 +25,19 @@ namespace bpm
 
                //   CASE - Num Upstream - Num Downstream - Expected
                // X 0      0              0                true
-               // X 1A     0              1                true * outHasMultiIn = true
+               // X 1A     0              1                true  * outHasMultiIn = true
                // X 1B     0              1                false * outHasMultiIn = false
                // X 2      0              2                true
-               // X 3A     1              0                true * inHasMultiOut = true
+               // X 3A     1              0                true  * inHasMultiOut = true
                // X 3B     1              0                false * inHasMultiOut = false
-               // X 4A     1              1                true * outHasMultiIn = true
-               // X 4B     1              1                false * outHasMultiIn = false
-               // X 5A     1              2                true * inHasMultiOut = true
+               // X 4A     1              1                true  * inHasMultiOut = true, outHasMultiIn = true
+               // X 4B     1              1                false * inHasMultiOut = true, outHasMultiIn = false
+               // X 4C     1              1                false * inHasMultiOut = false, outHasMultiIn = true
+               // X 4D     1              1                false * inHasMultiOut = false, outHasMultiIn = false
+               // X 5A     1              2                true  * inHasMultiOut = true
                // X 5B     1              2                false * inHasMultiOut = false
                // X 6      2              0                true
-               // X 7A     2              1                true * outHasMultiIn = true
+               // X 7A     2              1                true  * outHasMultiIn = true
                // X 7B     2              1                false * outHasMultiIn = false
                // X 8      2              2                true
 

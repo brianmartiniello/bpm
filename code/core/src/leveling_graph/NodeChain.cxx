@@ -67,20 +67,20 @@
          if (true == outHasMultiIn)
          {
             // Downstream is a fan-in
-             // nodeA --   nodeE --
-             //        |          |
-             // nodeB ---> nodeC ---> nodeD
-             //            *****
+            // nodeA --   nodeE --
+            //        |          |
+            // nodeB ---> nodeC ---> nodeD
+            //            *****
             return true;
          }
          else // (false == outHasMultiIn)
          {
-             // Start of chain from fan-in
-             // nodeA --
-             //        |
-             // nodeB ---> nodeC ---> nodeD
-             //            *****
-             return false;
+            // Start of chain from fan-in
+            // nodeA --
+            //        |
+            // nodeB ---> nodeC ---> nodeD
+            //            *****
+            return false;
          }
       }
       // No ouputs
@@ -137,25 +137,41 @@
                         "), outHasMultiIn (" + BPM_LOG_BOOL(outHasMultiIn) +
                         ")");
 
-         if (true == outHasMultiIn)
+         if ((false == inHasMultiOut) &&
+             (true == outHasMultiIn))
          {
-            // Downstream is a fan-in
+            // Upstream is not a fan-out, downstream is a fan-in, end of chain
             //            nodeD --
             //                   |
             // nodeA ---> nodeB ---> nodeC
             //            *****
+            return false;
+         }
+         else if ((false == inHasMultiOut) &&
+                  (false == outHasMultiIn))
+         {
+            // Upstream is not a fan-out, downstream is not a fan-in, middle of chain
+            // nodeA ---> nodeB ---> nodeC
+            //            *****
+            return false;
+         }
+         else if ((true == inHasMultiOut) &&
+                  (true == outHasMultiIn))
+         {
+            // Upstream is a fan-out, downstream is a fan-in, single node chain
+            //        --> nodeE  nodeD --
+            //        |                 |
+            // nodeA ---> nodeB ----------> nodeC
+            //            *****
             return true;
          }
-         else // (false == outHasMultiIn)
+         else // ((true == inHasMultiOut) &&
+              //  (false == outHasMultiIn))
          {
-            // Upstream is a fan-out, start of chain
+            // Upstream is a fan-out, downstream is not a fan-in, start of chain
             //        --> nodeE
             //        |
             // nodeA ---> nodeB ----> nodeC
-            //            *****
-            //
-            // Upstream is not a fan-out, middle of chain
-            // nodeA ---> nodeB ---> nodeC
             //            *****
             return false;
          }
