@@ -50,7 +50,8 @@ namespace bpm
                return upstreamNodes_.size();
             }
 
-            void addUpstreamNode(Node& node);
+            void addUpstreamNode(Node& node,
+                                 bool logAlreadyConnected = false);
 
             Node* upstreamNode(std::size_t index = 0) const
             {
@@ -75,7 +76,8 @@ namespace bpm
                return downstreamNodes_.size();
             }
 
-            void addDownstreamNode(Node& node);
+            void addDownstreamNode(Node& node,
+                                   bool logAlreadyConnected = false);
 
             Node* downstreamNode(std::size_t index = 0) const
             {

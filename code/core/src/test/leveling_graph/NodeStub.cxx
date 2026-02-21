@@ -24,12 +24,14 @@ bpm::core::Node::Node(const std::string& name,
 }
 
 
-void bpm::core::Node::addUpstreamNode(Node& /* node */)
+void bpm::core::Node::addUpstreamNode(Node& /* node */,
+                                      bool /* logAlreadyConnected */)
 {
 }
 
 
-void bpm::core::Node::addDownstreamNode(Node& /* node */)
+void bpm::core::Node::addDownstreamNode(Node& /* node */,
+                                        bool /* logAlreadyConnected */)
 {
 }
 

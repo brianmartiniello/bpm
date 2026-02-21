@@ -24,7 +24,8 @@ bpm::core::Node::Node(const std::string& name,
 }
 
 
-void bpm::core::Node::addUpstreamNode(Node& node)
+void bpm::core::Node::addUpstreamNode(Node& node,
+                                      bool logAlreadyConnected)
 {
    // Exit if already connected
    if (this == &node)
@@ -38,8 +39,12 @@ void bpm::core::Node::addUpstreamNode(Node& node)
    auto insterPair = upstreamNodes_.emplace(&node);
    if (false == insterPair.second)
    {
-      BPM_WARN_COUT("Already connected node (" + name_ +
-                    ") to upstream node (" + node.name() + ")");
+      if (true == logAlreadyConnected)
+      {
+         BPM_WARN_COUT("Already connected node (" + name_ +
+                       ") to upstream node (" + node.name() + ")");
+      }
+
       return;
    }
 
@@ -48,7 +53,8 @@ void bpm::core::Node::addUpstreamNode(Node& node)
 }
 
 
-void bpm::core::Node::addDownstreamNode(Node& node)
+void bpm::core::Node::addDownstreamNode(Node& node,
+                                        bool logAlreadyConnected)
 {
    // Exit if already connected
    if (this == &node)
@@ -62,8 +68,12 @@ void bpm::core::Node::addDownstreamNode(Node& node)
    auto insterPair = downstreamNodes_.emplace(&node);
    if (false == insterPair.second)
    {
-      BPM_WARN_COUT("Already connected node (" + name_ +
-                    ") to downstream node (" + node.name() + ")");
+      if (true == logAlreadyConnected)
+      {
+         BPM_WARN_COUT("Already connected node (" + name_ +
+                       ") to downstream node (" + node.name() + ")");
+      }
+
       return;
    }
 
