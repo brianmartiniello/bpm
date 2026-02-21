@@ -6,42 +6,9 @@
 #include <bpm/core/Logger.hxx>
 
 
-#if 0
-/* static */ bool bpm::core::NodeChain::singeNodeChain(Node& node)
+namespace
 {
-   // Check for multiple inputs and multiple outputs
-   const auto multiInMultiOutNode = ((node.numUpstreamNodes() > 1) &&
-                                     (node.numDownstreamNodes() > 1));
-
-   // Check for multiple inputs and no outputs
-   const auto multiInNoOutNode = ((node.numUpstreamNodes() > 1) &&
-                                  (node.numDownstreamNodes() == 0));
-
-   // Check for no inputs and multiple outputs
-   const auto noInMultiOutNode = ((node.numUpstreamNodes() == 0) &&
-                                  (node.numDownstreamNodes() > 1));
-   
-   // Check for no inputs and no outputs
-   const auto noInNoOutNode = ((node.numUpstreamNodes() == 0) &&
-                               (node.numDownstreamNodes() == 0));
-
-   return multiInMultiOutNode |
-          multiInNoOutNode |
-          noInMultiOutNode |
-          noInNoOutNode;
-}
-#endif
-
-
-/* static */ bool bpm::core::NodeChain::singeNodeChain(Node& node)
-{
-   BPM_TRACE_COUT("Node (" + node.name() +
-                  "), numUpstreamNodes (" + std::to_string(node.numUpstreamNodes()) +
-                  "), numDownstreamNodes (" + std::to_string(node.numDownstreamNodes()) +
-                  ")");
- 
-   // Check for multiple inputs
-   if (node.numUpstreamNodes() > 1)
+   bool checkMultiUpstream(bpm::core::Node& node)
    {
       // Check for multiple outputs
       if (node.numDownstreamNodes() > 1)
@@ -93,8 +60,9 @@
          return true;
       }
    }
-   // Check for single input
-   else if (node.numUpstreamNodes() == 1)
+
+
+   bool checkSingleUpstream(bpm::core::Node& node)
    {
       // Check output of input node
       const auto inHasMultiOut = node.upstreamNode()->numDownstreamNodes() > 1;
@@ -197,8 +165,9 @@
          }
       }
    }
-   // No inputs
-   else // (node.numUpstreamNodes() == 0)
+
+
+   bool checkNoUpstream(bpm::core::Node& node)
    {
       // Check for multiple outputs
       if (node.numDownstreamNodes() > 1)
@@ -246,6 +215,31 @@
          // *****
          return true;
       }
+   }
+}
+
+
+/* static */ bool bpm::core::NodeChain::singeNodeChain(Node& node)
+{
+   BPM_TRACE_COUT("Node (" + node.name() +
+                  "), numUpstreamNodes (" + std::to_string(node.numUpstreamNodes()) +
+                  "), numDownstreamNodes (" + std::to_string(node.numDownstreamNodes()) +
+                  ")");
+ 
+   // Check for multiple inputs
+   if (node.numUpstreamNodes() > 1)
+   {
+      return checkMultiUpstream(node);
+   }
+   // Check for single input
+   else if (node.numUpstreamNodes() == 1)
+   {
+      return checkSingleUpstream(node);
+   }
+   // No inputs
+   else // (node.numUpstreamNodes() == 0)
+   {
+      return checkNoUpstream(node);
    }
 }
 
