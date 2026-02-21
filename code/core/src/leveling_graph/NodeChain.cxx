@@ -56,12 +56,32 @@
       // Check for single output
       else if (node.numDownstreamNodes() == 1)
       {
-         // Start of chain from fan-in
-         // nodeA --
-         //        |
-         // nodeB ---> nodeC ---> nodeD
-         //            *****
-         return false;
+         // Check input of output node
+         const auto outHasMultiIn = node.downstreamNode()->numUpstreamNodes() > 1;
+
+         BPM_TRACE_COUT("Node (" + node.name() +
+                        "), downstream node (" + node.downstreamNode()->name() +
+                        "), outHasMultiIn (" + BPM_LOG_BOOL(outHasMultiIn) +
+                        ")");
+
+         if (true == outHasMultiIn)
+         {
+            // Downstream is a fan-in
+             // nodeA --   nodeE --
+             //        |          |
+             // nodeB ---> nodeC ---> nodeD
+             //            *****
+            return true;
+         }
+         else
+         {
+             // Start of chain from fan-in
+             // nodeA --
+             //        |
+             // nodeB ---> nodeC ---> nodeD
+             //            *****
+             return false;
+         }
       }
       // No ouputs
       else // (node.numDownstreamNodes() == 1)

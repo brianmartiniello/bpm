@@ -34,7 +34,8 @@ namespace bpm
                // X 5A     1              2                true * inHasMultiOut = true
                // X 5B     1              2                false * inHasMultiOut = false
                // X 6      2              0                true
-               // X 7      2              1                false
+               // X 7A     2              1                true * outHasMultiIn = true
+               // X 7B     2              1                false * outHasMultiIn = false
                // X 8      2              2                true
 
                {
@@ -157,9 +158,10 @@ namespace bpm
                   // node0 ---> node2 --> node3
                   node3.addUpstreamNode(node2);
 
-                  BPM_TRACE_COUT("CASE 7");
+                  BPM_TRACE_COUT("CASE 7B");
                   EXPECT_EQ(node2.numUpstreamNodes(), 2);
                   EXPECT_EQ(node2.numDownstreamNodes(), 1);
+                  EXPECT_EQ(node3.numUpstreamNodes(), 1);
                   EXPECT_FALSE(NodeChain::singeNodeChain(node2));
 
                   auto node4 = createNode("node4");
@@ -171,6 +173,30 @@ namespace bpm
                   BPM_TRACE_COUT("CASE 8");
                   EXPECT_EQ(node2.numUpstreamNodes(), 2);
                   EXPECT_EQ(node2.numDownstreamNodes(), 2);
+                  EXPECT_TRUE(NodeChain::singeNodeChain(node2));
+
+                  {
+                     // Remove node4 from node2 downstream
+                     const auto iter = node2.downstreamNodes_.find(&node4);
+                     ASSERT_TRUE(iter != node2.downstreamNodes_.end());
+                     node2.downstreamNodes_.erase(iter);
+                  }
+                  {
+                     // Remove node2 from node4 upstream
+                     const auto iter = node4.upstreamNodes_.find(&node2);
+                     ASSERT_TRUE(iter != node4.upstreamNodes_.end());
+                     node4.upstreamNodes_.erase(iter);
+                  }
+
+                  // node1 --   node4 -- 
+                  //        |          |
+                  // node0 ---> node2 ---> node3
+                  node3.addUpstreamNode(node4);
+
+                  BPM_TRACE_COUT("CASE 7A");
+                  EXPECT_EQ(node2.numUpstreamNodes(), 2);
+                  EXPECT_EQ(node2.numDownstreamNodes(), 1);
+                  EXPECT_EQ(node3.numUpstreamNodes(), 2);
                   EXPECT_TRUE(NodeChain::singeNodeChain(node2));
                }
             }
