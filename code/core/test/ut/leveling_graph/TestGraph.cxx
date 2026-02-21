@@ -524,6 +524,9 @@ namespace bpm
                graph_.sortNodesByLevel();
                EXPECT_TRUE(graph_.constructNodeChains());
                EXPECT_TRUE(graph_.allNodesVisited());
+               EXPECT_EQ(graph_.numNodes(), NUM_NODES);
+               // EXPECT_EQ(graph_.numNodeChains(), NUM_NODES);
+               EXPECT_EQ(graph_.maxNodeChainLength(), 3);
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");
@@ -568,6 +571,9 @@ namespace bpm
                graph_.sortNodesByLevel();
                EXPECT_TRUE(graph_.constructNodeChains());
                EXPECT_TRUE(graph_.allNodesVisited());
+               EXPECT_EQ(graph_.numNodes(), NUM_NODES);
+               EXPECT_EQ(graph_.numNodeChains(), NUM_NODES);
+               EXPECT_EQ(graph_.maxNodeChainLength(), 1);
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");

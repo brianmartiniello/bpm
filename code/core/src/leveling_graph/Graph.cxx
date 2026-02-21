@@ -243,6 +243,9 @@ bool bpm::core::Graph::constructNodeChainsCircular()
                      ") - Successfully created single node chain");
    }
 
+   // All single node chains
+   maxNodeChainLength_ = 1;
+
    return true;
 }
 
@@ -274,6 +277,9 @@ bool bpm::core::Graph::constructNodeChainsNonCircular()
 
          BPM_TRACE_COUT("Node (" + nodePtr->name() +
                         ") - Successfully created single node chain");
+
+         maxNodeChainLength_ = std::max(1U,
+                                        maxNodeChainLength_);
 
          // Move to next node on success
          continue;
@@ -339,6 +345,9 @@ bool bpm::core::Graph::constructNodeChainsNonCircular()
          if (chainNodePtr->numDownstreamNodes() != 1) break;
       }
 
+      maxNodeChainLength_ = std::max(nodeChainPtr->numNodes(),
+                                     maxNodeChainLength_);
+
       BPM_TRACE_COUT("Node (" + nodePtr->name() +
                      "), visited (" + BPM_LOG_BOOL(nodePtr->visited()) +
                      ") - End");
@@ -383,6 +392,7 @@ bool bpm::core::Graph::constructNodeChains()
 
    // Clear the current data
    nodeChainsByLevel_.clear();
+   maxNodeChainLength_ = 0;
 
    // Handle a circular graph
    if (true == circularDependency_)

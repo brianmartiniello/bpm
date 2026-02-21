@@ -53,6 +53,21 @@ namespace bpm
 
             bool allNodesVisited() const;
 
+            std::size_t numNodes() const
+            {
+               return graph_.size();
+            }
+
+            std::size_t numNodeChains() const
+            {
+               return nodeChainsByLevel_.size();
+            }
+
+            std::size_t maxNodeChainLength() const
+            {
+               return maxNodeChainLength_;
+            }
+
          private:
 
             NodeChain* createNodeChain(Node& node);
@@ -70,6 +85,7 @@ namespace bpm
             bool circularDependency_;
             std::vector<bool> nodeVisted_;
             NodeChain::Vector nodeChainsByLevel_;
+            std::size_t maxNodeChainLength_;
 
             friend class TestGraph;
       };
