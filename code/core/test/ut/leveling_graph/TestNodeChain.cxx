@@ -65,7 +65,33 @@ namespace bpm
                   BPM_TRACE_COUT("CASE 4B");
                   EXPECT_EQ(node1.numUpstreamNodes(), 1);
                   EXPECT_EQ(node1.numDownstreamNodes(), 1);
+                  EXPECT_EQ(node0.numUpstreamNodes(), 1);
                   EXPECT_FALSE(NodeChain::singeNodeChain(node1));
+
+                  auto node3 = createNode("node3");
+                  //            node3 --
+                  //                   |
+                  // node2 ---> node1 ---> node0
+                  node0.addUpstreamNode(node3);
+
+                  BPM_TRACE_COUT("CASE 4A");
+                  EXPECT_EQ(node1.numUpstreamNodes(), 1);
+                  EXPECT_EQ(node1.numDownstreamNodes(), 1);
+                  EXPECT_EQ(node0.numUpstreamNodes(), 2);
+                  EXPECT_TRUE(NodeChain::singeNodeChain(node1));
+
+                  {
+                     // Remove node0 from node3 downstream
+                     const auto iter = node3.downstreamNodes_.find(&node0);
+                     ASSERT_TRUE(iter != node3.downstreamNodes_.end());
+                     node3.downstreamNodes_.erase(iter);
+                  }
+                  {
+                     // Remove node3 from node0 upstream
+                     const auto iter = node0.upstreamNodes_.find(&node3);
+                     ASSERT_TRUE(iter != node0.upstreamNodes_.end());
+                     node0.upstreamNodes_.erase(iter);
+                  }
 
                   BPM_TRACE_COUT("CASE 3B");
                   EXPECT_EQ(node0.numUpstreamNodes(), 1);
@@ -73,7 +99,6 @@ namespace bpm
                   EXPECT_EQ(node2.numDownstreamNodes(), 1);
                   EXPECT_FALSE(NodeChain::singeNodeChain(node0));
 
-                  auto node3 = createNode("node3");
                   // node3 --
                   //        |
                   // node2 ---> node1 ---> node0
