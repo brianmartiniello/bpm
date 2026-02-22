@@ -224,10 +224,10 @@ namespace bpm
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");
-                  BPM_TRACE_COUT("\n" + graph_.toString("   "));
+                  BPM_TRACE_COUT("\n" + graph_.toString("   graph_."));
                   graph_.sortNodesByLevel();
                   auto set = graph_.getNodesByLevel();
-                  BPM_TRACE_COUT("\n" + toString(set, "   "));
+                  BPM_TRACE_COUT("\n" + toString(set, "   nodesByLevel."));
                }
 
                // Clear the data
@@ -329,10 +329,10 @@ namespace bpm
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");
-                  BPM_TRACE_COUT("\n" + graph_.toString("   "));
+                  BPM_TRACE_COUT("\n" + graph_.toString("   graph_."));
                   graph_.sortNodesByLevel();
                   const auto vec = graph_.getNodesByLevel();
-                  BPM_TRACE_COUT("\n" + toString(vec, "   "));
+                  BPM_TRACE_COUT("\n" + toString(vec, "   nodesByLevel."));
                }
             }
 
@@ -380,10 +380,10 @@ namespace bpm
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");
-                  BPM_TRACE_COUT("\n" + graph_.toString("   "));
+                  BPM_TRACE_COUT("\n" + graph_.toString("   graph_."));
                   graph_.sortNodesByLevel();
                   vec = graph_.getNodesByLevel();
-                  BPM_TRACE_COUT("\n" + toString(vec, "   "));
+                  BPM_TRACE_COUT("\n" + toString(vec, "   nodesByLevel."));
                }
 
                ASSERT_EQ(vec.size(), 9);
@@ -532,16 +532,57 @@ namespace bpm
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");
-                  BPM_TRACE_COUT("\n" + graph_.toString("   "));
+                  BPM_TRACE_COUT("\n" + graph_.toString("   graph_."));
                   {
                      const auto vec = graph_.getNodesByLevel();
-                     BPM_TRACE_COUT("\n" + toString(vec, "   "));
+                     BPM_TRACE_COUT("\n" + toString(vec, "   nodesByLevel."));
                   }
                   {
                      const auto vec = graph_.getNodeChainsByLevel();
-                     BPM_TRACE_COUT("\n" + toString(vec, "   "));
+                     BPM_TRACE_COUT("\n" + toString(vec, "   nodeChainsByLevel."));
                   }
                }
+
+               // Expected node chains
+               std::vector<NodeChainSimple> nodeChainSimpleVec;
+               nodeChainSimpleVec.push_back(NodeChainSimple(7, {"node12"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(7, {"node0"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(7, {"node1", "node2"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(7, {"node3", "node4", "node5"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(7, {"node16"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(7, {"node17"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(7, {"node25"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(4, {"node13"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(4, {"node6", "node7"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(3, {"node18", "node19", "node20"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(2, {"node8", "node9", "node10"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(2, {"node23"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(1, {"node14", "node15"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(1, {"node24"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(1, {"node26"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(0, {"node11"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(0, {"node21"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(0, {"node27"}));
+               nodeChainSimpleVec.push_back(NodeChainSimple(0, {"node22"}));
+
+               // Actual node chains
+               auto nodeChainsByLevelVec = graph_.getNodeChainsByLevel();
+
+               // Loop over actual node chains
+               for (const auto& nodeChainSimple : nodeChainSimpleVec)
+               {
+                  // Find the expected node chain in the list of actual node chains
+                  const auto iter = std::find(nodeChainsByLevelVec.begin(),
+                                              nodeChainsByLevelVec.end(),
+                                              nodeChainSimple);
+                  ASSERT_TRUE(iter != nodeChainsByLevelVec.end());
+
+                  // Remove from the list of actual node chains
+                  nodeChainsByLevelVec.erase(iter);
+               }
+
+               // List of actual node chains added should now be empty
+               EXPECT_EQ(nodeChainsByLevelVec.size(), 0);
             }
 
             void testConstructNodeChainsCircular()
@@ -581,14 +622,14 @@ namespace bpm
 
                {
                   BPM_SCOPED_TRACE_COUT("toString");
-                  BPM_TRACE_COUT("\n" + graph_.toString("   "));
+                  BPM_TRACE_COUT("\n" + graph_.toString("   graph_."));
                   {
                      const auto vec = graph_.getNodesByLevel();
-                     BPM_TRACE_COUT("\n" + toString(vec, "   "));
+                     BPM_TRACE_COUT("\n" + toString(vec, "   nodesByLevel."));
                   }
                   {
                      const auto vec = graph_.getNodeChainsByLevel();
-                     BPM_TRACE_COUT("\n" + toString(vec, "   "));
+                     BPM_TRACE_COUT("\n" + toString(vec, "   nodeChainsByLevel."));
                   }
                }
 
@@ -597,18 +638,18 @@ namespace bpm
                   ASSERT_EQ(nodeChain.numNodes(), 1);
                   EXPECT_TRUE(nodeChain.isSingleNodeChain());
 
-                  // Find the node in the list of nodes added
+                  // Find the actual node name in the list of expected node namess added
                   const auto nodePtr = nodeChain.nodePtr();
                   const auto iter = std::find(nodeNames.begin(),
                                               nodeNames.end(),
                                               nodePtr->name());
                   ASSERT_TRUE(iter != nodeNames.end()) << nodePtr->name();
 
-                  // Remove from the list
+                  // Remove from the list of expected node namess added
                   nodeNames.erase(iter);
                }
 
-               // List of nodes added should no be empty
+               // List of expected node names added should now be empty
                EXPECT_EQ(nodeNames.size(), 0);
            }
 
