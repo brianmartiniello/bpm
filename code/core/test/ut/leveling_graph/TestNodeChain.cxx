@@ -382,6 +382,7 @@ namespace bpm
                EXPECT_TRUE(nodeChain.addNode(node0));
                EXPECT_TRUE(nodeChain.addNode(node1));
                EXPECT_TRUE(nodeChain.addNode(node2));
+               EXPECT_FALSE(nodeChain.isSingleNodeChain());
 
                // Sorting node chain with all same level resets level
                nodeChain.level_ = 100;
@@ -439,6 +440,7 @@ namespace bpm
                // of middle makes it non-continuous.
                EXPECT_TRUE(nodeChain.addNode(node0));
                EXPECT_TRUE(nodeChain.addNode(node2));
+               EXPECT_FALSE(nodeChain.isSingleNodeChain());
 
                // Sorting node chain with no continuity resets level
                nodeChain.level_ = 100;
