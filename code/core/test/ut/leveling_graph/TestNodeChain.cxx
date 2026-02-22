@@ -286,7 +286,7 @@ namespace bpm
 
                // Single node chain, no upstream and downstream nodes
                EXPECT_TRUE(nodeChain.addNode(node0));
-               EXPECT_TRUE(nodeChain.singleNodeChain());
+               EXPECT_TRUE(nodeChain.isSingleNodeChain());
                EXPECT_TRUE(nodeChain.verifyContinuity());
 
                // Duplicate
@@ -337,7 +337,7 @@ namespace bpm
 
                // Single node chain, multiple upstream and downstream nodes
                EXPECT_TRUE(nodeChain.addNode(node2));
-               EXPECT_TRUE(nodeChain.singleNodeChain());
+               EXPECT_TRUE(nodeChain.isSingleNodeChain());
                EXPECT_TRUE(nodeChain.verifyContinuity());
 
                // Duplicate

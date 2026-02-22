@@ -40,7 +40,7 @@ namespace bpm
                return level_;
             }
 
-            bool singleNodeChain() const
+            bool isSingleNodeChain() const
             {
                return singleNodeChain_;
             }
