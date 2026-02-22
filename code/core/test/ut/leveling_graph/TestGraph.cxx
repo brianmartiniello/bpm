@@ -422,8 +422,10 @@ namespace bpm
             // X C    0   2
             // X D1   1   0 * inHasMultiOut = true
             // X D2   1   0 * inHasMultiOut = false
-            // X E1   1   1 * outHasMultiIn = true
-            // X E2   1   1 * outHasMultiIn = false
+            // X E1   1   1 * inHasMultiOut = true, outHasMultiIn = true
+            // X E2   1   1 * inHasMultiOut = true, outHasMultiIn = false
+            // X E3   1   1 * inHasMultiOut = false, outHasMultiIn = true
+            // X E4   1   1 * inHasMultiOut = false, outHasMultiIn = false
             // X F1   1   2 * inHasMultiOut = true
             // X F2   1   2 * inHasMultiOut = false
             // X G    2   0
@@ -439,15 +441,15 @@ namespace bpm
             //                                                     |            |
             //                                         -->node23F1--->node24E1---
             //                                         |
-            //                                  N17B1---                        -->N22D1
-            //                                         |    ******************  |
-            //                             N16B1---    ---->N18H2->N19E->N20F2---->N21D1
+            //                                  N17B1---                         -->N22D1
+            //                                         |    *******************  |
+            //                             N16B1---    ---->N18H2->N19E4->N20F2---->N21D1
             //                                    |      |
             //                            N12C----->N13I--->N14E2->N15D2
             // *****************                |           ************
-            // N03B2->N04E->N05E1--             ---->N11G
+            // N03B2->N04E->N05E3--             ---->N11G
             //                    |               |
-            //       N01B2->N02E1--->N06H2->N07F2--->N08E->09E2->N10D2
+            //       N01B2->N02E3--->N06H2->N07F2--->N08E->09E2->N10D2
             //       ************    ************    *****************
             //
             // N00A
