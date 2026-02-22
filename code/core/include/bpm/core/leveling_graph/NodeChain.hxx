@@ -14,7 +14,25 @@ namespace bpm
 {
    namespace core
    {
-      struct NodeChain
+      struct NodeChainSimple
+      {
+         NodeChainSimple() = default;
+
+         NodeChainSimple(std::size_t level,
+                         const std::vector<std::string>& nodeNames)
+            : level_(level)
+            , nodeNames_(nodeNames)
+         {
+         }
+
+         std::string toString(const std::string& leadingText) const;
+
+         std::size_t level_;
+         std::vector<std::string> nodeNames_;
+      };
+
+
+      class NodeChain
       {
          public:
 
@@ -63,6 +81,8 @@ namespace bpm
             }
 
             std::string toString(const std::string& leadingText = "") const;
+
+            bool operator==(const NodeChainSimple& nodeChainSimple) const;
 
          private:
 

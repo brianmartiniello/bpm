@@ -12,7 +12,7 @@ namespace bpm
 {
    namespace core
    {
-      struct Node
+      class Node
       {
          public:
 

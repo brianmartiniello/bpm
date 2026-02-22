@@ -6,6 +6,22 @@
 #include <bpm/core/Logger.hxx>
 
 
+std::string bpm::core::NodeChainSimple::toString(const std::string& leadingText) const
+{
+   auto out = leadingText + "level_ (" + std::to_string(level_) + ")\n" +
+              leadingText + "nodeNames_.size() (" + std::to_string(nodeNames_.size()) + ")";
+   auto index = -1U;
+   for (const auto& nodeName : nodeNames_)
+   {
+      ++index;
+      out += "\n" + leadingText +
+             "nodeNames_[" + std::to_string(index) +
+             "] (" + nodeName + ")";
+   }
+   return out;
+}
+
+
 namespace
 {
    bool checkMultiUpstream(bpm::core::Node& node)
@@ -425,4 +441,31 @@ std::string bpm::core::NodeChain::toString(const std::string& leadingText) const
       out += "\n" + nodePtr->toString(prefix);
    }
    return out;
+}
+
+
+bool bpm::core::NodeChain::operator==(const NodeChainSimple& nodeChainSimple) const
+{
+   if (level_ != nodeChainSimple.level_)
+   {
+      return false;
+   }
+   
+   if (nodes_.size() != nodeChainSimple.nodeNames_.size())
+   {
+      return false;
+   }
+
+   for (const auto nodePtr : nodes_)
+   {
+      const auto iter = std::find(nodeChainSimple.nodeNames_.begin(),
+                                  nodeChainSimple.nodeNames_.end(),
+                                  nodePtr->name());
+      if (iter == nodeChainSimple.nodeNames_.end())
+      {
+         return false;
+      }
+   }
+
+   return true;
 }
