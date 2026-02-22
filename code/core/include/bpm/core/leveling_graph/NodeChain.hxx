@@ -50,6 +50,16 @@ namespace bpm
                return nodes_.size();
             }
 
+            Node* nodePtr(std::size_t index = 0) const
+            {
+               if (index < nodes_.size())
+               {
+                  return nodes_[index];
+               }
+
+               return nullptr;
+            }
+
             std::string toString(const std::string& leadingText = "") const;
 
          private:

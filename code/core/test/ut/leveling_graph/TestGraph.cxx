@@ -549,9 +549,11 @@ namespace bpm
                resetSharedVariables();
 
                const auto NUM_NODES = 4;
+               std::vector<std::string> nodeNames(NUM_NODES);
                for (auto i = 0U; i < NUM_NODES; ++i)
                {
-                  ASSERT_TRUE(graph_.addNode("node" + std::to_string(i)));
+                  nodeNames[i] = "node" + std::to_string(i);
+                  ASSERT_TRUE(graph_.addNode(nodeNames[i]));
                }
 
                // --- node3 <-- node2 <--
@@ -587,6 +589,25 @@ namespace bpm
                      BPM_TRACE_COUT("\n" + toString(vec, "   "));
                   }
                }
+
+               for (const auto& nodeChain : graph_.nodeChainsByLevel_)
+               {
+                  ASSERT_EQ(nodeChain.numNodes(), 1);
+                  EXPECT_TRUE(nodeChain.isSingleNodeChain());
+
+                  // Find the node in the list of nodes added
+                  const auto nodePtr = nodeChain.nodePtr();
+                  const auto iter = std::find(nodeNames.begin(),
+                                              nodeNames.end(),
+                                              nodePtr->name());
+                  ASSERT_TRUE(iter != nodeNames.end()) << nodePtr->name();
+
+                  // Remove from the list
+                  nodeNames.erase(iter);
+               }
+
+               // List of nodes added should no be empty
+               EXPECT_EQ(nodeNames.size(), 0);
            }
 
          private:
