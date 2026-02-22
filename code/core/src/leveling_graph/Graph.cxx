@@ -263,7 +263,7 @@ bool bpm::core::Graph::constructNodeChainsNonCircular()
       if (true == nodePtr->visited()) continue;
 
       // If single node chain
-      if (true == NodeChain::singeNodeChain(*nodePtr))
+      if (true == NodeChain::isSingleNodeChain(*nodePtr))
       {
          // Create a node chain
          if (nullptr == createNodeChain(*nodePtr))

@@ -6,6 +6,12 @@
 #include <bpm/core/Logger.hxx>
 
 
+/* static */ bool bpm::core::NodeChain::isSingleNodeChain(Node& node)
+{
+   return false;
+}
+
+
 bool bpm::core::NodeChain::addNode(Node& /* node */)
 {
    return false;

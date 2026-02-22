@@ -24,7 +24,7 @@ namespace bpm
 
             NodeChain() = default;
 
-            static bool singeNodeChain(Node& node);
+            static bool isSingleNodeChain(Node& node);
 
             bool addNode(Node& node);
 

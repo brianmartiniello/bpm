@@ -219,7 +219,7 @@ namespace
 }
 
 
-/* static */ bool bpm::core::NodeChain::singeNodeChain(Node& node)
+/* static */ bool bpm::core::NodeChain::isSingleNodeChain(Node& node)
 {
    BPM_TRACE_COUT("Node (" + node.name() +
                   "), numUpstreamNodes (" + std::to_string(node.numUpstreamNodes()) +
@@ -247,7 +247,7 @@ namespace
 bool bpm::core::NodeChain::addNode(Node& node)
 {
    // Detect a single node chain
-   const auto singleNodeChainIn = singeNodeChain(node);
+   const auto singleNodeChainIn = isSingleNodeChain(node);
 
    // If no current nodes, add and retrurn
    if (0 == nodes_.size())
