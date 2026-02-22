@@ -94,7 +94,8 @@ bool bpm::core::Graph::constructNodeChains()
 }
 
 
-bpm::core::NodeChain* bpm::core::Graph::createNodeChain(Node& /* node */)
+bpm::core::NodeChain* bpm::core::Graph::createNodeChain(Node& /* node */,
+                                                        bool /* asSingle */)
 {
    return nullptr;
 }

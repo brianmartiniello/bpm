@@ -28,6 +28,8 @@ namespace bpm
 
             bool addNode(Node& node);
 
+            bool addNodeAsSingle(Node& node);
+
             const Node::PtrVector& getNodes()
             {
                return nodes_;

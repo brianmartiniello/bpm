@@ -302,6 +302,19 @@ bool bpm::core::NodeChain::addNode(Node& node)
 }
 
 
+bool bpm::core::NodeChain::addNodeAsSingle(Node& node)
+{
+   if (false == addNode(node))
+   {
+      return false;
+   }
+
+   singleNodeChain_ = true;
+
+   return true;
+}
+
+
 bool bpm::core::NodeChain::sortNodesByLevel()
 {
    level_ = 0;

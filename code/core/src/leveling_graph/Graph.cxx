@@ -230,7 +230,8 @@ bool bpm::core::Graph::constructNodeChainsCircular()
                      ") - Start");
 
       // Create a node chain
-      if (nullptr == createNodeChain(*nodePtr))
+      if (nullptr == createNodeChain(*nodePtr,
+                                     true)) // asSingle
       {
          BPM_ERROR_COUT("Node (" + nodePtr->name() +
                         ") - Failed to create single node chain");
@@ -404,14 +405,18 @@ bool bpm::core::Graph::constructNodeChains()
 }
 
 
-bpm::core::NodeChain* bpm::core::Graph::createNodeChain(Node& node)
+bpm::core::NodeChain* bpm::core::Graph::createNodeChain(Node& node,
+                                                        bool asSingle)
 {
    // Create the node chain
    nodeChainsByLevel_.emplace_back(NodeChain());
    auto nodeChainPtr = &nodeChainsByLevel_.back();
 
    // Add this node to the node chain
-   if (false == nodeChainPtr->addNode(node))
+   const auto success = (asSingle) ?
+                        nodeChainPtr->addNodeAsSingle(node) :
+                        nodeChainPtr->addNode(node);
+   if (false == success)
    {
       BPM_ERROR_COUT("Failed to add node (" + node.name() + ") to chain");
 

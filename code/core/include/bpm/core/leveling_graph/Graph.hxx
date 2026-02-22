@@ -70,7 +70,8 @@ namespace bpm
 
          private:
 
-            NodeChain* createNodeChain(Node& node);
+            NodeChain* createNodeChain(Node& node,
+                                       bool asSingle = false);
 
             bool constructNodeChainsCircular();
 

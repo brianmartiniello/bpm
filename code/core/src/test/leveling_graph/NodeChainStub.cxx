@@ -18,6 +18,12 @@ bool bpm::core::NodeChain::addNode(Node& /* node */)
 }
 
 
+bool bpm::core::NodeChain::addNodeAsSingle(Node& /* node */)
+{
+   return false;
+}
+
+
 bool bpm::core::NodeChain::sortNodesByLevel()
 {
    return false;
